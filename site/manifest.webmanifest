@@ -1,0 +1,16 @@
+{
+  "name": "2DWebsite by Djinja-C",
+  "short_name": "2DWebsite",
+  "description": "Change your products, prices and promotions yourself. Your website updates by itself.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#03060d",
+  "theme_color": "#03060d",
+  "icons": [
+    { "src": "assets/icon_128.png", "sizes": "128x128", "type": "image/png" },
+    { "src": "assets/icon.png", "sizes": "256x256", "type": "image/png" },
+    { "src": "assets/icon_512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

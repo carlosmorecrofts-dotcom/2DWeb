@@ -1,0 +1,283 @@
+/* Djinja-C visual rules, web edition. Copyright (c) 2026 Djinja-C Limited.
+   The rules: djinja-c-intelligence/knowledge/visual-rules.md. The reference is
+   2DSUITE (src/index.html). Every Djinja-C app page links this file instead of
+   inventing its own colours. Nothing here blinks. Smooth movement (a sweep
+   between functions, a slow breathe) lives in the MOVEMENT part of APP-SHELL;
+   JARVIS alone keeps the old no-movement rule. */
+:root{
+  --bg:#03060d;--s1:#060c18;--s2:#0a1220;--s3:#0e1a2e;
+  --bd:rgba(0,200,255,.10);--bhi:rgba(0,200,255,.25);
+  --gr:#00ffaa;--or:#ff9a3c;--cy:#00c8ff;--ro:#ff2255;
+  --gr-rgb:0,255,170;--or-rgb:255,154,60;--cy-rgb:0,200,255;
+  --tx:#f0f8ff;--mu:#d6ecff;--mute:#7f9ab3;
+  --plate:rgba(6,12,24,.78);
+  --disp:"Orbitron","Bahnschrift","Segoe UI",system-ui,sans-serif;
+  --sans:"Inter","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+  --mono:"DM Mono","Cascadia Mono",Consolas,ui-monospace,monospace;
+}
+html.light,:root[data-theme="light"]{
+  --bg:#e8edf4;--s1:#dce3ec;--s2:#d0d8e4;--s3:#c4ceda;
+  --bd:rgba(0,80,140,.12);--bhi:rgba(0,80,140,.25);
+  --gr:#009966;--or:#cc5500;--cy:#0077bb;--ro:#cc1144;
+  --gr-rgb:0,153,102;--or-rgb:204,85,0;--cy-rgb:0,119,187;
+  --tx:#000;--mu:#222;--mute:#4a5d70;
+  --plate:rgba(255,255,255,.78);
+}
+.dj *,.dj *::before,.dj *::after{box-sizing:border-box}
+body.dj{margin:0;color:var(--tx);font-family:var(--sans);overflow-x:hidden;
+  background:
+    radial-gradient(60% 50% at 50% -5%,rgba(var(--gr-rgb),.09),transparent),
+    radial-gradient(45% 40% at 92% 8%,rgba(var(--or-rgb),.07),transparent),
+    radial-gradient(40% 40% at 4% 26%,rgba(var(--cy-rgb),.08),transparent),
+    linear-gradient(180deg,#091424 0%,var(--bg) 100%) fixed}
+html.light body.dj,:root[data-theme="light"] body.dj{background:linear-gradient(180deg,#eef3f8,var(--bg)) fixed}
+body.dj::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(var(--cy-rgb),.025) 1px,transparent 1px),linear-gradient(90deg,rgba(var(--cy-rgb),.025) 1px,transparent 1px);background-size:48px 48px}
+.dj a{color:inherit;text-decoration:none}
+.dj img{display:block;max-width:100%}
+.dj-wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px}
+
+/* top bar, like 2DSUITE's: dark glass with the brand line on top */
+.dj-bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 24px;
+  background:linear-gradient(180deg,rgba(12,25,40,.92),rgba(7,16,30,.86));border-bottom:1px solid rgba(var(--cy-rgb),.18);backdrop-filter:blur(14px)}
+.dj-bar::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gr) 25%,var(--or) 50%,var(--cy) 75%,transparent)}
+html.light .dj-bar{background:linear-gradient(180deg,#e0e8f2,#d8e2ee)}
+.dj-brand{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:800;letter-spacing:.06em;color:var(--tx)}
+.dj-brand img{width:30px;height:30px}
+.dj-links{display:flex;gap:22px;align-items:center;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.dj-links a:hover{color:var(--gr)}
+@media(max-width:700px){.dj-links .opt{display:none}}
+
+/* type */
+.dj-eye{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--cy)}
+.dj-h1{font-family:var(--disp);font-weight:900;line-height:1.05;font-size:clamp(34px,6vw,64px);letter-spacing:.02em;margin:12px 0}
+.dj-h2{font-family:var(--disp);font-weight:800;font-size:clamp(22px,3.4vw,32px);margin:0 0 12px}
+.dj-lead{color:var(--mu);font-size:clamp(16px,2vw,19px);line-height:1.6;max-width:700px}
+.dj-gr{color:var(--gr)} .dj-or{color:var(--or)} .dj-cy{color:var(--cy)}
+
+/* glass plate: the 2DSUITE panel */
+.dj-plate{position:relative;isolation:isolate;background:var(--plate);border:1px solid var(--bd);border-radius:16px;padding:24px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 18px 50px rgba(0,0,0,.35)}
+.dj-plate::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;
+  background:radial-gradient(120% 90% at 10% -40%,rgba(255,255,255,.07),transparent 60%),linear-gradient(112deg,transparent 62%,rgba(255,255,255,.035) 62.5%,rgba(255,255,255,.035) 72%,transparent 72.5%)}
+.dj-plate.gr{border-color:rgba(var(--gr-rgb),.35)} .dj-plate.or{border-color:rgba(var(--or-rgb),.35)} .dj-plate.cy{border-color:rgba(var(--cy-rgb),.35)}
+
+/* capsule glass pill */
+.dj-pill{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:20px;border:1px solid var(--bd);background:rgba(3,6,13,.6);
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);position:relative;overflow:hidden;isolation:isolate}
+.dj-pill > *{position:relative;z-index:1}
+.dj-pill::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
+  background:radial-gradient(130% 150% at 12% -70%,rgba(255,255,255,.26) 0%,rgba(255,255,255,.08) 58%,rgba(255,255,255,0) 58.6%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+.dj-pill .dot{width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 7px currentColor}
+.dj-pill.gr{color:var(--gr);border-color:rgba(var(--gr-rgb),.35);background:rgba(var(--gr-rgb),.07)}
+.dj-pill.or{color:var(--or);border-color:rgba(var(--or-rgb),.4);background:rgba(var(--or-rgb),.08)}
+.dj-pill.cy{color:var(--cy);border-color:rgba(var(--cy-rgb),.35);background:rgba(var(--cy-rgb),.07)}
+html.light .dj-pill{background:rgba(255,255,255,.7)}
+
+/* "Coming soon" is <span class="dj-pill or"><span class="dot"></span>Coming soon</span>:
+   orange, steady, never blinking. */
+
+/* buttons */
+.dj-btn{display:inline-flex;align-items:center;gap:9px;padding:13px 26px;border-radius:10px;font-family:var(--disp);font-size:13px;font-weight:700;letter-spacing:.06em;
+  border:1px solid rgba(var(--cy-rgb),.35);background:rgba(var(--cy-rgb),.08);color:var(--tx);cursor:pointer;transition:transform .2s,background .2s}
+.dj-btn:hover{transform:translateY(-2px);background:rgba(var(--cy-rgb),.16)}
+.dj-btn.gr{background:var(--gr);border-color:var(--gr);color:#00170e;box-shadow:0 0 24px rgba(var(--gr-rgb),.3)}
+.dj-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* list with brand ticks */
+.dj-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.dj-list li{position:relative;padding-left:24px;color:var(--mu);line-height:1.55}
+.dj-list li::before{content:'';position:absolute;left:4px;top:.55em;width:8px;height:8px;border-radius:2px;transform:rotate(45deg);background:var(--cy);box-shadow:0 0 8px rgba(var(--cy-rgb),.5)}
+.dj-list.gr li::before{background:var(--gr)} .dj-list.or li::before{background:var(--or)}
+
+.dj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.dj-foot{position:relative;z-index:1;border-top:1px solid var(--bd);margin-top:70px;padding:28px 24px;text-align:center;font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--mute)}
+.dj-foot a{color:var(--cy)}
+
+/* hex glass button: the 2DSUITE toolbar's, 58 x 64, scaled with zoom only */
+.dj-hex{--hex:path('M 22.9 3.4 Q 29 0 35.1 3.4 L 51.9 12.6 Q 58 16 58 23 L 58 41 Q 58 48 51.9 51.4 L 35.1 60.6 Q 29 64 22.9 60.6 L 6.1 51.4 Q 0 48 0 41 L 0 23 Q 0 16 6.1 12.6 Z');
+  position:relative;width:58px;height:64px;clip-path:var(--hex);flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(168deg,#3b4f6b 0%,#1a2740 38%,#0a1220 72%,#060b14 100%);color:var(--hx,var(--cy));
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.5))}
+.dj-hex::before{content:'';position:absolute;inset:0;clip-path:var(--hex);background:rgba(var(--hx-rgb,var(--cy-rgb)),.10)}
+.dj-hex::after{content:'';position:absolute;inset:0;clip-path:var(--hex);pointer-events:none;
+  background:radial-gradient(120% 70% at 20% 0%,rgba(255,255,255,.28),rgba(255,255,255,.05) 55%,transparent 56%),linear-gradient(0deg,rgba(0,0,0,.35),transparent 22%);
+  box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.25)}
+.dj-hex svg{position:relative;z-index:1;width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.dj-hex.gr{--hx:var(--gr);--hx-rgb:var(--gr-rgb)} .dj-hex.or{--hx:var(--or);--hx-rgb:var(--or-rgb)} .dj-hex.cy{--hx:var(--cy);--hx-rgb:var(--cy-rgb)}
+.dj-hex.big{zoom:1.6}
+
+/* <<< APP-SHELL:BEGIN
+   An app page dressed as 2DSUITE (Carlos, 2026-10-29, about 2Doppe (renamed
+   2Dops 2026-11-03): "Change the visual to suit the brand standards ...
+   With the visuals from 2DSUITE app").
+   Every rule is copied from src/index.html: the top bar (.tb), the hex toolbar
+   (.hex-toolbar, .hxt-group, .hxt-btn), the coach-mode cards (.mc), the screen
+   panels (.prev-box), the Stop / Repeat capsules and the dimmed picture behind
+   the app. The two glass drawings below are 2DSUITE's own, byte for byte:
+   scripts/test-visual-rules.mjs fails if they differ. A page uses it with
+   <body class="dj dj-app">. Nothing here moves on its own. */
+body.dj-app{
+  --c-gr:0,255,170;--c-or:255,154,60;--c-cy:0,200,255;--c-ro:255,34,85;
+  --app-bar:linear-gradient(180deg,rgba(12,25,40,.92) 0%,rgba(7,16,30,.85) 100%);
+  --app-bar-bd:rgba(0,200,255,.18);
+  --app-strip:linear-gradient(180deg,rgba(6,15,30,.82) 0%,rgba(4,11,22,.82) 100%);
+  --app-strip-bd:rgba(0,200,255,.12);
+  --app-dim:rgba(0,0,0,.85);
+  --hex-face:linear-gradient(168deg,#3b4f6b 0%,#1a2740 38%,#0a1220 72%,#060b14 100%);
+  --hex-shadow:drop-shadow(0 3px 4px rgba(0,0,0,.5)) drop-shadow(0 1px 1px rgba(0,0,0,.35));
+  --hex-gloss:linear-gradient(180deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.04) 22%,rgba(255,255,255,0) 46%),linear-gradient(0deg,rgba(0,0,0,.38) 0%,rgba(0,0,0,0) 20%);
+  --hex-lbl:var(--mu);
+  --card:linear-gradient(168deg,rgba(59,79,107,.30) 0%,rgba(20,34,56,.34) 45%,rgba(6,11,20,.42) 100%);
+  --card-hover:linear-gradient(168deg,rgba(74,99,134,.36) 0%,rgba(26,44,70,.38) 45%,rgba(8,14,25,.44) 100%);
+  --card-on:linear-gradient(168deg,rgba(0,255,170,.17) 0%,rgba(0,200,255,.08) 55%,rgba(6,11,20,.42) 100%);
+  --card-bd:rgba(0,200,255,.16);
+  --card-sheen:radial-gradient(130% 150% at 10% -80%,rgba(255,255,255,.20) 0%,rgba(255,255,255,.06) 58%,rgba(255,255,255,0) 58.6%),linear-gradient(112deg,rgba(255,255,255,0) 66%,rgba(255,255,255,.05) 66.4%,rgba(255,255,255,.05) 74%,rgba(255,255,255,0) 74.4%),linear-gradient(0deg,rgba(0,0,0,.22) 0%,rgba(0,0,0,0) 40%);
+  --card-rim:inset 0 1px 0 rgba(255,255,255,.30),inset 0 -1px 0 rgba(255,255,255,.08);
+  --panel:linear-gradient(135deg,rgba(8,16,30,.86) 0%,rgba(4,8,16,.90) 100%);
+  --panel-bd:rgba(0,200,255,.14);
+  --panel-rim:inset 1px 1px 0 rgba(255,255,255,.22),inset -1px -1px 0 rgba(255,255,255,.08),0 4px 18px rgba(0,0,0,.6);
+  --panel-sheet:linear-gradient(162deg,rgba(255,255,255,.07) 0%,rgba(255,255,255,.015) 34%,rgba(255,255,255,0) 34.2%),radial-gradient(44px 44px at 0 0,rgba(0,255,170,.16) 0%,transparent 70%),radial-gradient(40px 40px at 100% 100%,rgba(0,200,255,.12) 0%,transparent 70%);
+  --field:rgba(3,8,16,.82);--field-bd:rgba(0,200,255,.22);
+  --cap-sheen:radial-gradient(130% 150% at 10% -80%,rgba(255,255,255,.26) 0%,rgba(255,255,255,.08) 58%,rgba(255,255,255,0) 58.6%),linear-gradient(112deg,rgba(255,255,255,0) 66%,rgba(255,255,255,.07) 66.4%,rgba(255,255,255,.07) 74%,rgba(255,255,255,0) 74.4%),linear-gradient(0deg,rgba(0,0,0,.26) 0%,rgba(0,0,0,0) 40%);
+  --cap-rim:inset 0 1px 0 rgba(255,255,255,.38),inset 0 -1px 0 rgba(255,255,255,.08);
+  background:#03060d;min-height:100vh}
+:root[data-theme="light"] body.dj-app,html.light body.dj-app{
+  --c-gr:0,150,98;--c-or:214,96,0;--c-cy:0,119,187;--c-ro:204,17,68;
+  --app-bar:linear-gradient(180deg,rgba(224,232,242,.94),rgba(216,226,238,.92));
+  --app-bar-bd:rgba(0,80,140,.12);
+  --app-strip:linear-gradient(180deg,rgba(220,228,239,.86) 0%,rgba(207,217,230,.86) 100%);
+  --app-strip-bd:rgba(0,80,140,.15);
+  --app-dim:rgba(232,237,244,.86);
+  --hex-face:linear-gradient(168deg,#ffffff 0%,#f2f5f9 40%,#dde4ee 75%,#c9d3e0 100%);
+  --hex-shadow:drop-shadow(0 3px 4px rgba(40,60,90,.28)) drop-shadow(0 1px 1px rgba(40,60,90,.16));
+  --hex-gloss:linear-gradient(180deg,rgba(255,255,255,.95) 0%,rgba(255,255,255,.35) 18%,rgba(255,255,255,0) 45%),linear-gradient(0deg,rgba(90,110,140,.28) 0%,rgba(90,110,140,0) 20%);
+  --hex-lbl:rgba(26,34,51,.75);
+  --card:linear-gradient(168deg,#f4f8fc 0%,#e2eaf3 55%,#d3deea 100%);
+  --card-hover:linear-gradient(168deg,#f8fbfe 0%,#e8eff7 55%,#d9e3ee 100%);
+  --card-on:linear-gradient(168deg,#e3f7ee 0%,#d6ecf5 60%,#cddbe8 100%);
+  --card-bd:rgba(0,80,140,.16);
+  --card-sheen:radial-gradient(130% 150% at 10% -80%,rgba(255,255,255,.80) 0%,rgba(255,255,255,.30) 58%,rgba(255,255,255,0) 58.6%),linear-gradient(112deg,rgba(255,255,255,0) 66%,rgba(255,255,255,.35) 66.4%,rgba(255,255,255,.35) 74%,rgba(255,255,255,0) 74.4%);
+  --card-rim:inset 0 1px 0 rgba(255,255,255,1),inset 0 -1px 0 rgba(70,95,130,.22);
+  --panel:linear-gradient(135deg,rgba(250,252,255,.88) 0%,rgba(236,242,248,.90) 100%);
+  --panel-bd:rgba(0,80,140,.16);
+  --panel-rim:inset 1px 1px 0 rgba(255,255,255,.95),inset -1px -1px 0 rgba(70,95,130,.25),0 4px 18px rgba(40,70,110,.12);
+  --panel-sheet:linear-gradient(162deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,.12) 34%,rgba(255,255,255,0) 34.2%);
+  --field:#ffffff;--field-bd:rgba(0,80,140,.25);
+  --cap-sheen:radial-gradient(130% 150% at 10% -80%,rgba(255,255,255,.80) 0%,rgba(255,255,255,.30) 58%,rgba(255,255,255,0) 58.6%);
+  --cap-rim:inset 0 1px 0 #fff,inset 0 -1px 0 rgba(70,95,130,.22);
+  background:#e8edf4}
+
+/* the picture behind the app, dimmed with black (light theme: with the page colour) */
+.dj-pic{position:fixed;inset:0;z-index:0;pointer-events:none;background:linear-gradient(var(--app-dim),var(--app-dim)),var(--dj-pic,none) center/cover no-repeat}
+.dj-app .dj-shell{position:relative;z-index:1}
+
+/* top bar: pills left, the logo in the middle, controls right */
+.dj-appbar{position:sticky;top:0;z-index:50;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 14px 0 18px;
+  background:var(--app-bar);border-bottom:1px solid var(--app-bar-bd);backdrop-filter:blur(14px);
+  box-shadow:inset 0 1px 0 rgba(0,200,255,.2),inset 0 -1px 0 rgba(0,0,0,.35),0 4px 24px rgba(0,0,0,.35)}
+.dj-appbar::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gr) 25%,var(--or) 50%,var(--cy) 75%,transparent)}
+.dj-appbar .side{display:flex;align-items:center;gap:8px;min-width:0;flex:1;align-self:stretch}  /* full height: the language picker judges an empty side by its size */
+.dj-appbar .side.r{justify-content:flex-end}
+.dj-logo{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-size:18px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gr);
+  text-shadow:0 0 20px rgba(var(--c-gr),.5),0 0 40px rgba(var(--c-gr),.2);white-space:nowrap;flex-shrink:0}
+.dj-logo img{width:32px;height:32px;filter:drop-shadow(0 0 8px rgba(0,220,100,.5))}
+:root[data-theme="light"] body.dj-app .dj-logo,html.light body.dj-app .dj-logo{text-shadow:none}
+.dj-ib{height:30px;min-width:34px;padding:0 9px;display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:7px;cursor:pointer;
+  border:1px solid rgba(var(--c-cy),.2);background:transparent;color:var(--cy);font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);transition:background .15s,border-color .15s,box-shadow .15s}
+.dj-ib:hover{background:rgba(var(--c-cy),.1);border-color:rgba(var(--c-cy),.45);box-shadow:0 0 10px rgba(var(--c-cy),.25)}
+.dj-ib svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+/* the hex toolbar, its groups outlined in green, orange, blue */
+.dj-toolbar{position:relative;z-index:40;min-height:84px;display:flex;align-items:center;justify-content:safe center;gap:14px;padding:6px 16px;
+  background:var(--app-strip);border-bottom:1px solid var(--app-strip-bd);overflow-x:auto;scrollbar-width:none;backdrop-filter:blur(10px)}
+.dj-toolbar::-webkit-scrollbar{display:none}
+/* a phone: the groups are scaled (never redrawn) so the whole toolbar fits */
+@media (max-width:600px){.dj-toolbar{gap:7px;padding:6px 8px}.dj-grp{zoom:.8}}
+@media (max-width:380px){.dj-grp{zoom:.72}}
+.dj-grp{--c:var(--c-cy);display:flex;align-items:center;gap:3px;padding:4px 7px;border-radius:14px;flex-shrink:0;
+  border:2.5px solid rgba(var(--c),.8);box-shadow:0 0 12px rgba(var(--c),.16),inset 0 0 10px rgba(var(--c),.16)}
+.dj-grp.gr{--c:var(--c-gr)} .dj-grp.or{--c:var(--c-or)} .dj-grp.cy{--c:var(--c-cy)}
+.dj-hxb{--hex:path('M 22.9 3.4 Q 29 0 35.1 3.4 L 51.9 12.6 Q 58 16 58 23 L 58 41 Q 58 48 51.9 51.4 L 35.1 60.6 Q 29 64 22.9 60.6 L 6.1 51.4 Q 0 48 0 41 L 0 23 Q 0 16 6.1 12.6 Z');
+  position:relative;isolation:isolate;width:58px;height:64px;clip-path:var(--hex);border:0;padding:0;background:var(--hex-face);cursor:pointer;flex-shrink:0;user-select:none;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:rgb(var(--c,var(--c-cy)));
+  filter:var(--hex-shadow);transition:transform .15s,filter .15s}
+.dj-hxb::before{content:'';position:absolute;inset:0;clip-path:var(--hex);background:rgba(var(--c,var(--c-cy)),.06);z-index:-1;transition:background .15s}
+.dj-hxb::after{content:'';position:absolute;inset:0;clip-path:var(--hex);pointer-events:none;
+  --hex-glass:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 58 64'%3E%3Cdefs%3E%3CclipPath id='h'%3E%3Cpath d='M 22.9 3.4 Q 29 0 35.1 3.4 L 51.9 12.6 Q 58 16 58 23 L 58 41 Q 58 48 51.9 51.4 L 35.1 60.6 Q 29 64 22.9 60.6 L 6.1 51.4 Q 0 48 0 41 L 0 23 Q 0 16 6.1 12.6 Z'/%3E%3C/clipPath%3E%3ClinearGradient id='r' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.95'/%3E%3Cstop offset='0.4' stop-color='%23fff' stop-opacity='0.2'/%3E%3Cstop offset='0.62' stop-color='%23fff' stop-opacity='0.07'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0.55'/%3E%3C/linearGradient%3E%3ClinearGradient id='c' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.3'/%3E%3Cstop offset='0.62' stop-color='%23fff' stop-opacity='0.05'/%3E%3C/linearGradient%3E%3CradialGradient id='g'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.95'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cg clip-path='url(%23h)'%3E%3Cpath d='M-2 -2H60V13Q30 19 -2 40Z' fill='url(%23c)'/%3E%3Cpath d='M-2 40Q30 19 60 13' fill='none' stroke='%23fff' stroke-opacity='0.26' stroke-width='.7'/%3E%3Cpath d='M43 -2H51L33 66H25Z' fill='%23fff' fill-opacity='0.05'/%3E%3Cpath d='M 22.9 3.4 Q 29 0 35.1 3.4 L 51.9 12.6 Q 58 16 58 23 L 58 41 Q 58 48 51.9 51.4 L 35.1 60.6 Q 29 64 22.9 60.6 L 6.1 51.4 Q 0 48 0 41 L 0 23 Q 0 16 6.1 12.6 Z' fill='none' stroke='url(%23r)' stroke-width='3'/%3E%3Ccircle cx='8.6' cy='13.6' r='3.4' fill='url(%23g)'/%3E%3Ccircle cx='49.6' cy='50.4' r='2.4' fill='url(%23g)' opacity='.7'/%3E%3C/g%3E%3C/svg%3E");
+  background:var(--hex-glass) center/100% 100% no-repeat,var(--hex-gloss)}
+:root[data-theme="light"] body.dj-app .dj-hxb::after,html.light body.dj-app .dj-hxb::after{
+  --hex-glass:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 58 64'%3E%3Cdefs%3E%3CclipPath id='h'%3E%3Cpath d='M 22.9 3.4 Q 29 0 35.1 3.4 L 51.9 12.6 Q 58 16 58 23 L 58 41 Q 58 48 51.9 51.4 L 35.1 60.6 Q 29 64 22.9 60.6 L 6.1 51.4 Q 0 48 0 41 L 0 23 Q 0 16 6.1 12.6 Z'/%3E%3C/clipPath%3E%3ClinearGradient id='r' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.36' stop-color='%238fa3bf' stop-opacity='0.5'/%3E%3Cstop offset='0.64' stop-color='%235d7494' stop-opacity='0.5'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0.95'/%3E%3C/linearGradient%3E%3ClinearGradient id='c' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.72'/%3E%3Cstop offset='0.62' stop-color='%23fff' stop-opacity='0.16'/%3E%3C/linearGradient%3E%3CradialGradient id='g'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cg clip-path='url(%23h)'%3E%3Cpath d='M-2 -2H60V13Q30 19 -2 40Z' fill='url(%23c)'/%3E%3Cpath d='M-2 40Q30 19 60 13' fill='none' stroke='%234f6b8c' stroke-opacity='0.32' stroke-width='.7'/%3E%3Cpath d='M43 -2H51L33 66H25Z' fill='%23fff' fill-opacity='0.26'/%3E%3Cpath d='M 22.9 3.4 Q 29 0 35.1 3.4 L 51.9 12.6 Q 58 16 58 23 L 58 41 Q 58 48 51.9 51.4 L 35.1 60.6 Q 29 64 22.9 60.6 L 6.1 51.4 Q 0 48 0 41 L 0 23 Q 0 16 6.1 12.6 Z' fill='none' stroke='url(%23r)' stroke-width='3.2'/%3E%3Ccircle cx='8.6' cy='13.6' r='3.4' fill='url(%23g)'/%3E%3Ccircle cx='49.6' cy='50.4' r='2.4' fill='url(%23g)' opacity='.7'/%3E%3C/g%3E%3C/svg%3E")}
+.dj-hxb:hover{transform:scale(1.1);z-index:2;filter:drop-shadow(0 5px 8px rgba(0,0,0,.45)) drop-shadow(0 0 10px rgba(var(--c,var(--c-cy)),.55))}
+.dj-hxb:hover::before{background:rgba(var(--c,var(--c-cy)),.18)}
+.dj-hxb:active{transform:scale(.94)}
+.dj-hxb.on::before{background:rgba(var(--c,var(--c-cy)),.22)}
+.dj-hxb svg{position:relative;z-index:1;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.dj-hxb.on svg{filter:drop-shadow(0 0 6px currentColor)}
+.dj-hxb .lbl{position:relative;z-index:1;font-family:var(--disp);font-size:6.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;line-height:1;color:var(--hex-lbl);max-width:52px;overflow:hidden;white-space:nowrap}
+.dj-hxb.on .lbl{color:rgb(var(--c,var(--c-cy)))}
+
+/* labels like COACH MODE */
+.dj-label{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+
+/* glass cards: the coach-mode cards (.mc) */
+.dj-card{position:relative;isolation:isolate;overflow:hidden;display:block;width:100%;text-align:left;cursor:pointer;color:var(--tx);
+  border:1px solid var(--card-bd);border-radius:9px;background:var(--card);box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 2px 8px rgba(0,0,0,.18);
+  transition:border-color .2s,background .2s,box-shadow .2s}
+.dj-card::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;background:var(--card-sheen);box-shadow:var(--card-rim)}
+.dj-card:hover{border-color:rgba(var(--c-cy),.36);background:var(--card-hover)}
+.dj-card.on{border-color:rgba(var(--c-gr),.48);background:var(--card-on);box-shadow:0 0 18px rgba(var(--c-gr),.16),inset 0 1px 0 rgba(255,255,255,.16)}
+.dj-card.on::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,var(--cy),var(--gr))}
+.dj-on{font:700 9px var(--mono);letter-spacing:.08em;padding:1px 6px;border-radius:4px;background:var(--gr);color:#00170e}
+
+/* glass panels: the screen panes (.prev-box), the words above the glass */
+.dj-panel{position:relative;isolation:isolate;border:1px solid var(--panel-bd);border-radius:12px;background:var(--panel);box-shadow:var(--panel-rim);backdrop-filter:blur(6px)}
+.dj-panel::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;background:var(--panel-sheet)}
+
+/* capsule buttons: Stop / Repeat / Done, in the brand colours */
+.dj-cap{--c:var(--c-cy);position:relative;isolation:isolate;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;white-space:nowrap;
+  min-height:38px;padding:0 18px;border-radius:12px;border:2px solid rgba(var(--c),.55);color:rgb(var(--c));font:800 14px var(--sans);letter-spacing:.02em;
+  background:linear-gradient(168deg,rgba(var(--c),.22) 0%,rgba(var(--c),.10) 48%,rgba(3,8,16,.55) 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 3px 10px rgba(0,0,0,.35);transition:border-color .2s,box-shadow .2s,transform .15s}
+.dj-cap::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;background:var(--cap-sheen);box-shadow:var(--cap-rim)}
+.dj-cap:hover{border-color:rgba(var(--c),.9);box-shadow:0 0 20px rgba(var(--c),.35),inset 0 1px 0 rgba(255,255,255,.18)}
+.dj-cap:active{transform:translateY(1px)}
+.dj-cap:disabled{opacity:.5;cursor:default;box-shadow:none}
+.dj-cap.gr{--c:var(--c-gr)} .dj-cap.or{--c:var(--c-or)} .dj-cap.cy{--c:var(--c-cy)} .dj-cap.ro{--c:var(--c-ro)}
+.dj-cap.sm{min-height:30px;padding:0 12px;border-width:1.5px;border-radius:9px;font-size:12px;font-weight:700}
+.dj-cap svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+:root[data-theme="light"] body.dj-app .dj-cap,html.light body.dj-app .dj-cap{background:linear-gradient(168deg,rgba(255,255,255,.95) 0%,rgba(var(--c),.12) 55%,rgba(var(--c),.22) 100%);box-shadow:inset 0 1px 0 #fff,0 2px 6px rgba(40,70,110,.16)}
+
+/* fields */
+.dj-field{width:100%;background:var(--field);border:1px solid var(--field-bd);border-radius:9px;padding:8px 11px;color:var(--tx);outline:none;font:inherit;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.25)}
+.dj-field:focus{border-color:var(--gr);box-shadow:0 0 0 3px rgba(var(--c-gr),.16)}
+
+/* MOVEMENT (Carlos, 2026-10-29: "I just don't want blinking on the JARVIS. Not
+   to be applied everywhere. I rather want some smooth transition effects ...
+   Allow transitions between functionalities. Like: Sweep.... Also allow
+   breathe effects"). Smooth and slow, never a blink (an on/off flash).
+   - .dj-sweep: what comes on screen when you change function slides in and a
+     band of light sweeps across it once.
+   - .dj-breathe: a slow glow that rises and falls (4 s), for the one thing
+     that is active or the one action to take.
+   The active hex button breathes on its own. Anyone whose computer asks for
+   less motion gets none of it. */
+@keyframes dj-in{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+@keyframes dj-sweep{from{transform:translateX(-120%)}to{transform:translateX(320%)}}
+@keyframes dj-breathe{0%,100%{box-shadow:0 0 10px rgba(var(--c,var(--c-gr)),.14)}50%{box-shadow:0 0 26px rgba(var(--c,var(--c-gr)),.42)}}
+@keyframes dj-breathe-hex{0%,100%{filter:var(--hex-shadow) drop-shadow(0 0 4px rgba(var(--c,var(--c-cy)),.30))}50%{filter:var(--hex-shadow) drop-shadow(0 0 13px rgba(var(--c,var(--c-cy)),.75))}}
+.dj-sweep{position:relative;animation:dj-in .42s cubic-bezier(.2,.7,.2,1) both}
+.dj-sweep::before{content:'';position:absolute;top:0;bottom:0;left:0;width:34%;z-index:5;pointer-events:none;border-radius:12px;
+  background:linear-gradient(100deg,transparent 0%,rgba(var(--c-cy),.10) 40%,rgba(255,255,255,.16) 50%,rgba(var(--c-gr),.10) 60%,transparent 100%);
+  animation:dj-sweep .9s cubic-bezier(.4,0,.2,1) .05s both}
+.dj-breathe{animation:dj-breathe 4s ease-in-out infinite}
+.dj-hxb.on{animation:dj-breathe-hex 4s ease-in-out infinite}
+.dj-hxb.on:hover{animation:none}
+@media (prefers-reduced-motion:reduce){
+  .dj-sweep,.dj-sweep::before,.dj-breathe,.dj-hxb.on{animation:none}
+  .dj-sweep::before{display:none}
+}
+/* >>> APP-SHELL:END */

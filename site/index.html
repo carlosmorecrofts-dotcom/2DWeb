@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>2DWebsite</title>
+<meta name="description" content="Change your products, prices and promotions yourself. Your website updates by itself.">
+<meta name="theme-color" content="#03060d">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/icon_128.png">
+<link rel="apple-touch-icon" href="assets/icon_128.png">
+<link rel="stylesheet" href="assets/djinja-visuals.css">
+<style>
+/* 2DWebsite: Djinja-C visual rules. Colours come from djinja-visuals.css tokens. Nothing pulses or blinks. */
+.app{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:16px 16px 90px}
+.bar-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.tabs{display:flex;gap:8px;margin:16px 0;overflow-x:auto}
+.tab{flex:1;min-width:96px;padding:12px 10px;border-radius:10px;border:1px solid var(--bd);background:var(--plate);color:var(--mute);
+  font-family:var(--disp);font-size:12px;font-weight:700;letter-spacing:.06em;cursor:pointer;text-transform:uppercase}
+.tab.on{color:var(--gr);border-color:rgba(var(--gr-rgb),.5);box-shadow:0 0 16px rgba(var(--gr-rgb),.18)}
+.tab:focus-visible,.btn:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:10px 18px;border-radius:10px;border:1px solid rgba(var(--cy-rgb),.4);
+  background:rgba(var(--cy-rgb),.08);color:var(--tx);font-family:var(--disp);font-size:13px;font-weight:700;letter-spacing:.05em;cursor:pointer}
+.btn.gr{background:var(--gr);border-color:var(--gr);color:#00170e}
+.btn.or{border-color:rgba(var(--or-rgb),.5);background:rgba(var(--or-rgb),.1);color:var(--or)}
+.btn.ro{border-color:rgba(255,34,85,.5);background:rgba(255,34,85,.1);color:var(--ro)}
+.btn.sm{min-height:38px;padding:6px 12px;font-size:12px}
+.btn[disabled]{opacity:.5;cursor:default}
+.row{display:flex;gap:12px;align-items:center;padding:14px;border:1px solid var(--bd);border-radius:12px;background:var(--plate);margin-bottom:10px}
+.row .main{flex:1;min-width:0}
+.row .nm{font-weight:700;font-size:16px;overflow-wrap:anywhere}
+.row .sub{color:var(--mute);font-size:13px;margin-top:2px;overflow-wrap:anywhere}
+.row .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.row.off{opacity:.55}
+.price{font-family:var(--mono);color:var(--gr);white-space:nowrap}
+.state{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:20px;border:1px solid var(--bd);color:var(--mute)}
+.state.live{color:var(--gr);border-color:rgba(var(--gr-rgb),.4)}.state.soon{color:var(--cy);border-color:rgba(var(--cy-rgb),.4)}.state.sold{color:var(--or);border-color:rgba(var(--or-rgb),.45)}
+label{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin:14px 0 6px}
+input,textarea,select{width:100%;padding:12px;border-radius:10px;border:1px solid var(--bd);background:rgba(3,6,13,.7);color:var(--tx);font:inherit;font-size:16px}
+html.light input,html.light textarea,html.light select{background:#fff}
+textarea{min-height:84px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.note{color:var(--mu);font-size:14px;line-height:1.5}
+.err{color:var(--ro);font-size:14px;min-height:20px;margin-top:10px}
+.ok{color:var(--gr)}
+dialog{border:1px solid var(--bhi);border-radius:16px;background:var(--s1);color:var(--tx);width:min(560px,94vw);max-height:92vh;overflow:auto;padding:20px}
+dialog::backdrop{background:rgba(0,0,0,.65)}
+.chk{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:16px;text-transform:none;letter-spacing:0;font-family:var(--sans);color:var(--tx)}
+.chk input{width:22px;height:22px;flex:none}
+.empty{text-align:center;color:var(--mute);padding:34px 10px}
+.hist{font-size:14px;padding:10px 0;border-bottom:1px solid var(--bd)}.hist time{font-family:var(--mono);color:var(--mute);font-size:12px}
+.hide{display:none!important}
+@media (max-width:520px){.two{grid-template-columns:1fr}.row{flex-wrap:wrap}.row .acts{width:100%;justify-content:flex-start}}
+</style>
+</head>
+<body class="dj">
+<header class="dj-bar">
+  <a class="dj-brand" href="./"><img src="assets/icon_128.png" alt="" width="30" height="30"><span>2DWEBSITE</span></a>
+  <div class="bar-r">
+    <span class="dj-pill cy hide" id="who"><span class="dot"></span><span id="whoName"></span></span>
+    <button class="btn sm gr hide" id="install" type="button">Install app</button>
+    <button class="btn sm hide" id="out" type="button">Sign out</button>
+  </div>
+</header>
+
+<main class="app">
+  <!-- sign in -->
+  <section id="login" class="dj-plate gr" style="margin-top:28px">
+    <div class="dj-eye">Your website, your control</div>
+    <h1 class="dj-h2" style="margin-top:8px">Sign in</h1>
+    <p class="note">Change your products, prices and promotions here. Your website updates by itself, usually within a minute.</p>
+    <form id="loginForm" autocomplete="on">
+      <label for="lsite">Site name</label>
+      <input id="lsite" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="for example take" required>
+      <label for="lpw">Password</label>
+      <input id="lpw" name="password" type="password" autocomplete="current-password" required>
+      <div class="err" id="lerr" role="alert"></div>
+      <button class="btn gr" style="width:100%;margin-top:6px" type="submit">Sign in</button>
+    </form>
+  </section>
+
+  <!-- the manager -->
+  <section id="mgr" class="hide">
+    <div class="tabs" role="tablist">
+      <button class="tab on" data-t="items" role="tab" type="button">Products</button>
+      <button class="tab" data-t="promos" role="tab" type="button">Promotions</button>
+      <button class="tab" data-t="hist" role="tab" type="button">History</button>
+      <button class="tab" data-t="acct" role="tab" type="button">Account</button>
+    </div>
+    <div id="pane"></div>
+  </section>
+</main>
+
+<dialog id="dlg"><form method="dialog" id="dlgForm"></form></dialog>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var store = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} } };
+  var token = store.get('dw_token'), me = null, tab = 'items', cache = {};
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    for (var k in (attrs || {})) { if (k === 'text') n.textContent = attrs[k]; else if (k === 'class') n.className = attrs[k]; else if (k.slice(0, 2) === 'on') n.addEventListener(k.slice(2), attrs[k]); else n.setAttribute(k, attrs[k]); }
+    (kids || []).forEach(function (c) { if (c) n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return n;
+  }
+  function api(method, path, data) {
+    var h = { 'content-type': 'application/json' };
+    if (token) h.authorization = 'Bearer ' + token;
+    return fetch('/api/' + path, { method: method, headers: h, body: data ? JSON.stringify(data) : undefined }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        if (r.status === 401 && token && path !== 'login') { signedOut(); throw new Error('Please sign in again'); }
+        if (!r.ok) throw new Error(j.error || 'Something went wrong');
+        return j;
+      });
+    });
+  }
+  function money(n) { return n == null ? 'no price' : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+  // ---------- sign in / out
+  function show(signed) {
+    $('#login').classList.toggle('hide', signed); $('#mgr').classList.toggle('hide', !signed);
+    $('#out').classList.toggle('hide', !signed); $('#who').classList.toggle('hide', !signed);
+  }
+  function signedOut() { token = null; store.set('dw_token', null); me = null; show(false); }
+  $('#loginForm').addEventListener('submit', function (e) {
+    e.preventDefault(); $('#lerr').textContent = '';
+    api('POST', 'login', { client: $('#lsite').value.trim().toLowerCase(), password: $('#lpw').value }).then(function (j) {
+      token = j.token; store.set('dw_token', token); store.set('dw_site', j.client.slug); $('#lpw').value = ''; start(j.client);
+    }).catch(function (er) { $('#lerr').textContent = er.message; });
+  });
+  $('#out').addEventListener('click', function () { api('POST', 'logout').catch(function () {}).then(signedOut); });
+  function start(c) { me = c; $('#whoName').textContent = c.name; show(true); render(); }
+
+  // ---------- tabs
+  document.querySelectorAll('.tab').forEach(function (b) {
+    b.addEventListener('click', function () {
+      tab = b.getAttribute('data-t');
+      document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x === b); });
+      render();
+    });
+  });
+  function render() { ({ items: renderItems, promos: renderPromos, hist: renderHist, acct: renderAcct })[tab](); }
+  function fail(er) { $('#pane').replaceChildren(el('div', { class: 'empty', text: er.message })); }
+
+  // ---------- products
+  function renderItems() {
+    api('GET', 'items').then(function (j) {
+      cache.items = j.items;
+      var pane = $('#pane'); pane.replaceChildren();
+      pane.appendChild(el('button', { class: 'btn gr', style: 'width:100%;margin-bottom:14px', type: 'button', onclick: function () { itemForm(null); }, text: '+ Add a product' }));
+      if (!j.items.length) pane.appendChild(el('div', { class: 'empty', text: 'No products yet. Add your first one.' }));
+      j.items.forEach(function (it) {
+        pane.appendChild(el('div', { class: 'row' + (it.active ? '' : ' off') }, [
+          el('div', { class: 'main' }, [
+            el('div', { class: 'nm', text: it.name }),
+            el('div', { class: 'sub' }, [(it.cat || 'No category') + '  ', el('span', { class: 'price', text: money(it.price) })]),
+            it.soldout ? el('span', { class: 'state sold', text: 'Sold out' }) : (it.active ? null : el('span', { class: 'state', text: 'Hidden' })),
+          ]),
+          el('div', { class: 'acts' }, [
+            el('button', { class: 'btn sm or', type: 'button', text: it.soldout ? 'Back in stock' : 'Sold out', onclick: function () { quick(it, { soldout: it.soldout ? 0 : 1 }); } }),
+            el('button', { class: 'btn sm', type: 'button', text: it.active ? 'Hide' : 'Show', onclick: function () { quick(it, { active: it.active ? 0 : 1 }); } }),
+            el('button', { class: 'btn sm', type: 'button', text: 'Edit', onclick: function () { itemForm(it); } }),
+          ]),
+        ]));
+      });
+    }).catch(fail);
+  }
+  function quick(it, patch) { api('PUT', 'items/' + it.id, patch).then(renderItems).catch(fail); }
+  function field(id, label, val, attrs, area) {
+    var i = el(area ? 'textarea' : 'input', Object.assign({ id: id, name: id }, attrs || {}));
+    i.value = val == null ? '' : val;
+    return [el('label', { for: id, text: label }), i];
+  }
+  function openDlg(title, fields, onSave, onDelete) {
+    var f = $('#dlgForm'); f.replaceChildren(el('h2', { class: 'dj-h2', text: title }));
+    fields.forEach(function (x) { [].concat(x).forEach(function (n) { f.appendChild(n); }); });
+    var err = el('div', { class: 'err', role: 'alert' }); f.appendChild(err);
+    var acts = el('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;margin-top:8px' }, [
+      el('button', { class: 'btn gr', type: 'button', text: 'Save', onclick: function () { onSave(err); } }),
+      el('button', { class: 'btn', type: 'button', text: 'Cancel', onclick: function () { $('#dlg').close(); } }),
+    ]);
+    if (onDelete) acts.appendChild(el('button', { class: 'btn ro', type: 'button', style: 'margin-left:auto', text: 'Delete', onclick: function () {
+      if (this.getAttribute('data-sure')) return onDelete(err);
+      this.setAttribute('data-sure', '1'); this.textContent = 'Tap again to delete';
+    } }));
+    f.appendChild(acts); $('#dlg').showModal();
+  }
+  function chk(id, label, on) { var i = el('input', { id: id, type: 'checkbox' }); i.checked = !!on; return el('label', { class: 'chk', for: id }, [i, label]); }
+  function itemForm(it) {
+    var v = it || { active: 1, soldout: 0 };
+    openDlg(it ? 'Edit product' : 'New product', [
+      field('f_name', 'Name', v.name, { maxlength: 120 }),
+      el('div', { class: 'two' }, [el('div', {}, field('f_price', 'Price', v.price, { inputmode: 'numeric' })), el('div', {}, field('f_cat', 'Category', v.cat, { maxlength: 60 }))]),
+      field('f_desc', 'Description', v.desc, { maxlength: 600 }, true),
+      field('f_img', 'Photo link (https://...)', v.img, { inputmode: 'url', autocapitalize: 'none' }),
+      chk('f_sold', 'Sold out right now', v.soldout), chk('f_act', 'Show on my website', v.active),
+    ], function (err) {
+      var d = { name: $('#f_name').value, price: $('#f_price').value, cat: $('#f_cat').value, desc: $('#f_desc').value, img: $('#f_img').value, soldout: $('#f_sold').checked ? 1 : 0, active: $('#f_act').checked ? 1 : 0 };
+      api(it ? 'PUT' : 'POST', it ? 'items/' + it.id : 'items', d).then(function () { $('#dlg').close(); renderItems(); }).catch(function (e) { err.textContent = e.message; });
+    }, it && function (err) { api('DELETE', 'items/' + it.id).then(function () { $('#dlg').close(); renderItems(); }).catch(function (e) { err.textContent = e.message; }); });
+  }
+
+  // ---------- promotions
+  function promoState(p, day) {
+    if (!p.active) return ['Off', ''];
+    if (p.ends && p.ends < day) return ['Ended', ''];
+    if (p.starts && p.starts > day) return ['Starts ' + p.starts, 'soon'];
+    return ['Live now', 'live'];
+  }
+  function renderPromos() {
+    api('GET', 'promos').then(function (j) {
+      var pane = $('#pane'); pane.replaceChildren();
+      pane.appendChild(el('button', { class: 'btn gr', style: 'width:100%;margin-bottom:14px', type: 'button', onclick: function () { promoForm(null); }, text: '+ Add a promotion' }));
+      pane.appendChild(el('p', { class: 'note', text: 'A promotion appears on your website from its start date and disappears by itself after its last day.' }));
+      if (!j.promos.length) pane.appendChild(el('div', { class: 'empty', text: 'No promotions yet.' }));
+      j.promos.forEach(function (p) {
+        var s = promoState(p, j.today);
+        var when = (p.starts || p.ends) ? ((p.starts || 'now') + ' to ' + (p.ends || 'no end')) : 'No dates';
+        pane.appendChild(el('div', { class: 'row' + (s[0] === 'Ended' || s[0] === 'Off' ? ' off' : '') }, [
+          el('div', { class: 'main' }, [
+            el('div', { class: 'nm', text: p.title }),
+            el('div', { class: 'sub', text: [p.discount_pct != null ? p.discount_pct + '% off' : '', p.code ? 'code ' + p.code : '', when].filter(Boolean).join('  |  ') }),
+            el('span', { class: 'state ' + s[1], text: s[0] }),
+          ]),
+          el('div', { class: 'acts' }, [
+            el('button', { class: 'btn sm', type: 'button', text: p.active ? 'Turn off' : 'Turn on', onclick: function () { api('PUT', 'promos/' + p.id, { active: p.active ? 0 : 1 }).then(renderPromos).catch(fail); } }),
+            el('button', { class: 'btn sm', type: 'button', text: 'Edit', onclick: function () { promoForm(p); } }),
+          ]),
+        ]));
+      });
+    }).catch(fail);
+  }
+  function promoForm(p) {
+    var v = p || { active: 1 };
+    openDlg(p ? 'Edit promotion' : 'New promotion', [
+      field('p_title', 'Title', v.title, { maxlength: 120 }),
+      field('p_text', 'Message for visitors', v.text, { maxlength: 600 }, true),
+      el('div', { class: 'two' }, [el('div', {}, field('p_pct', 'Discount %', v.discount_pct, { inputmode: 'numeric' })), el('div', {}, field('p_code', 'Promo code', v.code, { maxlength: 30, autocapitalize: 'characters' }))]),
+      el('div', { class: 'two' }, [el('div', {}, field('p_from', 'First day', v.starts, { type: 'date' })), el('div', {}, field('p_to', 'Last day', v.ends, { type: 'date' }))]),
+      chk('p_act', 'Turned on', v.active),
+    ], function (err) {
+      var d = { title: $('#p_title').value, text: $('#p_text').value, discount_pct: $('#p_pct').value, code: $('#p_code').value, starts: $('#p_from').value, ends: $('#p_to').value, active: $('#p_act').checked ? 1 : 0 };
+      api(p ? 'PUT' : 'POST', p ? 'promos/' + p.id : 'promos', d).then(function () { $('#dlg').close(); renderPromos(); }).catch(function (e) { err.textContent = e.message; });
+    }, p && function (err) { api('DELETE', 'promos/' + p.id).then(function () { $('#dlg').close(); renderPromos(); }).catch(function (e) { err.textContent = e.message; }); });
+  }
+
+  // ---------- history + account
+  function renderHist() {
+    api('GET', 'history').then(function (j) {
+      var pane = $('#pane'); pane.replaceChildren(el('p', { class: 'note', text: 'Everything that was changed, newest first.' }));
+      if (!j.changes.length) pane.appendChild(el('div', { class: 'empty', text: 'No changes yet.' }));
+      j.changes.forEach(function (c) { pane.appendChild(el('div', { class: 'hist' }, [el('time', { text: c.at + ' UTC  ' }), c.what + (c.ref ? ': ' + c.ref : '')])); });
+    }).catch(fail);
+  }
+  function renderAcct() {
+    var pane = $('#pane'); pane.replaceChildren();
+    var plate = el('div', { class: 'dj-plate cy' }, [el('h2', { class: 'dj-h2', text: 'Change my password' })]);
+    [].concat(field('a_cur', 'Current password', '', { type: 'password', autocomplete: 'current-password' }), field('a_new', 'New password (at least 8 characters)', '', { type: 'password', autocomplete: 'new-password' })).forEach(function (n) { plate.appendChild(n); });
+    var msg = el('div', { class: 'err', role: 'status' });
+    plate.appendChild(msg);
+    plate.appendChild(el('button', { class: 'btn gr', type: 'button', style: 'margin-top:8px', text: 'Save password', onclick: function () {
+      msg.className = 'err'; msg.textContent = '';
+      api('POST', 'password', { current: $('#a_cur').value, password: $('#a_new').value }).then(function () { msg.className = 'err ok'; msg.textContent = 'Password changed. Other devices were signed out.'; $('#a_cur').value = ''; $('#a_new').value = ''; }).catch(function (e) { msg.textContent = e.message; });
+    } }));
+    pane.appendChild(plate);
+  }
+
+  // ---------- install as an app (Chrome, Edge, Android)
+  var deferred = null;
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; $('#install').classList.remove('hide'); });
+  $('#install').addEventListener('click', function () {
+    if (!deferred) return; deferred.prompt();
+    deferred.userChoice.then(function () { deferred = null; $('#install').classList.add('hide'); });
+  });
+  window.addEventListener('appinstalled', function () { $('#install').classList.add('hide'); });
+  if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+
+  // ---------- boot
+  var q = new URLSearchParams(location.search).get('c');
+  $('#lsite').value = q || store.get('dw_site') || '';
+  if (token) api('GET', 'me').then(start).catch(function () { show(false); }); else show(false);
+})();
+</script>
+</body>
+</html>

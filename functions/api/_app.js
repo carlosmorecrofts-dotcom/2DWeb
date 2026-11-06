@@ -1,0 +1,282 @@
+// 2DWebsite API. Every client-facing query carries the client id from the
+// session, so one client can never read or change another's data.
+// `handle(request, env)` is pure enough to test in Node with a stand-in database.
+
+const J = (data, status = 200, headers = {}) => new Response(JSON.stringify(data), {
+  status, headers: Object.assign({ 'content-type': 'application/json', 'cache-control': 'no-store' }, headers),
+});
+const bad = (msg, status = 400) => J({ error: msg }, status);
+const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+const rnd = (n = 16) => hex(crypto.getRandomValues(new Uint8Array(n)));
+const enc = (s) => new TextEncoder().encode(s);
+const fromHex = (h) => new Uint8Array(h.match(/../g).map((x) => parseInt(x, 16)));
+const sha = async (s) => hex(await crypto.subtle.digest('SHA-256', enc(s)));
+function same(a, b) {
+  if (!a || !b || a.length !== b.length) return false;
+  let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return d === 0;
+}
+async function hashPw(pw, salt) {
+  const k = await crypto.subtle.importKey('raw', enc(pw), 'PBKDF2', false, ['deriveBits']);
+  return hex(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: fromHex(salt), iterations: 100000 }, k, 256));
+}
+// Easy to read out over the phone: four short words and a number.
+const WORDS = ['coral', 'mango', 'river', 'tiger', 'cloud', 'lemon', 'amber', 'delta', 'forest', 'harbor', 'island', 'jungle', 'maple', 'ocean', 'pearl', 'quartz', 'sunny', 'tulip', 'velvet', 'willow'];
+export function makePassword() {
+  const r = crypto.getRandomValues(new Uint32Array(5));
+  return `${WORDS[r[0] % 20]}-${WORDS[r[1] % 20]}-${WORDS[r[2] % 20]}-${10 + (r[3] % 90)}`;
+}
+
+const MIN_PW = 8;
+const today = (tz) => new Date(Date.now() + (tz || 0) * 3600e3).toISOString().slice(0, 10);
+const isDate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s || '') && !isNaN(Date.parse(s + 'T00:00:00Z'));
+const text = (v, n) => (v == null ? null : String(v).trim().slice(0, n) || null);
+const intOrNull = (v) => (v === '' || v == null || isNaN(+v) ? null : Math.round(+v));
+const flag = (v) => (v === true || v === 1 || v === '1' || v === 'true' ? 1 : 0);
+const okImg = (s) => !s || /^https:\/\/[^\s]+$/.test(s) || /^\/[A-Za-z0-9._\/-]+$/.test(s);
+
+async function body(req) { try { return await req.json(); } catch { return {}; } }
+async function log(db, clientId, what, ref, before, after) {
+  await db.prepare('INSERT INTO changes (client_id, what, ref, before, after) VALUES (?, ?, ?, ?, ?)')
+    .bind(clientId, what, ref || null, before ? JSON.stringify(before) : null, after ? JSON.stringify(after) : null).run();
+}
+
+// ---- field checks: return { v } (values to save) or { error }
+function checkItem(b, partial) {
+  const v = {};
+  if (!partial || 'name' in b) { v.name = text(b.name, 120); if (!v.name) return { error: 'Name is required' }; }
+  if ('cat' in b) v.cat = text(b.cat, 60);
+  if ('price' in b) {
+    v.price = intOrNull(b.price);
+    if (v.price != null && (v.price < 0 || v.price > 1e9)) return { error: 'Price must be a positive number' };
+  }
+  if ('desc' in b) v.desc = text(b.desc, 600);
+  if ('img' in b) { v.img = text(b.img, 300); if (!okImg(v.img)) return { error: 'Photo must be a link starting with https://' }; }
+  if ('soldout' in b) v.soldout = flag(b.soldout);
+  if ('active' in b) v.active = flag(b.active);
+  if ('sort' in b) v.sort = intOrNull(b.sort) || 0;
+  return { v };
+}
+function checkPromo(b, partial) {
+  const v = {};
+  if (!partial || 'title' in b) { v.title = text(b.title, 120); if (!v.title) return { error: 'Title is required' }; }
+  if ('text' in b) v.text = text(b.text, 600);
+  if ('discount_pct' in b) {
+    v.discount_pct = intOrNull(b.discount_pct);
+    if (v.discount_pct != null && (v.discount_pct < 0 || v.discount_pct > 100)) return { error: 'Discount must be between 0 and 100' };
+  }
+  if ('code' in b) v.code = text(b.code, 30);
+  for (const k of ['starts', 'ends']) {
+    if (k in b) { v[k] = text(b[k], 10); if (v[k] && !isDate(v[k])) return { error: `${k === 'starts' ? 'Start' : 'End'} date must look like 2026-12-31` }; }
+  }
+  if (v.starts && v.ends && v.ends < v.starts) return { error: 'The end date is before the start date' };
+  if ('active' in b) v.active = flag(b.active);
+  return { v };
+}
+
+async function update(db, table, id, clientId, v) {
+  const keys = Object.keys(v);
+  if (!keys.length) return;
+  await db.prepare(`UPDATE ${table} SET ${keys.map((k) => `"${k}" = ?`).join(', ')}, updated = datetime('now') WHERE id = ? AND client_id = ?`)
+    .bind(...keys.map((k) => v[k]), id, clientId).run();
+}
+
+async function newClient(db, slug, name, tz, pw) {
+  const salt = rnd(16);
+  await db.prepare('INSERT INTO clients (slug, name, tz_hours, pw_hash, pw_salt) VALUES (?, ?, ?, ?, ?)')
+    .bind(slug, name, tz, await hashPw(pw, salt), salt).run();
+}
+
+export async function handle(request, env) {
+  const db = env.DB;
+  const url = new URL(request.url);
+  const path = url.pathname.replace(/^\/api\/?/, '').split('/').filter(Boolean);
+  const method = request.method;
+  const [a, b2, c2] = path;
+
+  // ---- public: what a client's website reads
+  if (a === 'public' && b2 && method === 'GET') {
+    const cl = await db.prepare('SELECT * FROM clients WHERE slug = ? AND active = 1').bind(b2).first();
+    if (!cl) return bad('Unknown site', 404);
+    const day = today(cl.tz_hours);
+    const items = await db.prepare('SELECT ref, cat, name, price, desc, img, soldout FROM items WHERE client_id = ? AND active = 1 ORDER BY sort, id').bind(cl.id).all();
+    const promos = await db.prepare("SELECT title, text, discount_pct, code, starts, ends FROM promos WHERE client_id = ? AND active = 1 AND (starts IS NULL OR starts <= ?) AND (ends IS NULL OR ends >= ?) ORDER BY id DESC").bind(cl.id, day, day).all();
+    return J({ client: cl.name, items: items.results, promos: promos.results },
+      200, { 'access-control-allow-origin': '*', 'cache-control': 'public, max-age=30' });
+  }
+  if (a === 'public' && method === 'OPTIONS') return new Response(null, { status: 204, headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET', 'access-control-max-age': '86400' } });
+
+  // ---- master (Carlos): create clients, reset passwords
+  if (a === 'master') {
+    if (!same(request.headers.get('x-admin-secret') || '', env.ADMIN_SECRET || '')) return bad('Not allowed', 401);
+    if (b2 === 'clients' && !c2 && method === 'GET') {
+      const r = await db.prepare('SELECT slug, name, tz_hours, active, created FROM clients ORDER BY id').all();
+      return J({ clients: r.results });
+    }
+    if (b2 === 'clients' && !c2 && method === 'POST') {
+      const b = await body(request);
+      const slug = text(b.slug, 40);
+      const name = text(b.name, 120);
+      if (!slug || !/^[a-z0-9-]+$/.test(slug)) return bad('Site name: lowercase letters, numbers and dashes only');
+      if (!name) return bad('Business name is required');
+      let pw = text(b.password, 100) || makePassword();
+      if (pw.length < MIN_PW) return bad(`Password needs at least ${MIN_PW} characters`);
+      if (await db.prepare('SELECT 1 AS x FROM clients WHERE slug = ?').bind(slug).first()) return bad('That site already exists', 409);
+      await newClient(db, slug, name, intOrNull(b.tz_hours) || 0, pw);
+      return J({ slug, password: pw, note: 'Shown once. Give it to the client.' }, 201);
+    }
+    if (b2 === 'clients' && c2 && path[3] === 'password' && method === 'POST') {
+      const cl = await db.prepare('SELECT id FROM clients WHERE slug = ?').bind(c2).first();
+      if (!cl) return bad('Unknown site', 404);
+      const b = await body(request);
+      const pw = text(b.password, 100) || makePassword();
+      if (pw.length < MIN_PW) return bad(`Password needs at least ${MIN_PW} characters`);
+      const salt = rnd(16);
+      await db.prepare('UPDATE clients SET pw_hash = ?, pw_salt = ? WHERE id = ?').bind(await hashPw(pw, salt), salt, cl.id).run();
+      await db.prepare('DELETE FROM sessions WHERE client_id = ?').bind(cl.id).run();
+      return J({ slug: c2, password: pw, note: 'Shown once. All old sign-ins were ended.' });
+    }
+    if (b2 === 'clients' && c2 && path[3] === 'import' && method === 'POST') {
+      const cl = await db.prepare('SELECT id FROM clients WHERE slug = ?').bind(c2).first();
+      if (!cl) return bad('Unknown site', 404);
+      const b = await body(request);
+      if (!Array.isArray(b.items) || !b.items.length || b.items.length > 1000) return bad('Send items: [...] (1 to 1000)');
+      let n = 0;
+      for (const it of b.items) {
+        const ref = text(it.ref || it.id, 80);
+        const k = checkItem(it, false);
+        if (!ref || k.error) continue;
+        const f = Object.assign({ cat: null, price: null, desc: null, img: null }, k.v);
+        await db.prepare('INSERT INTO items (client_id, ref, cat, name, price, desc, img, sort) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (client_id, ref) DO NOTHING')
+          .bind(cl.id, ref, f.cat, f.name, f.price, f.desc, f.img, n).run();
+        n++;
+      }
+      return J({ imported: n });
+    }
+    return bad('Not found', 404);
+  }
+
+  // ---- sign in
+  if (a === 'login' && method === 'POST') {
+    const b = await body(request);
+    const slug = text(b.client, 40) || '';
+    const pw = String(b.password || '');
+    const key = `${slug}|${request.headers.get('cf-connecting-ip') || 'x'}`;
+    const fails = await db.prepare("SELECT COUNT(*) AS n FROM login_fails WHERE key = ? AND at > datetime('now', '-15 minutes')").bind(key).first();
+    if (fails && fails.n >= 5) return bad('Too many tries. Wait 15 minutes.', 429);
+    const cl = slug ? await db.prepare('SELECT * FROM clients WHERE slug = ? AND active = 1').bind(slug).first() : null;
+    // Same work whether or not the site exists, so timing does not reveal it.
+    const salt = cl ? cl.pw_salt : '00'.repeat(16);
+    const got = await hashPw(pw, salt);
+    if (!cl || !same(got, cl.pw_hash)) {
+      await db.prepare('INSERT INTO login_fails (key) VALUES (?)').bind(key).run();
+      return bad('Wrong site name or password', 401);
+    }
+    const t = rnd(32);
+    await db.prepare("INSERT INTO sessions (hash, client_id, expires) VALUES (?, ?, datetime('now', '+30 days'))").bind(await sha(t), cl.id).run();
+    return J({ token: t, client: { slug: cl.slug, name: cl.name } });
+  }
+
+  // ---- everything below needs a signed-in client
+  const tok = (request.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
+  const sess = /^[a-f0-9]{64}$/.test(tok)
+    ? await db.prepare("SELECT c.* FROM sessions s JOIN clients c ON c.id = s.client_id WHERE s.hash = ? AND s.expires > datetime('now') AND c.active = 1").bind(await sha(tok)).first()
+    : null;
+  if (!sess) return bad('Please sign in', 401);
+  const cid = sess.id;
+
+  if (a === 'me' && method === 'GET') return J({ slug: sess.slug, name: sess.name });
+  if (a === 'logout' && method === 'POST') {
+    await db.prepare('DELETE FROM sessions WHERE hash = ?').bind(await sha(tok)).run();
+    return J({ ok: true });
+  }
+  if (a === 'password' && method === 'POST') {
+    const b = await body(request);
+    if (!same(await hashPw(String(b.current || ''), sess.pw_salt), sess.pw_hash)) return bad('Current password is wrong', 401);
+    const pw = String(b.password || '');
+    if (pw.length < MIN_PW) return bad(`New password needs at least ${MIN_PW} characters`);
+    const salt = rnd(16);
+    await db.prepare('UPDATE clients SET pw_hash = ?, pw_salt = ? WHERE id = ?').bind(await hashPw(pw, salt), salt, cid).run();
+    await db.prepare('DELETE FROM sessions WHERE client_id = ? AND hash <> ?').bind(cid, await sha(tok)).run();
+    return J({ ok: true });
+  }
+  if (a === 'history' && method === 'GET') {
+    const r = await db.prepare('SELECT id, what, ref, before, after, at FROM changes WHERE client_id = ? ORDER BY id DESC LIMIT 100').bind(cid).all();
+    return J({ changes: r.results });
+  }
+
+  // items
+  if (a === 'items') {
+    if (!b2 && method === 'GET') {
+      const r = await db.prepare('SELECT * FROM items WHERE client_id = ? ORDER BY sort, id').bind(cid).all();
+      return J({ items: r.results });
+    }
+    if (!b2 && method === 'POST') {
+      const b = await body(request);
+      const k = checkItem(b, false);
+      if (k.error) return bad(k.error);
+      let ref = (text(b.ref, 80) || k.v.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'item').slice(0, 60);
+      if (await db.prepare('SELECT 1 AS x FROM items WHERE client_id = ? AND ref = ?').bind(cid, ref).first()) ref = `${ref}-${rnd(2)}`;
+      const f = Object.assign({ cat: null, price: null, desc: null, img: null, soldout: 0, active: 1 }, k.v);
+      const mx = await db.prepare('SELECT COALESCE(MAX(sort), 0) + 1 AS n FROM items WHERE client_id = ?').bind(cid).first();
+      const r = await db.prepare('INSERT INTO items (client_id, ref, cat, name, price, desc, img, soldout, active, sort) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+        .bind(cid, ref, f.cat, f.name, f.price, f.desc, f.img, f.soldout, f.active, 'sort' in k.v ? k.v.sort : mx.n).run();
+      await log(db, cid, 'item added', ref, null, f);
+      return J({ id: r.meta ? r.meta.last_row_id : undefined, ref }, 201);
+    }
+    if (b2 && /^\d+$/.test(b2)) {
+      const row = await db.prepare('SELECT * FROM items WHERE id = ? AND client_id = ?').bind(+b2, cid).first();
+      if (!row) return bad('Not found', 404);
+      if (method === 'PUT') {
+        const k = checkItem(await body(request), true);
+        if (k.error) return bad(k.error);
+        await update(db, 'items', row.id, cid, k.v);
+        await log(db, cid, 'item changed', row.ref, pick(row, k.v), k.v);
+        return J({ ok: true });
+      }
+      if (method === 'DELETE') {
+        await db.prepare('DELETE FROM items WHERE id = ? AND client_id = ?').bind(row.id, cid).run();
+        await log(db, cid, 'item deleted', row.ref, row, null);
+        return J({ ok: true });
+      }
+    }
+  }
+
+  // promotions
+  if (a === 'promos') {
+    if (!b2 && method === 'GET') {
+      const r = await db.prepare('SELECT * FROM promos WHERE client_id = ? ORDER BY id DESC').bind(cid).all();
+      return J({ promos: r.results, today: today(sess.tz_hours) });
+    }
+    if (!b2 && method === 'POST') {
+      const k = checkPromo(await body(request), false);
+      if (k.error) return bad(k.error);
+      const f = Object.assign({ text: null, discount_pct: null, code: null, starts: null, ends: null, active: 1 }, k.v);
+      const r = await db.prepare('INSERT INTO promos (client_id, title, text, discount_pct, code, starts, ends, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+        .bind(cid, f.title, f.text, f.discount_pct, f.code, f.starts, f.ends, f.active).run();
+      await log(db, cid, 'promotion added', f.title, null, f);
+      return J({ id: r.meta ? r.meta.last_row_id : undefined }, 201);
+    }
+    if (b2 && /^\d+$/.test(b2)) {
+      const row = await db.prepare('SELECT * FROM promos WHERE id = ? AND client_id = ?').bind(+b2, cid).first();
+      if (!row) return bad('Not found', 404);
+      if (method === 'PUT') {
+        const nb = await body(request);
+        const k = checkPromo(nb, true);
+        if (k.error) return bad(k.error);
+        const st = 'starts' in k.v ? k.v.starts : row.starts, en = 'ends' in k.v ? k.v.ends : row.ends;
+        if (st && en && en < st) return bad('The end date is before the start date');
+        await update(db, 'promos', row.id, cid, k.v);
+        await log(db, cid, 'promotion changed', row.title, pick(row, k.v), k.v);
+        return J({ ok: true });
+      }
+      if (method === 'DELETE') {
+        await db.prepare('DELETE FROM promos WHERE id = ? AND client_id = ?').bind(row.id, cid).run();
+        await log(db, cid, 'promotion deleted', row.title, row, null);
+        return J({ ok: true });
+      }
+    }
+  }
+  return bad('Not found', 404);
+}
+function pick(row, v) { const o = {}; for (const k of Object.keys(v)) o[k] = row[k]; return o; }

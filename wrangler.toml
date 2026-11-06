@@ -1,0 +1,9 @@
+name = "2dwebsite"
+pages_build_output_dir = "site"
+compatibility_date = "2026-10-01"
+
+# Fill in after: npx wrangler@3 d1 create 2dwebsite
+[[d1_databases]]
+binding = "DB"
+database_name = "2dwebsite"
+database_id = "REPLACE-AFTER-d1-create"
