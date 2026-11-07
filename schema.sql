@@ -1,4 +1,4 @@
--- 2DWebsite: one database for every client site.
+-- 2DWeb: one database for every client site.
 -- Every row belongs to one client; every query in the API carries the client id.
 CREATE TABLE IF NOT EXISTS clients (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

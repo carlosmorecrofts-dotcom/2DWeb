@@ -1,2 +1,2 @@
-{ "name": "2dwebsite", "private": true, "version": "0.1.0", "type": "module",
+{ "name": "2dweb", "private": true, "version": "0.1.0", "type": "module",
   "scripts": { "test": "node --no-warnings scripts/test-api.mjs" } }

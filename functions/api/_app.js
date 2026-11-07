@@ -1,4 +1,4 @@
-// 2DWebsite API. Every client-facing query carries the client id from the
+// 2DWeb API. Every client-facing query carries the client id from the
 // session, so one client can never read or change another's data.
 // `handle(request, env)` is pure enough to test in Node with a stand-in database.
 
