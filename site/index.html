@@ -6,6 +6,10 @@
 <title>2DWeb</title>
 <meta name="description" content="Change your products, prices and promotions yourself. Your website updates by itself.">
 <meta name="theme-color" content="#03060d">
+<!-- Same as djinja-c.com: light unless the visitor chose dark, applied before paint. -->
+<script>(function(){try{var t=localStorage.getItem('djinja_theme');if(t==='dark'){document.documentElement.classList.remove('light');}else{document.documentElement.classList.add('light');}}catch(e){document.documentElement.classList.add('light');}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="assets/icon_128.png">
 <link rel="apple-touch-icon" href="assets/icon_128.png">
@@ -52,7 +56,19 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
 .hide{display:none!important}
 a.lk{color:var(--cy)}
 /* what 2DWeb does, shown to visitors who are not signed in */
-.hero h1{font-family:var(--disp);font-size:clamp(26px,5vw,38px);line-height:1.15;margin:8px 0 10px}
+/* the headline, written the way djinja-c.com writes its own */
+.hero h1{font-family:'Orbitron',var(--disp);font-size:clamp(26px,5.2vw,48px);font-weight:900;line-height:1.02;letter-spacing:-.01em;margin:10px 0 14px}
+.t-gr{color:#00ff88;text-shadow:0 0 20px rgba(0,255,136,.7)}.t-or{color:#ff9a3c;text-shadow:0 0 20px rgba(255,154,60,.7)}
+.t-cy{color:#00d4ff;text-shadow:0 0 20px rgba(0,212,255,.7)}.t-wh{color:#fff}
+html.light .t-gr{color:#00a04c;text-shadow:none}html.light .t-or{color:#d9700f;text-shadow:none}html.light .t-cy{color:#0086c9;text-shadow:none}html.light .t-wh{color:#14202e}
+.theme-toggle{width:38px;min-height:38px;padding:0;font-size:15px}
+html.light input,html.light textarea,html.light select{border-color:rgba(0,80,140,.22)}
+html.light .btn{background:rgba(255,255,255,.75);border-color:rgba(0,80,140,.25)}
+html.light .btn.gr{background:var(--gr);border-color:var(--gr);color:#fff}
+html.light .btn.or{background:rgba(var(--or-rgb),.1);border-color:rgba(var(--or-rgb),.5)}
+html.light .btn.ro{background:rgba(204,17,68,.08);border-color:rgba(204,17,68,.45)}
+html.light dialog{background:#f6f9fc}
+html.light .site{background:#fff}
 .feats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
 .feat{border:1px solid var(--bd);border-left:3px solid var(--c);border-radius:12px;padding:14px;background:var(--plate)}
 .feat b{display:block;font-family:var(--disp);font-size:13px;letter-spacing:.04em;color:var(--c);margin-bottom:4px}
@@ -82,6 +98,7 @@ a.lk{color:var(--cy)}
   <a class="dj-brand" href="./"><img src="assets/icon_128.png" alt="" width="30" height="30"><span>2DWEB</span></a>
   <div class="bar-r">
     <span class="dj-pill cy hide" id="who"><span class="dot"></span><span id="whoName"></span></span>
+    <button class="btn sm theme-toggle" id="themeToggle" type="button" aria-label="Switch between light and dark" title="Switch theme">&#9790;</button>
     <button class="btn sm gr hide" id="install" type="button">Install app</button>
     <button class="btn sm" id="inBtn" type="button">Sign in</button>
     <button class="btn sm gr" id="upBtn" type="button">Create account</button>
@@ -93,7 +110,7 @@ a.lk{color:var(--cy)}
   <!-- what 2DWeb does: only for visitors who are not signed in -->
   <section id="intro" class="dj-plate gr hero hide" style="margin-top:20px">
     <div class="dj-eye">Your website, your control</div>
-    <h1>Change your website yourself. No developer, no waiting.</h1>
+    <h1><span class="t-gr">CHANGE</span> <span class="t-wh">YOUR WEBSITE</span><br><span class="t-or">SKIP</span> <span class="t-wh">THE DEVELOPER</span><br><span class="t-cy">UPDATE</span> <span class="t-wh">IN A MINUTE</span></h1>
     <p class="note">Update products, prices and promotions from your phone or computer. Your website picks up every change by itself, usually within a minute.</p>
     <div class="feats">
       <div class="feat f-gr"><b>Products and prices</b><span>Add, edit and remove products or services, with prices, photos and categories.</span></div>
@@ -450,6 +467,14 @@ a.lk{color:var(--cy)}
     } }));
     pane.appendChild(plate);
   }
+
+  // ---------- light / dark, the same switch and the same saved choice as djinja-c.com
+  function themeIcon() { $('#themeToggle').textContent = document.documentElement.classList.contains('light') ? '☾' : '☀'; }
+  $('#themeToggle').addEventListener('click', function () {
+    var light = document.documentElement.classList.toggle('light');
+    store.set('djinja_theme', light ? 'light' : 'dark'); themeIcon();
+  });
+  themeIcon();
 
   // ---------- install as an app (Chrome, Edge, Android)
   var deferred = null;
