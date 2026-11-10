@@ -12,13 +12,13 @@
 <link rel="stylesheet" href="assets/djinja-visuals.css">
 <style>
 /* 2DWeb: Djinja-C visual rules. Colours come from djinja-visuals.css tokens. Nothing pulses or blinks. */
-.app{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:16px 16px 90px}
+.app{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:16px 16px 90px}
 .bar-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .tabs{display:flex;gap:8px;margin:16px 0;overflow-x:auto}
 .tab{flex:1;min-width:96px;padding:12px 10px;border-radius:10px;border:1px solid var(--bd);background:var(--plate);color:var(--mute);
-  font-family:var(--disp);font-size:12px;font-weight:700;letter-spacing:.06em;cursor:pointer;text-transform:uppercase}
+  font-family:var(--disp);font-size:12px;font-weight:700;letter-spacing:.06em;cursor:pointer;text-transform:uppercase;white-space:nowrap}
 .tab.on{color:var(--gr);border-color:rgba(var(--gr-rgb),.5);box-shadow:0 0 16px rgba(var(--gr-rgb),.18)}
-.tab:focus-visible,.btn:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
+.tab:focus-visible,.btn:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:10px 18px;border-radius:10px;border:1px solid rgba(var(--cy-rgb),.4);
   background:rgba(var(--cy-rgb),.08);color:var(--tx);font-family:var(--disp);font-size:13px;font-weight:700;letter-spacing:.05em;cursor:pointer}
 .btn.gr{background:var(--gr);border-color:var(--gr);color:#00170e}
@@ -33,7 +33,7 @@
 .row .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .row.off{opacity:.55}
 .price{font-family:var(--mono);color:var(--gr);white-space:nowrap}
-.state{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:20px;border:1px solid var(--bd);color:var(--mute)}
+.state{display:inline-block;margin-top:6px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:20px;border:1px solid var(--bd);color:var(--mute)}
 .state.live{color:var(--gr);border-color:rgba(var(--gr-rgb),.4)}.state.soon{color:var(--cy);border-color:rgba(var(--cy-rgb),.4)}.state.sold{color:var(--or);border-color:rgba(var(--or-rgb),.45)}
 label{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin:14px 0 6px}
 input,textarea,select{width:100%;padding:12px;border-radius:10px;border:1px solid var(--bd);background:rgba(3,6,13,.7);color:var(--tx);font:inherit;font-size:16px}
@@ -50,7 +50,31 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
 .empty{text-align:center;color:var(--mute);padding:34px 10px}
 .hist{font-size:14px;padding:10px 0;border-bottom:1px solid var(--bd)}.hist time{font-family:var(--mono);color:var(--mute);font-size:12px}
 .hide{display:none!important}
-@media (max-width:520px){.two{grid-template-columns:1fr}.row{flex-wrap:wrap}.row .acts{width:100%;justify-content:flex-start}}
+a.lk{color:var(--cy)}
+/* what 2DWeb does, shown to visitors who are not signed in */
+.hero h1{font-family:var(--disp);font-size:clamp(26px,5vw,38px);line-height:1.15;margin:8px 0 10px}
+.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+.feat{border:1px solid var(--bd);border-left:3px solid var(--c);border-radius:12px;padding:14px;background:var(--plate)}
+.feat b{display:block;font-family:var(--disp);font-size:13px;letter-spacing:.04em;color:var(--c);margin-bottom:4px}
+.feat span{color:var(--mu);font-size:14px;line-height:1.45}
+.f-gr{--c:var(--gr)}.f-or{--c:var(--or)}.f-cy{--c:var(--cy)}
+.cta{display:flex;gap:10px;flex-wrap:wrap}
+.guest{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:18px;padding:12px 14px;border:1px solid rgba(var(--or-rgb),.45);border-radius:12px;background:rgba(var(--or-rgb),.08)}
+.guest p{flex:1;min-width:200px;margin:0;font-size:14px}
+.guest b{color:var(--or)}
+/* the website preview tab */
+.site{border:1px solid var(--bhi);border-radius:14px;overflow:hidden;background:var(--s1)}
+.site .top{display:flex;gap:6px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--bd);font-family:var(--mono);font-size:12px;color:var(--mute)}
+.site .top i{width:9px;height:9px;border-radius:50%;background:var(--bd)}
+.site .body{padding:16px}
+.site h3{font-family:var(--disp);font-size:20px;margin:0 0 12px}
+.banner{border:1px solid rgba(var(--gr-rgb),.45);background:rgba(var(--gr-rgb),.08);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:14px}
+.banner b{color:var(--gr)}
+.cat{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--cy);margin:16px 0 6px}
+.dish{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed var(--bd);font-size:15px}
+.dish.sold .nm{text-decoration:line-through;color:var(--mute)}
+@media (max-width:700px){.feats{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.two,.feats{grid-template-columns:1fr}.row{flex-wrap:wrap}.row .acts{width:100%;justify-content:flex-start}}
 </style>
 </head>
 <body class="dj">
@@ -59,16 +83,59 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   <div class="bar-r">
     <span class="dj-pill cy hide" id="who"><span class="dot"></span><span id="whoName"></span></span>
     <button class="btn sm gr hide" id="install" type="button">Install app</button>
+    <button class="btn sm" id="inBtn" type="button">Sign in</button>
+    <button class="btn sm gr" id="upBtn" type="button">Create account</button>
     <button class="btn sm hide" id="out" type="button">Sign out</button>
   </div>
 </header>
 
 <main class="app">
-  <!-- sign in -->
-  <section id="login" class="dj-plate gr" style="margin-top:28px">
+  <!-- what 2DWeb does: only for visitors who are not signed in -->
+  <section id="intro" class="dj-plate gr hero hide" style="margin-top:20px">
     <div class="dj-eye">Your website, your control</div>
-    <h1 class="dj-h2" style="margin-top:8px">Sign in</h1>
-    <p class="note">Change your products, prices and promotions here. Your website updates by itself, usually within a minute.</p>
+    <h1>Change your website yourself. No developer, no waiting.</h1>
+    <p class="note">Update products, prices and promotions from your phone or computer. Your website picks up every change by itself, usually within a minute.</p>
+    <div class="feats">
+      <div class="feat f-gr"><b>Products and prices</b><span>Add, edit and remove products, menu dishes or services, with prices, photos and categories.</span></div>
+      <div class="feat f-or"><b>Sold out in one tap</b><span>Mark something sold out or hide it, and bring it back the moment it returns.</span></div>
+      <div class="feat f-cy"><b>Promotions with dates</b><span>Discounts and promo codes that go live on their first day and end by themselves.</span></div>
+      <div class="feat f-gr"><b>See your website</b><span>Preview exactly what your visitors see right now.</span></div>
+      <div class="feat f-or"><b>Every change recorded</b><span>A history of what changed and when, with the old and new value.</span></div>
+      <div class="feat f-cy"><b>Install as an app</b><span>Put 2DWeb on your phone or desktop and open it like any other app.</span></div>
+    </div>
+    <div class="cta">
+      <button class="btn gr" type="button" data-auth="up">Create account</button>
+      <button class="btn" type="button" data-auth="in">Sign in</button>
+    </div>
+  </section>
+
+  <div id="guestBar" class="guest hide">
+    <p><b>This is a sample shop.</b> Look around everything 2DWeb does. To make changes, sign in or create an account.</p>
+    <button class="btn sm gr" type="button" data-auth="up">Create account</button>
+    <button class="btn sm" type="button" data-auth="in">Sign in</button>
+  </div>
+
+  <!-- the app: the same for everybody; only signed-in owners can change anything -->
+  <section id="mgr">
+    <div class="tabs" role="tablist">
+      <button class="tab on" data-t="items" role="tab" type="button">Products</button>
+      <button class="tab" data-t="promos" role="tab" type="button">Promotions</button>
+      <button class="tab" data-t="site" role="tab" type="button">My website</button>
+      <button class="tab" data-t="hist" role="tab" type="button">History</button>
+      <button class="tab" data-t="acct" role="tab" type="button">Account</button>
+    </div>
+    <div id="pane"></div>
+  </section>
+</main>
+
+<dialog id="dlg"><form method="dialog" id="dlgForm"></form></dialog>
+
+<!-- sign in and create account -->
+<dialog id="auth" aria-labelledby="authTitle">
+  <div id="authWhy" class="banner hide"></div>
+  <section id="login">
+    <div class="dj-eye">Your website, your control</div>
+    <h2 class="dj-h2" id="authTitle" style="margin-top:8px">Sign in</h2>
     <form id="loginForm" autocomplete="on">
       <label for="lsite">Email</label>
       <input id="lsite" name="username" type="email" inputmode="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="you@yourbusiness.com" required>
@@ -77,13 +144,11 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       <div class="err" id="lerr" role="alert"></div>
       <button class="btn gr" style="width:100%;margin-top:6px" type="submit">Sign in</button>
     </form>
-    <p class="note" style="margin-top:16px">New here? <a href="#" id="toSignup" style="color:var(--cy)">Create an account</a></p>
+    <p class="note" style="margin-top:16px">New here? <a href="#" class="lk" id="toSignup">Create an account</a></p>
   </section>
-
-  <!-- sign up -->
-  <section id="signup" class="dj-plate or hide" style="margin-top:28px">
+  <section id="signup" class="hide">
     <div class="dj-eye">Your website, your control</div>
-    <h1 class="dj-h2" style="margin-top:8px">Create your account</h1>
+    <h2 class="dj-h2" style="margin-top:8px">Create your account</h2>
     <p class="note">Use the email of your Djinja-C account, so your payments and your site stay linked.</p>
     <form id="signupForm" autocomplete="on">
       <label for="sname">Business name</label>
@@ -95,28 +160,16 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       <div class="err" id="serr" role="alert"></div>
       <button class="btn gr" style="width:100%;margin-top:6px" type="submit">Create account</button>
     </form>
-    <p class="note" style="margin-top:16px">Already have an account? <a href="#" id="toLogin" style="color:var(--cy)">Sign in</a></p>
+    <p class="note" style="margin-top:16px">Already have an account? <a href="#" class="lk" id="toLogin">Sign in</a></p>
   </section>
-
-  <!-- the manager -->
-  <section id="mgr" class="hide">
-    <div class="tabs" role="tablist">
-      <button class="tab on" data-t="items" role="tab" type="button">Products</button>
-      <button class="tab" data-t="promos" role="tab" type="button">Promotions</button>
-      <button class="tab" data-t="hist" role="tab" type="button">History</button>
-      <button class="tab" data-t="acct" role="tab" type="button">Account</button>
-    </div>
-    <div id="pane"></div>
-  </section>
-</main>
-
-<dialog id="dlg"><form method="dialog" id="dlgForm"></form></dialog>
+  <button class="btn" type="button" id="authClose" style="width:100%;margin-top:14px">Not now</button>
+</dialog>
 
 <script>
 (function () {
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var store = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} } };
-  var token = store.get('dw_token'), me = null, tab = 'items', cache = {};
+  var token = store.get('dw_token'), me = null, tab = 'items';
   function el(tag, attrs, kids) {
     var n = document.createElement(tag);
     for (var k in (attrs || {})) { if (k === 'text') n.textContent = attrs[k]; else if (k === 'class') n.className = attrs[k]; else if (k.slice(0, 2) === 'on') n.addEventListener(k.slice(2), attrs[k]); else n.setAttribute(k, attrs[k]); }
@@ -135,46 +188,102 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     });
   }
   function money(n) { return n == null ? 'no price' : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+  function day(n) { var d = new Date(); d.setDate(d.getDate() + (n || 0)); return d.toISOString().slice(0, 10); }
+
+  // ---------- the sample shop visitors see before they sign in. It is never sent anywhere.
+  var SAMPLE = {
+    name: 'Sample Cafe',
+    items: [
+      { id: 1, ref: 'nasi-goreng', name: 'Nasi Goreng', cat: 'Mains', price: 45000, desc: 'Fried rice, fried egg, prawn crackers', soldout: 0, active: 1 },
+      { id: 2, ref: 'smoothie-bowl', name: 'Smoothie Bowl', cat: 'Breakfast', price: 55000, desc: 'Banana, dragon fruit, granola', soldout: 1, active: 1 },
+      { id: 3, ref: 'iced-latte', name: 'Iced Latte', cat: 'Drinks', price: 35000, soldout: 0, active: 1 },
+      { id: 4, ref: 'fresh-coconut', name: 'Fresh Coconut', cat: 'Drinks', price: 25000, soldout: 0, active: 1 },
+      { id: 5, ref: 'scooter-day', name: 'Scooter rental, one day', cat: 'Rentals', price: 80000, soldout: 0, active: 1 },
+      { id: 6, ref: 'christmas-hamper', name: 'Christmas hamper', cat: 'Seasonal', price: 250000, soldout: 0, active: 0 },
+    ],
+    promos: [
+      { id: 1, title: 'Happy hour', text: 'Two drinks for the price of one, 4pm to 6pm', discount_pct: 50, code: null, starts: day(-3), ends: day(10), active: 1 },
+      { id: 2, title: 'Weekend brunch', text: 'Free coffee with any breakfast', discount_pct: null, code: 'BRUNCH', starts: day(5), ends: day(7), active: 1 },
+      { id: 3, title: 'Opening week', text: '20% off everything', discount_pct: 20, code: null, starts: day(-40), ends: day(-33), active: 1 },
+    ],
+    changes: [
+      { what: 'item changed', ref: 'smoothie-bowl', at: day(0) + ' 09:12:04' },
+      { what: 'promotion added', ref: 'Weekend brunch', at: day(-1) + ' 17:40:31' },
+      { what: 'item changed', ref: 'nasi-goreng', at: day(-2) + ' 11:05:12' },
+      { what: 'item added', ref: 'scooter-day', at: day(-6) + ' 08:30:00' },
+      { what: 'item changed', ref: 'christmas-hamper', at: day(-9) + ' 15:22:47' },
+    ],
+  };
+  // Every read goes through here: the owner's real data when signed in, the sample otherwise.
+  function load(kind) {
+    if (token) return api('GET', kind);
+    if (kind === 'items') return Promise.resolve({ items: SAMPLE.items });
+    if (kind === 'promos') return Promise.resolve({ promos: SAMPLE.promos, today: day(0) });
+    return Promise.resolve({ changes: SAMPLE.changes });
+  }
+  // Every change goes through here: only a signed-in owner may make one.
+  function allowed(why) {
+    if (token) return true;
+    openAuth(false, why || 'Sign in to make changes. The sample shop cannot be changed.');
+    return false;
+  }
 
   // ---------- sign in / out
   function show(signed) {
-    $('#login').classList.toggle('hide', signed); $('#signup').classList.add('hide'); $('#mgr').classList.toggle('hide', !signed);
+    $('#intro').classList.toggle('hide', signed); $('#guestBar').classList.toggle('hide', signed);
+    $('#inBtn').classList.toggle('hide', signed); $('#upBtn').classList.toggle('hide', signed);
     $('#out').classList.toggle('hide', !signed); $('#who').classList.toggle('hide', !signed);
   }
-  function signedOut() { token = null; store.set('dw_token', null); me = null; show(false); }
+  function openAuth(signup, why) {
+    if ($('#dlg').open) $('#dlg').close();
+    $('#authWhy').textContent = why || ''; $('#authWhy').classList.toggle('hide', !why);
+    swap(!!signup); $('#lerr').textContent = ''; $('#serr').textContent = '';
+    if (!$('#auth').open) $('#auth').showModal();
+    (signup ? $('#sname') : ($('#lsite').value ? $('#lpw') : $('#lsite'))).focus();
+  }
+  function swap(toSignup) { $('#login').classList.toggle('hide', toSignup); $('#signup').classList.toggle('hide', !toSignup); }
+  function signedIn(j) {
+    token = j.token; store.set('dw_token', token); store.set('dw_site', j.client.email);
+    $('#lpw').value = ''; $('#spw').value = '';
+    if ($('#auth').open) $('#auth').close();
+    start(j.client);
+  }
+  function signedOut() { token = null; store.set('dw_token', null); me = null; guest(); }
+  function start(c) { me = c; $('#whoName').textContent = c.name; show(true); render(); }
+  function guest() { show(false); render(); }
+
   $('#loginForm').addEventListener('submit', function (e) {
     e.preventDefault(); $('#lerr').textContent = '';
-    api('POST', 'login', { email: $('#lsite').value.trim().toLowerCase(), password: $('#lpw').value }).then(function (j) {
-      token = j.token; store.set('dw_token', token); store.set('dw_site', j.client.email); $('#lpw').value = ''; start(j.client);
-    }).catch(function (er) { $('#lerr').textContent = er.message; });
+    api('POST', 'login', { email: $('#lsite').value.trim().toLowerCase(), password: $('#lpw').value }).then(signedIn)
+      .catch(function (er) { $('#lerr').textContent = er.message; });
   });
-  function swap(toSignup) { $('#login').classList.toggle('hide', toSignup); $('#signup').classList.toggle('hide', !toSignup); }
-  $('#toSignup').addEventListener('click', function (e) { e.preventDefault(); swap(true); });
-  $('#toLogin').addEventListener('click', function (e) { e.preventDefault(); swap(false); });
   $('#signupForm').addEventListener('submit', function (e) {
     e.preventDefault(); $('#serr').textContent = '';
-    api('POST', 'signup', { name: $('#sname').value.trim(), email: $('#semail').value.trim().toLowerCase(), password: $('#spw').value }).then(function (j) {
-      token = j.token; store.set('dw_token', token); store.set('dw_site', j.client.email); $('#spw').value = ''; start(j.client);
-    }).catch(function (er) { $('#serr').textContent = er.message; });
+    api('POST', 'signup', { name: $('#sname').value.trim(), email: $('#semail').value.trim().toLowerCase(), password: $('#spw').value }).then(signedIn)
+      .catch(function (er) { $('#serr').textContent = er.message; });
   });
+  $('#toSignup').addEventListener('click', function (e) { e.preventDefault(); swap(true); $('#sname').focus(); });
+  $('#toLogin').addEventListener('click', function (e) { e.preventDefault(); swap(false); $('#lsite').focus(); });
+  $('#authClose').addEventListener('click', function () { $('#auth').close(); });
+  $('#inBtn').addEventListener('click', function () { openAuth(false); });
+  $('#upBtn').addEventListener('click', function () { openAuth(true); });
+  document.querySelectorAll('[data-auth]').forEach(function (b) { b.addEventListener('click', function () { openAuth(b.getAttribute('data-auth') === 'up'); }); });
   $('#out').addEventListener('click', function () { api('POST', 'logout').catch(function () {}).then(signedOut); });
-  function start(c) { me = c; $('#whoName').textContent = c.name; show(true); render(); }
 
   // ---------- tabs
   document.querySelectorAll('.tab').forEach(function (b) {
     b.addEventListener('click', function () {
       tab = b.getAttribute('data-t');
-      document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x === b); });
+      document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
       render();
     });
   });
-  function render() { ({ items: renderItems, promos: renderPromos, hist: renderHist, acct: renderAcct })[tab](); }
+  function render() { ({ items: renderItems, promos: renderPromos, site: renderSite, hist: renderHist, acct: renderAcct })[tab](); }
   function fail(er) { $('#pane').replaceChildren(el('div', { class: 'empty', text: er.message })); }
 
   // ---------- products
   function renderItems() {
-    api('GET', 'items').then(function (j) {
-      cache.items = j.items;
+    load('items').then(function (j) {
       var pane = $('#pane'); pane.replaceChildren();
       pane.appendChild(el('button', { class: 'btn gr', style: 'width:100%;margin-bottom:14px', type: 'button', onclick: function () { itemForm(null); }, text: '+ Add a product' }));
       if (!j.items.length) pane.appendChild(el('div', { class: 'empty', text: 'No products yet. Add your first one.' }));
@@ -194,21 +303,24 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       });
     }).catch(fail);
   }
-  function quick(it, patch) { api('PUT', 'items/' + it.id, patch).then(renderItems).catch(fail); }
+  function quick(it, patch) { if (!allowed()) return; api('PUT', 'items/' + it.id, patch).then(renderItems).catch(fail); }
   function field(id, label, val, attrs, area) {
     var i = el(area ? 'textarea' : 'input', Object.assign({ id: id, name: id }, attrs || {}));
     i.value = val == null ? '' : val;
     return [el('label', { for: id, text: label }), i];
   }
+  // Anyone can open a form to see what it holds. Saving and deleting need a signed-in owner.
   function openDlg(title, fields, onSave, onDelete) {
     var f = $('#dlgForm'); f.replaceChildren(el('h2', { class: 'dj-h2', text: title }));
+    if (!token) f.appendChild(el('div', { class: 'banner', text: 'This is the sample shop. Sign in to save your own changes.' }));
     fields.forEach(function (x) { [].concat(x).forEach(function (n) { f.appendChild(n); }); });
     var err = el('div', { class: 'err', role: 'alert' }); f.appendChild(err);
     var acts = el('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;margin-top:8px' }, [
-      el('button', { class: 'btn gr', type: 'button', text: 'Save', onclick: function () { onSave(err); } }),
+      el('button', { class: 'btn gr', type: 'button', text: token ? 'Save' : 'Sign in to save', onclick: function () { if (allowed('Sign in to save. The sample shop cannot be changed.')) onSave(err); } }),
       el('button', { class: 'btn', type: 'button', text: 'Cancel', onclick: function () { $('#dlg').close(); } }),
     ]);
     if (onDelete) acts.appendChild(el('button', { class: 'btn ro', type: 'button', style: 'margin-left:auto', text: 'Delete', onclick: function () {
+      if (!allowed('Sign in to delete. The sample shop cannot be changed.')) return;
       if (this.getAttribute('data-sure')) return onDelete(err);
       this.setAttribute('data-sure', '1'); this.textContent = 'Tap again to delete';
     } }));
@@ -230,17 +342,17 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   }
 
   // ---------- promotions
-  function promoState(p, day) {
+  function promoState(p, today) {
     if (!p.active) return ['Off', ''];
-    if (p.ends && p.ends < day) return ['Ended', ''];
-    if (p.starts && p.starts > day) return ['Starts ' + p.starts, 'soon'];
+    if (p.ends && p.ends < today) return ['Ended', ''];
+    if (p.starts && p.starts > today) return ['Starts ' + p.starts, 'soon'];
     return ['Live now', 'live'];
   }
   function renderPromos() {
-    api('GET', 'promos').then(function (j) {
+    load('promos').then(function (j) {
       var pane = $('#pane'); pane.replaceChildren();
       pane.appendChild(el('button', { class: 'btn gr', style: 'width:100%;margin-bottom:14px', type: 'button', onclick: function () { promoForm(null); }, text: '+ Add a promotion' }));
-      pane.appendChild(el('p', { class: 'note', text: 'A promotion appears on your website from its start date and disappears by itself after its last day.' }));
+      pane.appendChild(el('p', { class: 'note', text: 'A promotion appears on your website from its first day and disappears by itself after its last day.' }));
       if (!j.promos.length) pane.appendChild(el('div', { class: 'empty', text: 'No promotions yet.' }));
       j.promos.forEach(function (p) {
         var s = promoState(p, j.today);
@@ -252,7 +364,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
             el('span', { class: 'state ' + s[1], text: s[0] }),
           ]),
           el('div', { class: 'acts' }, [
-            el('button', { class: 'btn sm', type: 'button', text: p.active ? 'Turn off' : 'Turn on', onclick: function () { api('PUT', 'promos/' + p.id, { active: p.active ? 0 : 1 }).then(renderPromos).catch(fail); } }),
+            el('button', { class: 'btn sm', type: 'button', text: p.active ? 'Turn off' : 'Turn on', onclick: function () { if (allowed()) api('PUT', 'promos/' + p.id, { active: p.active ? 0 : 1 }).then(renderPromos).catch(fail); } }),
             el('button', { class: 'btn sm', type: 'button', text: 'Edit', onclick: function () { promoForm(p); } }),
           ]),
         ]));
@@ -273,9 +385,40 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     }, p && function (err) { api('DELETE', 'promos/' + p.id).then(function () { $('#dlg').close(); renderPromos(); }).catch(function (e) { err.textContent = e.message; }); });
   }
 
+  // ---------- my website: exactly what visitors get right now (the public feed)
+  function renderSite() {
+    var feed = token && me && me.slug
+      ? api('GET', 'public/' + encodeURIComponent(me.slug))
+      : Promise.resolve({
+        client: SAMPLE.name,
+        items: SAMPLE.items.filter(function (i) { return i.active; }),
+        promos: SAMPLE.promos.filter(function (p) { return promoState(p, day(0))[1] === 'live'; }),
+      });
+    feed.then(function (j) {
+      var pane = $('#pane'); pane.replaceChildren();
+      pane.appendChild(el('p', { class: 'note', text: 'This is what your website shows visitors right now. Hidden products, ended promotions and promotions that have not started are left out.' }));
+      var body = el('div', { class: 'body' }, [el('h3', { text: j.client })]);
+      j.promos.forEach(function (p) {
+        body.appendChild(el('div', { class: 'banner' }, [el('b', { text: p.title }), p.text ? '  ' + p.text : '', p.code ? '  Code ' + p.code : '']));
+      });
+      if (!j.items.length) body.appendChild(el('div', { class: 'empty', text: 'Nothing on your website yet. Add a product and it appears here.' }));
+      var cats = {}; j.items.forEach(function (i) { (cats[i.cat || 'Other'] = cats[i.cat || 'Other'] || []).push(i); });
+      Object.keys(cats).forEach(function (c) {
+        body.appendChild(el('div', { class: 'cat', text: c }));
+        cats[c].forEach(function (i) {
+          body.appendChild(el('div', { class: 'dish' + (i.soldout ? ' sold' : '') }, [
+            el('span', { class: 'nm', text: i.name + (i.soldout ? '  (sold out)' : '') }), el('span', { class: 'price', text: money(i.price) })]));
+        });
+      });
+      var addr = token && me ? location.origin + '/api/public/' + me.slug : 'yourbusiness.com';
+      pane.appendChild(el('div', { class: 'site' }, [el('div', { class: 'top' }, [el('i'), el('i'), el('i'), ' ' + (token ? me.name : 'yourbusiness.com')]), body]));
+      if (token && me) pane.appendChild(el('p', { class: 'note', style: 'margin-top:12px' }, ['Your website reads its data from ', el('a', { class: 'lk', href: addr, target: '_blank', rel: 'noopener', text: addr })]));
+    }).catch(fail);
+  }
+
   // ---------- history + account
   function renderHist() {
-    api('GET', 'history').then(function (j) {
+    load('history').then(function (j) {
       var pane = $('#pane'); pane.replaceChildren(el('p', { class: 'note', text: 'Everything that was changed, newest first.' }));
       if (!j.changes.length) pane.appendChild(el('div', { class: 'empty', text: 'No changes yet.' }));
       j.changes.forEach(function (c) { pane.appendChild(el('div', { class: 'hist' }, [el('time', { text: c.at + ' UTC  ' }), c.what + (c.ref ? ': ' + c.ref : '')])); });
@@ -284,18 +427,23 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   function renderAcct() {
     var pane = $('#pane'); pane.replaceChildren();
     var who = el('div', { class: 'dj-plate or' }, [el('h2', { class: 'dj-h2', text: 'My account' })]);
-    var whoLine = el('p', { class: 'note', text: (me && me.email) || '' });
-    var payLine = el('p', { class: 'note', text: '' });
-    who.appendChild(whoLine); who.appendChild(payLine); pane.appendChild(who);
-    api('GET', 'me').then(function (m) {
+    var whoLine = el('p', { class: 'note', text: token ? ((me && me.email) || '') : 'You are not signed in. Your account holds your email, your plan and your password.' });
+    var payLine = el('p', { class: 'note', text: token ? '' : 'Your plan and payments are linked to the email of your Djinja-C account.' });
+    who.appendChild(whoLine); who.appendChild(payLine);
+    if (!token) who.appendChild(el('div', { class: 'cta', style: 'margin-top:10px' }, [
+      el('button', { class: 'btn gr', type: 'button', text: 'Create account', onclick: function () { openAuth(true); } }),
+      el('button', { class: 'btn', type: 'button', text: 'Sign in', onclick: function () { openAuth(false); } })]));
+    pane.appendChild(who);
+    if (token) api('GET', 'me').then(function (m) {
       whoLine.textContent = 'Signed in as ' + m.email + ' (your Djinja-C account email)';
       payLine.textContent = m.paid_until ? 'Plan: ' + (m.plan || 'active') + ', paid until ' + m.paid_until : 'Payment status: not linked yet';
     }).catch(function () {});
-    var plate = el('div', { class: 'dj-plate cy' }, [el('h2', { class: 'dj-h2', text: 'Change my password' })]);
+    var plate = el('div', { class: 'dj-plate cy', style: 'margin-top:14px' }, [el('h2', { class: 'dj-h2', text: 'Change my password' })]);
     [].concat(field('a_cur', 'Current password', '', { type: 'password', autocomplete: 'current-password' }), field('a_new', 'New password (at least 8 characters)', '', { type: 'password', autocomplete: 'new-password' })).forEach(function (n) { plate.appendChild(n); });
     var msg = el('div', { class: 'err', role: 'status' });
     plate.appendChild(msg);
-    plate.appendChild(el('button', { class: 'btn gr', type: 'button', style: 'margin-top:8px', text: 'Save password', onclick: function () {
+    plate.appendChild(el('button', { class: 'btn gr', type: 'button', style: 'margin-top:8px', text: token ? 'Save password' : 'Sign in to change it', onclick: function () {
+      if (!allowed('Sign in to change your password.')) return;
       msg.className = 'err'; msg.textContent = '';
       api('POST', 'password', { current: $('#a_cur').value, password: $('#a_new').value }).then(function () { msg.className = 'err ok'; msg.textContent = 'Password changed. Other devices were signed out.'; $('#a_cur').value = ''; $('#a_new').value = ''; }).catch(function (e) { msg.textContent = e.message; });
     } }));
@@ -315,7 +463,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   // ---------- boot
   var q = new URLSearchParams(location.search).get('c');
   $('#lsite').value = q || store.get('dw_site') || '';
-  if (token) api('GET', 'me').then(start).catch(function () { show(false); }); else show(false);
+  if (token) api('GET', 'me').then(start).catch(function () { signedOut(); }); else guest();
 })();
 </script>
 </body>
