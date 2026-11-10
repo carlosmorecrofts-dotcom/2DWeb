@@ -81,10 +81,16 @@ async function update(db, table, id, clientId, v) {
     .bind(...keys.map((k) => v[k]), id, clientId).run();
 }
 
-async function newClient(db, slug, name, tz, pw) {
+// The sign-in is the owner's email: the same email as their Djinja-C account, so a payment can be matched to a site.
+function cleanEmail(v) {
+  const e = String(v || '').trim().toLowerCase();
+  return e.length <= 200 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e) ? e : null;
+}
+
+async function newClient(db, slug, name, tz, pw, email) {
   const salt = rnd(16);
-  await db.prepare('INSERT INTO clients (slug, name, tz_hours, pw_hash, pw_salt) VALUES (?, ?, ?, ?, ?)')
-    .bind(slug, name, tz, await hashPw(pw, salt), salt).run();
+  await db.prepare('INSERT INTO clients (slug, name, tz_hours, pw_hash, pw_salt, email) VALUES (?, ?, ?, ?, ?, ?)')
+    .bind(slug, name, tz, await hashPw(pw, salt), salt, email).run();
 }
 
 export async function handle(request, env) {
@@ -110,7 +116,7 @@ export async function handle(request, env) {
   if (a === 'master') {
     if (!same(request.headers.get('x-admin-secret') || '', env.ADMIN_SECRET || '')) return bad('Not allowed', 401);
     if (b2 === 'clients' && !c2 && method === 'GET') {
-      const r = await db.prepare('SELECT slug, name, tz_hours, active, created FROM clients ORDER BY id').all();
+      const r = await db.prepare('SELECT slug, name, email, plan, paid_until, tz_hours, active, created FROM clients ORDER BY id').all();
       return J({ clients: r.results });
     }
     if (b2 === 'clients' && !c2 && method === 'POST') {
@@ -119,11 +125,14 @@ export async function handle(request, env) {
       const name = text(b.name, 120);
       if (!slug || !/^[a-z0-9-]+$/.test(slug)) return bad('Site name: lowercase letters, numbers and dashes only');
       if (!name) return bad('Business name is required');
+      const email = cleanEmail(b.email);
+      if (!email) return bad("The owner's email is required: it is their sign-in and links their Djinja-C account");
       let pw = text(b.password, 100) || makePassword();
       if (pw.length < MIN_PW) return bad(`Password needs at least ${MIN_PW} characters`);
       if (await db.prepare('SELECT 1 AS x FROM clients WHERE slug = ?').bind(slug).first()) return bad('That site already exists', 409);
-      await newClient(db, slug, name, intOrNull(b.tz_hours) || 0, pw);
-      return J({ slug, password: pw, note: 'Shown once. Give it to the client.' }, 201);
+      if (await db.prepare('SELECT 1 AS x FROM clients WHERE email = ?').bind(email).first()) return bad('That email already has a site', 409);
+      await newClient(db, slug, name, intOrNull(b.tz_hours) || 0, pw, email);
+      return J({ slug, email, password: pw, note: 'Shown once. Give it to the client.' }, 201);
     }
     if (b2 === 'clients' && c2 && path[3] === 'password' && method === 'POST') {
       const cl = await db.prepare('SELECT id FROM clients WHERE slug = ?').bind(c2).first();
@@ -135,6 +144,16 @@ export async function handle(request, env) {
       await db.prepare('UPDATE clients SET pw_hash = ?, pw_salt = ? WHERE id = ?').bind(await hashPw(pw, salt), salt, cl.id).run();
       await db.prepare('DELETE FROM sessions WHERE client_id = ?').bind(cl.id).run();
       return J({ slug: c2, password: pw, note: 'Shown once. All old sign-ins were ended.' });
+    }
+    if (b2 === 'clients' && c2 && path[3] === 'plan' && method === 'POST') {
+      const cl = await db.prepare('SELECT id FROM clients WHERE slug = ?').bind(c2).first();
+      if (!cl) return bad('Unknown site', 404);
+      const b = await body(request);
+      const plan = text(b.plan, 40) || null;
+      const until = b.paid_until ? String(b.paid_until) : null;
+      if (until && !/^\d{4}-\d{2}-\d{2}$/.test(until)) return bad('paid_until must be YYYY-MM-DD');
+      await db.prepare('UPDATE clients SET plan = ?, paid_until = ? WHERE id = ?').bind(plan, until, cl.id).run();
+      return J({ slug: c2, plan, paid_until: until });
     }
     if (b2 === 'clients' && c2 && path[3] === 'import' && method === 'POST') {
       const cl = await db.prepare('SELECT id FROM clients WHERE slug = ?').bind(c2).first();
@@ -159,22 +178,22 @@ export async function handle(request, env) {
   // ---- sign in
   if (a === 'login' && method === 'POST') {
     const b = await body(request);
-    const slug = text(b.client, 40) || '';
+    const email = cleanEmail(b.email) || '';
     const pw = String(b.password || '');
-    const key = `${slug}|${request.headers.get('cf-connecting-ip') || 'x'}`;
+    const key = `${email}|${request.headers.get('cf-connecting-ip') || 'x'}`;
     const fails = await db.prepare("SELECT COUNT(*) AS n FROM login_fails WHERE key = ? AND at > datetime('now', '-15 minutes')").bind(key).first();
     if (fails && fails.n >= 5) return bad('Too many tries. Wait 15 minutes.', 429);
-    const cl = slug ? await db.prepare('SELECT * FROM clients WHERE slug = ? AND active = 1').bind(slug).first() : null;
-    // Same work whether or not the site exists, so timing does not reveal it.
+    const cl = email ? await db.prepare('SELECT * FROM clients WHERE email = ? AND active = 1').bind(email).first() : null;
+    // Same work whether or not the email exists, so timing does not reveal it.
     const salt = cl ? cl.pw_salt : '00'.repeat(16);
     const got = await hashPw(pw, salt);
     if (!cl || !same(got, cl.pw_hash)) {
       await db.prepare('INSERT INTO login_fails (key) VALUES (?)').bind(key).run();
-      return bad('Wrong site name or password', 401);
+      return bad('Wrong email or password', 401);
     }
     const t = rnd(32);
     await db.prepare("INSERT INTO sessions (hash, client_id, expires) VALUES (?, ?, datetime('now', '+30 days'))").bind(await sha(t), cl.id).run();
-    return J({ token: t, client: { slug: cl.slug, name: cl.name } });
+    return J({ token: t, client: { slug: cl.slug, name: cl.name, email: cl.email } });
   }
 
   // ---- everything below needs a signed-in client
@@ -185,7 +204,7 @@ export async function handle(request, env) {
   if (!sess) return bad('Please sign in', 401);
   const cid = sess.id;
 
-  if (a === 'me' && method === 'GET') return J({ slug: sess.slug, name: sess.name });
+  if (a === 'me' && method === 'GET') return J({ slug: sess.slug, name: sess.name, email: sess.email, plan: sess.plan, paid_until: sess.paid_until });
   if (a === 'logout' && method === 'POST') {
     await db.prepare('DELETE FROM sessions WHERE hash = ?').bind(await sha(tok)).run();
     return J({ ok: true });

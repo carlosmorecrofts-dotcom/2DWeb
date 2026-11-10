@@ -36,11 +36,11 @@ const call = async (method, p, { body, token, master, ip } = {}) => {
 // ---- master
 ok((await call('POST', 'master/clients', { body: { slug: 'take', name: 'TAKE' } })).status === 401, 'master needs the secret');
 ok((await call('POST', 'master/clients', { master: true, body: { slug: 'Bad Name', name: 'x' } })).status === 400, 'slug rules');
-ok((await call('POST', 'master/clients', { master: true, body: { slug: 'take', name: 'TAKE', password: 'short' } })).status === 400, 'short password refused');
-const a = await call('POST', 'master/clients', { master: true, body: { slug: 'take', name: 'TAKE Canggu', tz_hours: 8 } });
+ok((await call('POST', 'master/clients', { master: true, body: { slug: 'take', name: 'TAKE', email: 'take@example.com', password: 'short' } })).status === 400, 'short password refused');
+const a = await call('POST', 'master/clients', { master: true, body: { slug: 'take', name: 'TAKE Canggu', email: 'Take@Example.com', tz_hours: 8 } });
 ok(a.status === 201 && a.j.password && a.j.password.length >= 8, 'client A created with a password');
-ok((await call('POST', 'master/clients', { master: true, body: { slug: 'take', name: 'again' } })).status === 409, 'duplicate site refused');
-const b = await call('POST', 'master/clients', { master: true, body: { slug: 'shop', name: 'Other Shop', password: 'my-own-password' } });
+ok((await call('POST', 'master/clients', { master: true, body: { slug: 'take', name: 'again', email: 'again@example.com' } })).status === 409, 'duplicate site refused');
+const b = await call('POST', 'master/clients', { master: true, body: { slug: 'shop', name: 'Other Shop', email: 'shop@example.com', password: 'my-own-password' } });
 ok(b.status === 201 && b.j.password === 'my-own-password', 'client B with a chosen password');
 ok(/^[a-z]+-[a-z]+-[a-z]+-\d\d$/.test(makePassword()), 'generated password is readable');
 const stored = env.DB.prepare('SELECT pw_hash FROM clients WHERE slug = ?');
@@ -49,15 +49,28 @@ ok(!JSON.stringify(await stored.bind('take').first()).includes(a.j.password), 'p
 // ---- sign in
 ok((await call('GET', 'items')).status === 401, 'no token, no access');
 ok((await call('GET', 'items', { token: 'f'.repeat(64) })).status === 401, 'made-up token refused');
-ok((await call('POST', 'login', { body: { client: 'take', password: 'wrong-password' }, ip: '1.1.1.1' })).status === 401, 'wrong password');
-ok((await call('POST', 'login', { body: { client: 'nobody', password: 'x' }, ip: '1.1.1.1' })).status === 401, 'unknown site gives the same answer');
-const la = await call('POST', 'login', { body: { client: 'take', password: a.j.password }, ip: '2.2.2.2' });
-const lb = await call('POST', 'login', { body: { client: 'shop', password: 'my-own-password' }, ip: '3.3.3.3' });
+ok((await call('POST', 'login', { body: { email: 'take@example.com', password: 'wrong-password' }, ip: '1.1.1.1' })).status === 401, 'wrong password');
+ok((await call('POST', 'login', { body: { email: 'nobody@example.com', password: 'x' }, ip: '1.1.1.1' })).status === 401, 'unknown site gives the same answer');
+const la = await call('POST', 'login', { body: { email: 'take@example.com', password: a.j.password }, ip: '2.2.2.2' });
+const lb = await call('POST', 'login', { body: { email: 'shop@example.com', password: 'my-own-password' }, ip: '3.3.3.3' });
 ok(la.status === 200 && la.j.token && lb.status === 200, 'both clients sign in');
 const TA = la.j.token, TB = lb.j.token;
-for (let i = 0; i < 5; i++) await call('POST', 'login', { body: { client: 'shop', password: 'nope' + i }, ip: '9.9.9.9' });
-ok((await call('POST', 'login', { body: { client: 'shop', password: 'my-own-password' }, ip: '9.9.9.9' })).status === 429, 'five failures lock that site and address for a while');
-ok((await call('POST', 'login', { body: { client: 'shop', password: 'my-own-password' }, ip: '4.4.4.4' })).status === 200, 'the lock does not stop the real owner elsewhere');
+for (let i = 0; i < 5; i++) await call('POST', 'login', { body: { email: 'shop@example.com', password: 'nope' + i }, ip: '9.9.9.9' });
+ok((await call('POST', 'login', { body: { email: 'shop@example.com', password: 'my-own-password' }, ip: '9.9.9.9' })).status === 429, 'five failures lock that site and address for a while');
+ok((await call('POST', 'login', { body: { email: 'shop@example.com', password: 'my-own-password' }, ip: '4.4.4.4' })).status === 200, 'the lock does not stop the real owner elsewhere');
+
+// ---- email sign-in
+ok((await call('POST', 'master/clients', { master: true, body: { slug: 'noemail', name: 'No Email' } })).status === 400, 'a client needs an email');
+ok((await call('POST', 'master/clients', { master: true, body: { slug: 'badmail', name: 'Bad', email: 'not-an-email' } })).status === 400, 'a bad email is refused');
+ok((await call('POST', 'master/clients', { master: true, body: { slug: 'second', name: 'Second', email: 'TAKE@example.com' } })).status === 409, 'one email, one site (any capital letters)');
+ok((await call('POST', 'login', { body: { email: ' TAKE@Example.com ', password: a.j.password }, ip: '7.7.7.7' })).status === 200, 'capital letters and spaces in the email do not matter');
+ok((await call('POST', 'login', { body: { client: 'take', password: a.j.password }, ip: '7.7.7.8' })).status === 401, 'the old site-name sign-in is gone');
+const me = await call('GET', 'me', { token: TA });
+ok(me.j.email === 'take@example.com' && me.j.plan === null, 'me shows the email and no plan yet');
+ok((await call('POST', 'master/clients/take/plan', { body: { plan: 'standard', paid_until: '2027-01-31' } })).status === 401, 'plan needs the secret');
+ok((await call('POST', 'master/clients/take/plan', { master: true, body: { plan: 'standard', paid_until: 'soon' } })).status === 400, 'bad paid-until date refused');
+ok((await call('POST', 'master/clients/take/plan', { master: true, body: { plan: 'standard', paid_until: '2027-01-31' } })).status === 200, 'plan and paid-until can be set');
+ok((await call('GET', 'me', { token: TA })).j.paid_until === '2027-01-31', 'me shows paid-until');
 
 // ---- products
 const bad1 = await call('POST', 'items', { token: TA, body: { name: '' } });
@@ -114,13 +127,13 @@ ok((await call('GET', 'history', { token: TB })).j.changes.length === 0, 'B\'s h
 ok((await call('POST', 'password', { token: TA, body: { current: 'wrong', password: 'brand-new-password' } })).status === 401, 'password change needs the current one');
 ok((await call('POST', 'password', { token: TA, body: { current: a.j.password, password: 'short' } })).status === 400, 'new password length checked');
 ok((await call('POST', 'password', { token: TA, body: { current: a.j.password, password: 'brand-new-password' } })).status === 200, 'password changed');
-ok((await call('POST', 'login', { body: { client: 'take', password: a.j.password }, ip: '5.5.5.5' })).status === 401, 'old password stops working');
-ok((await call('POST', 'login', { body: { client: 'take', password: 'brand-new-password' }, ip: '5.5.5.5' })).status === 200, 'new password works');
+ok((await call('POST', 'login', { body: { email: 'take@example.com', password: a.j.password }, ip: '5.5.5.5' })).status === 401, 'old password stops working');
+ok((await call('POST', 'login', { body: { email: 'take@example.com', password: 'brand-new-password' }, ip: '5.5.5.5' })).status === 200, 'new password works');
 const reset = await call('POST', 'master/clients/take/password', { master: true });
 ok(reset.status === 200 && (await call('GET', 'items', { token: TA })).status === 401, 'a reset ends every old sign-in');
 await call('POST', 'logout', { token: TB });
 ok((await call('GET', 'items', { token: TB })).status === 401, 'sign out ends the session');
-ok((await call('DELETE', 'items/' + i1.j.id, { token: (await call('POST', 'login', { body: { client: 'take', password: reset.j.password }, ip: '6.6.6.6' })).j.token })).status === 200, 'delete works');
+ok((await call('DELETE', 'items/' + i1.j.id, { token: (await call('POST', 'login', { body: { email: 'take@example.com', password: reset.j.password }, ip: '6.6.6.6' })).j.token })).status === 200, 'delete works');
 
 // ---- the app itself: installable, on-brand, calm
 const site = (f) => fs.readFileSync(path.join(ROOT, 'site', f), 'utf8');

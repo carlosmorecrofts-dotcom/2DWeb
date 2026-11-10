@@ -4,6 +4,8 @@ CREATE TABLE IF NOT EXISTS clients (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   slug TEXT NOT NULL UNIQUE,          -- the site's short name, e.g. take
   name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,          -- the owner's sign-in, same as their Djinja-C account (lowercase)
+  plan TEXT, paid_until TEXT,          -- filled from the Djinja-C payment, YYYY-MM-DD
   tz_hours INTEGER NOT NULL DEFAULT 0, -- hours from UTC, so a promotion ends at the client's midnight
   pw_hash TEXT NOT NULL, pw_salt TEXT NOT NULL,
   active INTEGER NOT NULL DEFAULT 1,

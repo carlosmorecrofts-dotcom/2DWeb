@@ -70,8 +70,8 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     <h1 class="dj-h2" style="margin-top:8px">Sign in</h1>
     <p class="note">Change your products, prices and promotions here. Your website updates by itself, usually within a minute.</p>
     <form id="loginForm" autocomplete="on">
-      <label for="lsite">Site name</label>
-      <input id="lsite" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="for example take" required>
+      <label for="lsite">Email</label>
+      <input id="lsite" name="username" type="email" inputmode="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="you@yourbusiness.com" required>
       <label for="lpw">Password</label>
       <input id="lpw" name="password" type="password" autocomplete="current-password" required>
       <div class="err" id="lerr" role="alert"></div>
@@ -125,8 +125,8 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   function signedOut() { token = null; store.set('dw_token', null); me = null; show(false); }
   $('#loginForm').addEventListener('submit', function (e) {
     e.preventDefault(); $('#lerr').textContent = '';
-    api('POST', 'login', { client: $('#lsite').value.trim().toLowerCase(), password: $('#lpw').value }).then(function (j) {
-      token = j.token; store.set('dw_token', token); store.set('dw_site', j.client.slug); $('#lpw').value = ''; start(j.client);
+    api('POST', 'login', { email: $('#lsite').value.trim().toLowerCase(), password: $('#lpw').value }).then(function (j) {
+      token = j.token; store.set('dw_token', token); store.set('dw_site', j.client.email); $('#lpw').value = ''; start(j.client);
     }).catch(function (er) { $('#lerr').textContent = er.message; });
   });
   $('#out').addEventListener('click', function () { api('POST', 'logout').catch(function () {}).then(signedOut); });
@@ -255,6 +255,14 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   }
   function renderAcct() {
     var pane = $('#pane'); pane.replaceChildren();
+    var who = el('div', { class: 'dj-plate or' }, [el('h2', { class: 'dj-h2', text: 'My account' })]);
+    var whoLine = el('p', { class: 'note', text: (me && me.email) || '' });
+    var payLine = el('p', { class: 'note', text: '' });
+    who.appendChild(whoLine); who.appendChild(payLine); pane.appendChild(who);
+    api('GET', 'me').then(function (m) {
+      whoLine.textContent = 'Signed in as ' + m.email + ' (your Djinja-C account email)';
+      payLine.textContent = m.paid_until ? 'Plan: ' + (m.plan || 'active') + ', paid until ' + m.paid_until : 'Payment status: not linked yet';
+    }).catch(function () {});
     var plate = el('div', { class: 'dj-plate cy' }, [el('h2', { class: 'dj-h2', text: 'Change my password' })]);
     [].concat(field('a_cur', 'Current password', '', { type: 'password', autocomplete: 'current-password' }), field('a_new', 'New password (at least 8 characters)', '', { type: 'password', autocomplete: 'new-password' })).forEach(function (n) { plate.appendChild(n); });
     var msg = el('div', { class: 'err', role: 'status' });
