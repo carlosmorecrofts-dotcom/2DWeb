@@ -552,6 +552,8 @@ html.light .site{background:#fff}
   if (token) api('GET', 'me').then(start).catch(function () { signedOut(); }); else guest();
   // The link from the reset email: open the "choose a new password" screen, and take the
   // token out of the address bar so it is not left in the history or shared by mistake.
+  // Links from djinja-c.com: ?signin opens the sign-in box, ?signup opens "create account".
+  if (!token && (qs.has('signin') || qs.has('signup'))) { history.replaceState(null, '', location.pathname); openAuth(qs.has('signup')); }
   var rt = qs.get('reset');
   if (rt && /^[a-f0-9]{64}$/.test(rt)) {
     resetToken = rt; history.replaceState(null, '', location.pathname);
