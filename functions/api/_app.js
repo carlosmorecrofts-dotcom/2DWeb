@@ -175,6 +175,32 @@ export async function handle(request, env) {
     return bad('Not found', 404);
   }
 
+  // ---- sign up: a business makes its own account with its email (the same email as its Djinja-C account)
+  if (a === 'signup' && method === 'POST') {
+    const b = await body(request);
+    const ip = request.headers.get('cf-connecting-ip') || 'x';
+    const key = 'signup|' + ip;
+    const recent = await db.prepare("SELECT COUNT(*) AS n FROM login_fails WHERE key = ? AND at > datetime('now', '-60 minutes')").bind(key).first();
+    if (recent && recent.n >= 5) return bad('Too many sign-ups from here. Try again in an hour.', 429);
+    const name = text(b.name, 120);
+    const email = cleanEmail(b.email);
+    const pw = String(b.password || '');
+    if (!name) return bad('Your business name is required');
+    if (!email) return bad('Enter a valid email: it is your sign-in and links your Djinja-C account');
+    if (pw.length < MIN_PW) return bad(`Password needs at least ${MIN_PW} characters`);
+    await db.prepare('INSERT INTO login_fails (key) VALUES (?)').bind(key).run();
+    if (await db.prepare('SELECT 1 AS x FROM clients WHERE email = ?').bind(email).first()) return bad('That email already has an account. Sign in instead.', 409);
+    // The site's short name is made from the business name; a number is added if it is taken.
+    const base = (name.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 30)) || 'site';
+    let slug = base;
+    for (let i = 2; await db.prepare('SELECT 1 AS x FROM clients WHERE slug = ?').bind(slug).first(); i++) slug = base + '-' + i;
+    await newClient(db, slug, name, 0, pw, email);
+    const cl = await db.prepare('SELECT * FROM clients WHERE slug = ?').bind(slug).first();
+    const t = rnd(32);
+    await db.prepare("INSERT INTO sessions (hash, client_id, expires) VALUES (?, ?, datetime('now', '+30 days'))").bind(await sha(t), cl.id).run();
+    return J({ token: t, client: { slug: cl.slug, name: cl.name, email: cl.email } }, 201);
+  }
+
   // ---- sign in
   if (a === 'login' && method === 'POST') {
     const b = await body(request);

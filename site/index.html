@@ -77,6 +77,25 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       <div class="err" id="lerr" role="alert"></div>
       <button class="btn gr" style="width:100%;margin-top:6px" type="submit">Sign in</button>
     </form>
+    <p class="note" style="margin-top:16px">New here? <a href="#" id="toSignup" style="color:var(--cy)">Create an account</a></p>
+  </section>
+
+  <!-- sign up -->
+  <section id="signup" class="dj-plate or hide" style="margin-top:28px">
+    <div class="dj-eye">Your website, your control</div>
+    <h1 class="dj-h2" style="margin-top:8px">Create your account</h1>
+    <p class="note">Use the email of your Djinja-C account, so your payments and your site stay linked.</p>
+    <form id="signupForm" autocomplete="on">
+      <label for="sname">Business name</label>
+      <input id="sname" name="organization" autocomplete="organization" placeholder="for example TAKE Canggu" required>
+      <label for="semail">Email</label>
+      <input id="semail" name="email" type="email" inputmode="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="you@yourbusiness.com" required>
+      <label for="spw">Password (at least 8 characters)</label>
+      <input id="spw" name="new-password" type="password" autocomplete="new-password" minlength="8" required>
+      <div class="err" id="serr" role="alert"></div>
+      <button class="btn gr" style="width:100%;margin-top:6px" type="submit">Create account</button>
+    </form>
+    <p class="note" style="margin-top:16px">Already have an account? <a href="#" id="toLogin" style="color:var(--cy)">Sign in</a></p>
   </section>
 
   <!-- the manager -->
@@ -119,7 +138,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
 
   // ---------- sign in / out
   function show(signed) {
-    $('#login').classList.toggle('hide', signed); $('#mgr').classList.toggle('hide', !signed);
+    $('#login').classList.toggle('hide', signed); $('#signup').classList.add('hide'); $('#mgr').classList.toggle('hide', !signed);
     $('#out').classList.toggle('hide', !signed); $('#who').classList.toggle('hide', !signed);
   }
   function signedOut() { token = null; store.set('dw_token', null); me = null; show(false); }
@@ -128,6 +147,15 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     api('POST', 'login', { email: $('#lsite').value.trim().toLowerCase(), password: $('#lpw').value }).then(function (j) {
       token = j.token; store.set('dw_token', token); store.set('dw_site', j.client.email); $('#lpw').value = ''; start(j.client);
     }).catch(function (er) { $('#lerr').textContent = er.message; });
+  });
+  function swap(toSignup) { $('#login').classList.toggle('hide', toSignup); $('#signup').classList.toggle('hide', !toSignup); }
+  $('#toSignup').addEventListener('click', function (e) { e.preventDefault(); swap(true); });
+  $('#toLogin').addEventListener('click', function (e) { e.preventDefault(); swap(false); });
+  $('#signupForm').addEventListener('submit', function (e) {
+    e.preventDefault(); $('#serr').textContent = '';
+    api('POST', 'signup', { name: $('#sname').value.trim(), email: $('#semail').value.trim().toLowerCase(), password: $('#spw').value }).then(function (j) {
+      token = j.token; store.set('dw_token', token); store.set('dw_site', j.client.email); $('#spw').value = ''; start(j.client);
+    }).catch(function (er) { $('#serr').textContent = er.message; });
   });
   $('#out').addEventListener('click', function () { api('POST', 'logout').catch(function () {}).then(signedOut); });
   function start(c) { me = c; $('#whoName').textContent = c.name; show(true); render(); }

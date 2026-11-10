@@ -72,6 +72,19 @@ ok((await call('POST', 'master/clients/take/plan', { master: true, body: { plan:
 ok((await call('POST', 'master/clients/take/plan', { master: true, body: { plan: 'standard', paid_until: '2027-01-31' } })).status === 200, 'plan and paid-until can be set');
 ok((await call('GET', 'me', { token: TA })).j.paid_until === '2027-01-31', 'me shows paid-until');
 
+// ---- sign up
+const su = await call('POST', 'signup', { body: { name: 'Café Été Bali', email: 'Owner@Cafe.com', password: 'a-good-password' }, ip: '20.0.0.1' });
+ok(su.status === 201 && su.j.token && su.j.client.slug === 'cafe-ete-bali' && su.j.client.email === 'owner@cafe.com', 'sign up makes the account, the site name from the business name');
+ok((await call('GET', 'items', { token: su.j.token })).j.items.length === 0, 'a new account starts empty and is signed in');
+ok((await call('POST', 'signup', { body: { name: 'Café Été Bali', email: 'other@cafe.com', password: 'a-good-password' }, ip: '20.0.0.2' })).j.client.slug === 'cafe-ete-bali-2', 'a taken site name gets a number');
+ok((await call('POST', 'signup', { body: { name: 'Dup', email: 'OWNER@cafe.com', password: 'a-good-password' }, ip: '20.0.0.3' })).status === 409, 'an email that has an account is refused');
+ok((await call('POST', 'signup', { body: { name: 'X', email: 'x@y.com', password: 'short' }, ip: '20.0.0.4' })).status === 400, 'sign up needs an 8 character password');
+ok((await call('POST', 'signup', { body: { name: 'X', email: 'nope', password: 'a-good-password' }, ip: '20.0.0.5' })).status === 400, 'sign up needs a real email');
+ok((await call('POST', 'signup', { body: { email: 'z@y.com', password: 'a-good-password' }, ip: '20.0.0.6' })).status === 400, 'sign up needs a business name');
+ok((await call('POST', 'login', { body: { email: 'owner@cafe.com', password: 'a-good-password' }, ip: '20.0.0.7' })).status === 200, 'the new owner can sign in again');
+for (let i = 0; i < 5; i++) await call('POST', 'signup', { body: { name: 'Bot' + i, email: 'bot' + i + '@x.com', password: 'a-good-password' }, ip: '66.6.6.6' });
+ok((await call('POST', 'signup', { body: { name: 'Bot9', email: 'bot9@x.com', password: 'a-good-password' }, ip: '66.6.6.6' })).status === 429, 'one address cannot make endless accounts');
+
 // ---- products
 const bad1 = await call('POST', 'items', { token: TA, body: { name: '' } });
 ok(bad1.status === 400, 'name required');
