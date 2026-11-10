@@ -96,7 +96,7 @@ a.lk{color:var(--cy)}
     <h1>Change your website yourself. No developer, no waiting.</h1>
     <p class="note">Update products, prices and promotions from your phone or computer. Your website picks up every change by itself, usually within a minute.</p>
     <div class="feats">
-      <div class="feat f-gr"><b>Products and prices</b><span>Add, edit and remove products, menu dishes or services, with prices, photos and categories.</span></div>
+      <div class="feat f-gr"><b>Products and prices</b><span>Add, edit and remove products or services, with prices, photos and categories.</span></div>
       <div class="feat f-or"><b>Sold out in one tap</b><span>Mark something sold out or hide it, and bring it back the moment it returns.</span></div>
       <div class="feat f-cy"><b>Promotions with dates</b><span>Discounts and promo codes that go live on their first day and end by themselves.</span></div>
       <div class="feat f-gr"><b>See your website</b><span>Preview exactly what your visitors see right now.</span></div>
@@ -152,7 +152,7 @@ a.lk{color:var(--cy)}
     <p class="note">Use the email of your Djinja-C account, so your payments and your site stay linked.</p>
     <form id="signupForm" autocomplete="on">
       <label for="sname">Business name</label>
-      <input id="sname" name="organization" autocomplete="organization" placeholder="for example TAKE Canggu" required>
+      <input id="sname" name="organization" autocomplete="organization" placeholder="Your business name" required>
       <label for="semail">Email</label>
       <input id="semail" name="email" type="email" inputmode="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="you@yourbusiness.com" required>
       <label for="spw">Password (at least 8 characters)</label>
@@ -192,26 +192,27 @@ a.lk{color:var(--cy)}
 
   // ---------- the sample shop visitors see before they sign in. It is never sent anywhere.
   var SAMPLE = {
-    name: 'Sample Cafe',
+    // Neutral on purpose: 2DWeb is for any kind of business, so the sample names none.
+    name: 'Your business',
     items: [
-      { id: 1, ref: 'nasi-goreng', name: 'Nasi Goreng', cat: 'Mains', price: 45000, desc: 'Fried rice, fried egg, prawn crackers', soldout: 0, active: 1 },
-      { id: 2, ref: 'smoothie-bowl', name: 'Smoothie Bowl', cat: 'Breakfast', price: 55000, desc: 'Banana, dragon fruit, granola', soldout: 1, active: 1 },
-      { id: 3, ref: 'iced-latte', name: 'Iced Latte', cat: 'Drinks', price: 35000, soldout: 0, active: 1 },
-      { id: 4, ref: 'fresh-coconut', name: 'Fresh Coconut', cat: 'Drinks', price: 25000, soldout: 0, active: 1 },
-      { id: 5, ref: 'scooter-day', name: 'Scooter rental, one day', cat: 'Rentals', price: 80000, soldout: 0, active: 1 },
-      { id: 6, ref: 'christmas-hamper', name: 'Christmas hamper', cat: 'Seasonal', price: 250000, soldout: 0, active: 0 },
+      { id: 1, ref: 'product-1', name: 'Your best seller', cat: 'Products', price: 49, desc: 'A short description your visitors read', soldout: 0, active: 1 },
+      { id: 2, ref: 'product-2', name: 'A product that sold out', cat: 'Products', price: 29, soldout: 1, active: 1 },
+      { id: 3, ref: 'product-3', name: 'Another product', cat: 'Products', price: 15, soldout: 0, active: 1 },
+      { id: 4, ref: 'service-1', name: 'A service you offer', cat: 'Services', price: 120, soldout: 0, active: 1 },
+      { id: 5, ref: 'service-2', name: 'A booking or appointment', cat: 'Services', price: 60, soldout: 0, active: 1 },
+      { id: 6, ref: 'seasonal-1', name: 'A seasonal item, hidden for now', cat: 'Seasonal', price: 80, soldout: 0, active: 0 },
     ],
     promos: [
-      { id: 1, title: 'Happy hour', text: 'Two drinks for the price of one, 4pm to 6pm', discount_pct: 50, code: null, starts: day(-3), ends: day(10), active: 1 },
-      { id: 2, title: 'Weekend brunch', text: 'Free coffee with any breakfast', discount_pct: null, code: 'BRUNCH', starts: day(5), ends: day(7), active: 1 },
-      { id: 3, title: 'Opening week', text: '20% off everything', discount_pct: 20, code: null, starts: day(-40), ends: day(-33), active: 1 },
+      { id: 1, title: 'Launch offer', text: 'Shown on your website while it is live', discount_pct: 20, code: null, starts: day(-3), ends: day(10), active: 1 },
+      { id: 2, title: 'Weekend sale', text: 'Starts by itself on its first day', discount_pct: 10, code: 'WEEKEND', starts: day(5), ends: day(7), active: 1 },
+      { id: 3, title: 'Last season', text: 'Ended by itself after its last day', discount_pct: 30, code: null, starts: day(-40), ends: day(-33), active: 1 },
     ],
     changes: [
-      { what: 'item changed', ref: 'smoothie-bowl', at: day(0) + ' 09:12:04' },
-      { what: 'promotion added', ref: 'Weekend brunch', at: day(-1) + ' 17:40:31' },
-      { what: 'item changed', ref: 'nasi-goreng', at: day(-2) + ' 11:05:12' },
-      { what: 'item added', ref: 'scooter-day', at: day(-6) + ' 08:30:00' },
-      { what: 'item changed', ref: 'christmas-hamper', at: day(-9) + ' 15:22:47' },
+      { what: 'item changed', ref: 'product-2', at: day(0) + ' 09:12:04' },
+      { what: 'promotion added', ref: 'Weekend sale', at: day(-1) + ' 17:40:31' },
+      { what: 'item changed', ref: 'product-1', at: day(-2) + ' 11:05:12' },
+      { what: 'item added', ref: 'service-2', at: day(-6) + ' 08:30:00' },
+      { what: 'item changed', ref: 'seasonal-1', at: day(-9) + ' 15:22:47' },
     ],
   };
   // Every read goes through here: the owner's real data when signed in, the sample otherwise.
