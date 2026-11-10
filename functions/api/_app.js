@@ -222,6 +222,56 @@ export async function handle(request, env) {
     return J({ token: t, client: { slug: cl.slug, name: cl.name, email: cl.email } });
   }
 
+  // ---- forgot password: email a one-hour link. The answer is the same whether or not the
+  // email has an account, so nobody can use this to find out who is a customer.
+  if (a === 'forgot' && method === 'POST') {
+    const b = await body(request);
+    const email = cleanEmail(b.email);
+    if (!email) return bad('Enter a valid email: it is your sign-in and links your Djinja-C account');
+    if (!env.RESEND_API_KEY && !env.sendMail) return bad('Password reset by email is not available yet.', 503);
+    const key = 'forgot|' + (request.headers.get('cf-connecting-ip') || 'x');
+    const recent = await db.prepare("SELECT COUNT(*) AS n FROM login_fails WHERE key = ? AND at > datetime('now', '-60 minutes')").bind(key).first();
+    if (recent && recent.n >= 5) return bad('Too many tries. Try again in an hour.', 429);
+    await db.prepare('INSERT INTO login_fails (key) VALUES (?)').bind(key).run();
+    const cl = await db.prepare('SELECT id, name FROM clients WHERE email = ? AND active = 1').bind(email).first();
+    if (cl) {
+      const t = rnd(32);
+      await db.prepare('DELETE FROM resets WHERE client_id = ?').bind(cl.id).run();
+      await db.prepare("INSERT INTO resets (hash, client_id, expires) VALUES (?, ?, datetime('now', '+60 minutes'))").bind(await sha(t), cl.id).run();
+      const link = `${url.origin}/?reset=${t}`;
+      const m = resetMail(b.lang, link);
+      try {
+        if (env.sendMail) await env.sendMail({ to: email, subject: m.subject, text: m.text, link });
+        else {
+          const r = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
+            body: JSON.stringify({ from: '2DWeb <no-reply@djinja-c.com>', to: [email], subject: m.subject, text: m.text, html: m.html }),
+          });
+          if (!r.ok) return bad('The email could not be sent. Try again in a few minutes.', 502);
+        }
+      } catch { return bad('The email could not be sent. Try again in a few minutes.', 502); }
+    }
+    return J({ ok: true });
+  }
+  if (a === 'reset' && method === 'POST') {
+    const b = await body(request);
+    const t = String(b.token || '');
+    const pw = String(b.password || '');
+    if (pw.length < MIN_PW) return bad(`New password needs at least ${MIN_PW} characters`);
+    const row = /^[a-f0-9]{64}$/.test(t)
+      ? await db.prepare("SELECT r.hash, c.* FROM resets r JOIN clients c ON c.id = r.client_id WHERE r.hash = ? AND r.expires > datetime('now') AND c.active = 1").bind(await sha(t)).first()
+      : null;
+    if (!row) return bad('This reset link has expired or was already used. Ask for a new one.', 400);
+    const salt = rnd(16);
+    await db.prepare('UPDATE clients SET pw_hash = ?, pw_salt = ? WHERE id = ?').bind(await hashPw(pw, salt), salt, row.id).run();
+    await db.prepare('DELETE FROM resets WHERE client_id = ?').bind(row.id).run();
+    await db.prepare('DELETE FROM sessions WHERE client_id = ?').bind(row.id).run();
+    const s = rnd(32);
+    await db.prepare("INSERT INTO sessions (hash, client_id, expires) VALUES (?, ?, datetime('now', '+30 days'))").bind(await sha(s), row.id).run();
+    return J({ token: s, client: { slug: row.slug, name: row.name, email: row.email } });
+  }
+
   // ---- everything below needs a signed-in client
   const tok = (request.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
   const sess = /^[a-f0-9]{64}$/.test(tok)
@@ -323,5 +373,28 @@ export async function handle(request, env) {
     }
   }
   return bad('Not found', 404);
+}
+// The reset email, in the language the page was showing.
+const MAIL = {
+  en: ['Reset your 2DWeb password', 'Someone asked to reset the password for your 2DWeb account.', 'Choose a new password', 'The link works for one hour. If it was not you, ignore this email: your password stays the same.'],
+  pt: ['Redefinir a palavra-passe do 2DWeb', 'Foi pedido para redefinir a palavra-passe da sua conta 2DWeb.', 'Escolher nova palavra-passe', 'O link funciona durante uma hora. Se não foi você, ignore este email: a sua palavra-passe não muda.'],
+  es: ['Restablece tu contraseña de 2DWeb', 'Alguien pidió restablecer la contraseña de tu cuenta 2DWeb.', 'Elegir una contraseña nueva', 'El enlace funciona durante una hora. Si no fuiste tú, ignora este email: tu contraseña no cambia.'],
+  fr: ['Réinitialisez votre mot de passe 2DWeb', 'Une réinitialisation du mot de passe de votre compte 2DWeb a été demandée.', 'Choisir un nouveau mot de passe', "Le lien fonctionne pendant une heure. Si ce n'était pas vous, ignorez cet email : votre mot de passe ne change pas."],
+  de: ['2DWeb-Passwort zurücksetzen', 'Für Ihr 2DWeb-Konto wurde das Zurücksetzen des Passworts angefordert.', 'Neues Passwort wählen', 'Der Link gilt eine Stunde. Wenn Sie das nicht waren, ignorieren Sie diese E-Mail: Ihr Passwort bleibt gleich.'],
+  it: ['Reimposta la password di 2DWeb', 'È stato chiesto di reimpostare la password del tuo account 2DWeb.', 'Scegli una nuova password', "Il link funziona per un'ora. Se non sei stato tu, ignora questa email: la tua password non cambia."],
+  id: ['Atur ulang kata sandi 2DWeb', 'Ada permintaan untuk mengatur ulang kata sandi akun 2DWeb Anda.', 'Pilih kata sandi baru', 'Tautan berlaku satu jam. Jika bukan Anda, abaikan email ini: kata sandi Anda tidak berubah.'],
+  zh: ['重置你的 2DWeb 密码', '有人请求重置你的 2DWeb 账户密码。', '设置新密码', '该链接一小时内有效。如果不是你本人操作，请忽略此邮件，你的密码不会改变。'],
+  ja: ['2DWeb のパスワードを再設定', '2DWeb アカウントのパスワード再設定が依頼されました。', '新しいパスワードを設定', 'リンクの有効期限は1時間です。心当たりがない場合はこのメールを無視してください。パスワードは変わりません。'],
+  ko: ['2DWeb 비밀번호 재설정', '2DWeb 계정의 비밀번호 재설정이 요청되었습니다.', '새 비밀번호 설정', '링크는 1시간 동안 유효합니다. 본인이 요청하지 않았다면 이 이메일을 무시하세요. 비밀번호는 그대로 유지됩니다.'],
+  ru: ['Сброс пароля 2DWeb', 'Поступил запрос на сброс пароля вашей учётной записи 2DWeb.', 'Задать новый пароль', 'Ссылка действует один час. Если это были не вы, просто проигнорируйте письмо: пароль останется прежним.'],
+};
+function resetMail(lang, link) {
+  const m = MAIL[lang] || MAIL.en;
+  const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  return {
+    subject: m[0],
+    text: `${m[1]}\n\n${m[2]}: ${link}\n\n${m[3]}\n\nDjinja-C`,
+    html: `<div style="font-family:Arial,sans-serif;font-size:15px;color:#14202e;max-width:520px"><p>${esc(m[1])}</p><p><a href="${link}" style="display:inline-block;background:#00a04c;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold">${esc(m[2])}</a></p><p style="color:#556">${esc(m[3])}</p><p style="color:#889">Djinja-C</p></div>`,
+  };
 }
 function pick(row, v) { const o = {}; for (const k of Object.keys(v)) o[k] = row[k]; return o; }

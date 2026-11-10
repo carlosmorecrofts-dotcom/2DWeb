@@ -1,0 +1,755 @@
+/* 2DWeb languages. English is the key; a missing word falls back to English.
+   The choice is saved as `djinja_lang`, the same key djinja-c.com uses. */
+(function () {
+  // [code, native name, country]. The menu lists countries A to Z, as on the Djinja-C client sites.
+  var LANGS = [
+    ['en', 'English', 'United Kingdom'], ['zh', '中文', 'China'], ['fr', 'Français', 'France'],
+    ['de', 'Deutsch', 'Germany'], ['id', 'Bahasa Indonesia', 'Indonesia'], ['it', 'Italiano', 'Italy'],
+    ['ja', '日本語', 'Japan'], ['pt', 'Português', 'Portugal'], ['ru', 'Русский', 'Russia'],
+    ['ko', '한국어', 'South Korea'], ['es', 'Español', 'Spain'],
+  ];
+
+  // The three-colour headline: [coloured word, the rest] per line.
+  var HEAD = {
+    en: [['CHANGE', 'YOUR WEBSITE'], ['SKIP', 'THE DEVELOPER'], ['UPDATE', 'IN A MINUTE']],
+    pt: [['MUDE', 'O SEU SITE'], ['DISPENSE', 'O PROGRAMADOR'], ['ATUALIZE', 'NUM MINUTO']],
+    es: [['CAMBIA', 'TU WEB'], ['OLVIDA', 'AL PROGRAMADOR'], ['ACTUALIZA', 'EN UN MINUTO']],
+    fr: [['CHANGEZ', 'VOTRE SITE'], ['OUBLIEZ', 'LE DÉVELOPPEUR'], ['ACTUALISEZ', 'EN UNE MINUTE']],
+    de: [['ÄNDERN SIE', 'IHRE WEBSITE'], ['SPAREN SIE', 'SICH DEN ENTWICKLER'], ['AKTUALISIEREN', 'IN EINER MINUTE']],
+    it: [['CAMBIA', 'IL TUO SITO'], ['SALTA', 'LO SVILUPPATORE'], ['AGGIORNA', 'IN UN MINUTO']],
+    id: [['UBAH', 'SITUS ANDA'], ['TANPA', 'PENGEMBANG'], ['PERBARUI', 'DALAM SEMENIT']],
+    zh: [['自己改', '你的网站'], ['不用', '找开发者'], ['一分钟', '完成更新']],
+    ja: [['変える', 'あなたのサイト'], ['不要', '開発者'], ['更新', '1分で']],
+    ko: [['바꾸세요', '내 웹사이트'], ['필요 없어요', '개발자'], ['업데이트', '1분이면 끝']],
+    ru: [['МЕНЯЙТЕ', 'СВОЙ САЙТ'], ['БЕЗ', 'РАЗРАБОТЧИКА'], ['ОБНОВЛЯЙТЕ', 'ЗА МИНУТУ']],
+  };
+
+  var T = {
+    pt: {
+      'Change your products, prices and promotions yourself. Your website updates by itself.': 'Mude os seus produtos, preços e promoções sozinho. O seu site atualiza-se por si.',
+      'Language': 'Idioma',
+      'Switch between light and dark': 'Alternar entre claro e escuro', 'Switch theme': 'Mudar tema',
+      'Install app': 'Instalar app', 'Sign in': 'Entrar', 'Create account': 'Criar conta', 'Sign out': 'Sair',
+      'Your website, your control': 'O seu site, o seu controlo',
+      'Update products, prices and promotions from your phone or computer. Your website picks up every change by itself, usually within a minute.': 'Atualize produtos, preços e promoções no telemóvel ou no computador. O seu site recebe cada alteração por si, normalmente em menos de um minuto.',
+      'Products and prices': 'Produtos e preços', 'Add, edit and remove products or services, with prices, photos and categories.': 'Adicione, edite e remova produtos ou serviços, com preços, fotos e categorias.',
+      'Sold out in one tap': 'Esgotado num toque', 'Mark something sold out or hide it, and bring it back the moment it returns.': 'Marque algo como esgotado ou esconda-o, e volte a mostrá-lo assim que regressar.',
+      'Promotions with dates': 'Promoções com datas', 'Discounts and promo codes that go live on their first day and end by themselves.': 'Descontos e códigos promocionais que começam no primeiro dia e terminam por si.',
+      'See your website': 'Veja o seu site', 'Preview exactly what your visitors see right now.': 'Veja exatamente o que os seus visitantes veem agora.',
+      'Every change recorded': 'Cada alteração registada', 'A history of what changed and when, with the old and new value.': 'Um histórico do que mudou e quando, com o valor antigo e o novo.',
+      'Install as an app': 'Instale como app', 'Put 2DWeb on your phone or desktop and open it like any other app.': 'Coloque o 2DWeb no telemóvel ou no computador e abra-o como qualquer outra app.',
+      'This is a sample shop.': 'Esta é uma loja de exemplo.', 'Look around everything 2DWeb does. To make changes, sign in or create an account.': 'Explore tudo o que o 2DWeb faz. Para fazer alterações, entre ou crie uma conta.',
+      'Products': 'Produtos', 'Promotions': 'Promoções', 'My website': 'O meu site', 'History': 'Histórico', 'Account': 'Conta',
+      'Email': 'Email', 'Password': 'Palavra-passe', 'New here?': 'Novo por aqui?', 'Create an account': 'Crie uma conta',
+      'Create your account': 'Crie a sua conta', 'Use the email of your Djinja-C account, so your payments and your site stay linked.': 'Use o email da sua conta Djinja-C, para que os pagamentos e o site fiquem ligados.',
+      'Business name': 'Nome do negócio', 'Your business name': 'O nome do seu negócio', 'Password (at least 8 characters)': 'Palavra-passe (pelo menos 8 caracteres)',
+      'Already have an account?': 'Já tem conta?', 'Not now': 'Agora não',
+      'Please sign in again': 'Entre novamente', 'Something went wrong': 'Algo correu mal', 'no price': 'sem preço',
+      'Your business': 'O seu negócio', 'Your best seller': 'O seu mais vendido', 'A short description your visitors read': 'Uma descrição curta que os visitantes leem',
+      'A product that sold out': 'Um produto esgotado', 'Another product': 'Outro produto', 'A service you offer': 'Um serviço que oferece',
+      'A booking or appointment': 'Uma reserva ou marcação', 'A seasonal item, hidden for now': 'Um artigo sazonal, escondido por agora',
+      'Services': 'Serviços', 'Seasonal': 'Sazonal', 'Launch offer': 'Oferta de lançamento', 'Shown on your website while it is live': 'Aparece no seu site enquanto estiver ativa',
+      'Weekend sale': 'Promoção de fim de semana', 'Starts by itself on its first day': 'Começa por si no primeiro dia', 'Last season': 'Época passada', 'Ended by itself after its last day': 'Terminou por si depois do último dia',
+      'item added': 'produto adicionado', 'item changed': 'produto alterado', 'item deleted': 'produto apagado',
+      'promotion added': 'promoção adicionada', 'promotion changed': 'promoção alterada', 'promotion deleted': 'promoção apagada',
+      'Sign in to make changes. The sample shop cannot be changed.': 'Entre para fazer alterações. A loja de exemplo não pode ser alterada.',
+      '+ Add a product': '+ Adicionar produto', 'No products yet. Add your first one.': 'Ainda sem produtos. Adicione o primeiro.', 'No category': 'Sem categoria',
+      'Sold out': 'Esgotado', 'Hidden': 'Escondido', 'Back in stock': 'De volta ao stock', 'Hide': 'Esconder', 'Show': 'Mostrar', 'Edit': 'Editar',
+      'This is the sample shop. Sign in to save your own changes.': 'Esta é a loja de exemplo. Entre para guardar as suas alterações.',
+      'Save': 'Guardar', 'Sign in to save': 'Entre para guardar', 'Sign in to save. The sample shop cannot be changed.': 'Entre para guardar. A loja de exemplo não pode ser alterada.',
+      'Cancel': 'Cancelar', 'Delete': 'Apagar', 'Sign in to delete. The sample shop cannot be changed.': 'Entre para apagar. A loja de exemplo não pode ser alterada.', 'Tap again to delete': 'Toque de novo para apagar',
+      'Edit product': 'Editar produto', 'New product': 'Novo produto', 'Name': 'Nome', 'Price': 'Preço', 'Category': 'Categoria', 'Description': 'Descrição',
+      'Photo link (https://...)': 'Link da foto (https://...)', 'Sold out right now': 'Esgotado agora', 'Show on my website': 'Mostrar no meu site',
+      'Off': 'Desligada', 'Ended': 'Terminada', 'Starts {d}': 'Começa a {d}', 'Live now': 'Ativa agora',
+      '+ Add a promotion': '+ Adicionar promoção', 'A promotion appears on your website from its first day and disappears by itself after its last day.': 'Uma promoção aparece no seu site a partir do primeiro dia e desaparece por si depois do último.',
+      'No promotions yet.': 'Ainda sem promoções.', 'now': 'agora', 'no end': 'sem fim', '{a} to {b}': '{a} a {b}', 'No dates': 'Sem datas', '{n}% off': '{n}% de desconto', 'code {c}': 'código {c}',
+      'Turn off': 'Desligar', 'Turn on': 'Ligar', 'Edit promotion': 'Editar promoção', 'New promotion': 'Nova promoção', 'Title': 'Título', 'Message for visitors': 'Mensagem para os visitantes',
+      'Discount %': 'Desconto %', 'Promo code': 'Código promocional', 'First day': 'Primeiro dia', 'Last day': 'Último dia', 'Turned on': 'Ligada',
+      'This is what your website shows visitors right now. Hidden products, ended promotions and promotions that have not started are left out.': 'É isto que o seu site mostra agora aos visitantes. Produtos escondidos, promoções terminadas e promoções que ainda não começaram ficam de fora.',
+      'Code {c}': 'Código {c}', 'Nothing on your website yet. Add a product and it appears here.': 'Ainda não há nada no seu site. Adicione um produto e ele aparece aqui.', 'Other': 'Outros', '(sold out)': '(esgotado)',
+      'Your website reads its data from ': 'O seu site lê os dados de ', 'Everything that was changed, newest first.': 'Tudo o que foi alterado, do mais recente para o mais antigo.', 'No changes yet.': 'Ainda sem alterações.',
+      'My account': 'A minha conta', 'You are not signed in. Your account holds your email, your plan and your password.': 'Não entrou. A sua conta guarda o seu email, o seu plano e a sua palavra-passe.',
+      'Your plan and payments are linked to the email of your Djinja-C account.': 'O seu plano e os pagamentos estão ligados ao email da sua conta Djinja-C.',
+      'Signed in as {e} (your Djinja-C account email)': 'Entrou como {e} (o email da sua conta Djinja-C)', 'Plan: {p}, paid until {d}': 'Plano: {p}, pago até {d}', 'active': 'ativo',
+      'Payment status: not linked yet': 'Pagamento: ainda não ligado', 'Change my password': 'Mudar a palavra-passe', 'Current password': 'Palavra-passe atual',
+      'New password (at least 8 characters)': 'Nova palavra-passe (pelo menos 8 caracteres)', 'Save password': 'Guardar palavra-passe', 'Sign in to change it': 'Entre para a mudar',
+      'Sign in to change your password.': 'Entre para mudar a palavra-passe.', 'Password changed. Other devices were signed out.': 'Palavra-passe alterada. Os outros dispositivos foram desligados.',
+      'Business name is required': 'O nome do negócio é obrigatório', 'Your business name is required': 'O nome do seu negócio é obrigatório', 'Current password is wrong': 'A palavra-passe atual está errada',
+      'Enter a valid email: it is your sign-in and links your Djinja-C account': 'Introduza um email válido: é o seu acesso e liga a sua conta Djinja-C',
+      'That email already has an account. Sign in instead.': 'Esse email já tem conta. Entre em vez disso.', 'Too many sign-ups from here. Try again in an hour.': 'Demasiados registos a partir daqui. Tente de novo dentro de uma hora.',
+      'Too many tries. Wait 15 minutes.': 'Demasiadas tentativas. Aguarde 15 minutos.', 'Wrong email or password': 'Email ou palavra-passe errados',
+      'Password needs at least 8 characters': 'A palavra-passe precisa de pelo menos 8 caracteres', 'New password needs at least 8 characters': 'A nova palavra-passe precisa de pelo menos 8 caracteres',
+      'Name is required': 'O nome é obrigatório', 'Title is required': 'O título é obrigatório', 'Price must be a positive number': 'O preço tem de ser um número positivo',
+      'Discount must be between 0 and 100': 'O desconto tem de estar entre 0 e 100', 'Photo must be a link starting with https://': 'A foto tem de ser um link que comece por https://',
+      'The end date is before the start date': 'A data de fim é anterior à de início', 'Not found': 'Não encontrado', 'Please sign in': 'Entre, por favor',
+    },
+    es: {
+      'Change your products, prices and promotions yourself. Your website updates by itself.': 'Cambia tú mismo tus productos, precios y promociones. Tu web se actualiza sola.',
+      'Language': 'Idioma',
+      'Switch between light and dark': 'Cambiar entre claro y oscuro', 'Switch theme': 'Cambiar tema',
+      'Install app': 'Instalar app', 'Sign in': 'Entrar', 'Create account': 'Crear cuenta', 'Sign out': 'Salir',
+      'Your website, your control': 'Tu web, tu control',
+      'Update products, prices and promotions from your phone or computer. Your website picks up every change by itself, usually within a minute.': 'Actualiza productos, precios y promociones desde el móvil o el ordenador. Tu web recoge cada cambio sola, normalmente en menos de un minuto.',
+      'Products and prices': 'Productos y precios', 'Add, edit and remove products or services, with prices, photos and categories.': 'Añade, edita y elimina productos o servicios, con precios, fotos y categorías.',
+      'Sold out in one tap': 'Agotado con un toque', 'Mark something sold out or hide it, and bring it back the moment it returns.': 'Marca algo como agotado u ocúltalo, y vuelve a mostrarlo en cuanto regrese.',
+      'Promotions with dates': 'Promociones con fechas', 'Discounts and promo codes that go live on their first day and end by themselves.': 'Descuentos y códigos promocionales que empiezan su primer día y terminan solos.',
+      'See your website': 'Mira tu web', 'Preview exactly what your visitors see right now.': 'Mira exactamente lo que ven ahora tus visitantes.',
+      'Every change recorded': 'Cada cambio registrado', 'A history of what changed and when, with the old and new value.': 'Un historial de qué cambió y cuándo, con el valor anterior y el nuevo.',
+      'Install as an app': 'Instálala como app', 'Put 2DWeb on your phone or desktop and open it like any other app.': 'Pon 2DWeb en tu móvil u ordenador y ábrela como cualquier otra app.',
+      'This is a sample shop.': 'Esta es una tienda de ejemplo.', 'Look around everything 2DWeb does. To make changes, sign in or create an account.': 'Explora todo lo que hace 2DWeb. Para hacer cambios, entra o crea una cuenta.',
+      'Products': 'Productos', 'Promotions': 'Promociones', 'My website': 'Mi web', 'History': 'Historial', 'Account': 'Cuenta',
+      'Email': 'Email', 'Password': 'Contraseña', 'New here?': '¿Eres nuevo?', 'Create an account': 'Crea una cuenta',
+      'Create your account': 'Crea tu cuenta', 'Use the email of your Djinja-C account, so your payments and your site stay linked.': 'Usa el email de tu cuenta Djinja-C, para que tus pagos y tu web queden vinculados.',
+      'Business name': 'Nombre del negocio', 'Your business name': 'El nombre de tu negocio', 'Password (at least 8 characters)': 'Contraseña (al menos 8 caracteres)',
+      'Already have an account?': '¿Ya tienes cuenta?', 'Not now': 'Ahora no',
+      'Please sign in again': 'Vuelve a entrar', 'Something went wrong': 'Algo salió mal', 'no price': 'sin precio',
+      'Your business': 'Tu negocio', 'Your best seller': 'Tu más vendido', 'A short description your visitors read': 'Una descripción breve que leen tus visitantes',
+      'A product that sold out': 'Un producto agotado', 'Another product': 'Otro producto', 'A service you offer': 'Un servicio que ofreces',
+      'A booking or appointment': 'Una reserva o cita', 'A seasonal item, hidden for now': 'Un artículo de temporada, oculto por ahora',
+      'Services': 'Servicios', 'Seasonal': 'Temporada', 'Launch offer': 'Oferta de lanzamiento', 'Shown on your website while it is live': 'Se muestra en tu web mientras está activa',
+      'Weekend sale': 'Oferta de fin de semana', 'Starts by itself on its first day': 'Empieza sola su primer día', 'Last season': 'Temporada pasada', 'Ended by itself after its last day': 'Terminó sola tras su último día',
+      'item added': 'producto añadido', 'item changed': 'producto cambiado', 'item deleted': 'producto eliminado',
+      'promotion added': 'promoción añadida', 'promotion changed': 'promoción cambiada', 'promotion deleted': 'promoción eliminada',
+      'Sign in to make changes. The sample shop cannot be changed.': 'Entra para hacer cambios. La tienda de ejemplo no se puede cambiar.',
+      '+ Add a product': '+ Añadir producto', 'No products yet. Add your first one.': 'Aún no hay productos. Añade el primero.', 'No category': 'Sin categoría',
+      'Sold out': 'Agotado', 'Hidden': 'Oculto', 'Back in stock': 'Disponible de nuevo', 'Hide': 'Ocultar', 'Show': 'Mostrar', 'Edit': 'Editar',
+      'This is the sample shop. Sign in to save your own changes.': 'Esta es la tienda de ejemplo. Entra para guardar tus propios cambios.',
+      'Save': 'Guardar', 'Sign in to save': 'Entra para guardar', 'Sign in to save. The sample shop cannot be changed.': 'Entra para guardar. La tienda de ejemplo no se puede cambiar.',
+      'Cancel': 'Cancelar', 'Delete': 'Eliminar', 'Sign in to delete. The sample shop cannot be changed.': 'Entra para eliminar. La tienda de ejemplo no se puede cambiar.', 'Tap again to delete': 'Toca otra vez para eliminar',
+      'Edit product': 'Editar producto', 'New product': 'Nuevo producto', 'Name': 'Nombre', 'Price': 'Precio', 'Category': 'Categoría', 'Description': 'Descripción',
+      'Photo link (https://...)': 'Enlace de la foto (https://...)', 'Sold out right now': 'Agotado ahora', 'Show on my website': 'Mostrar en mi web',
+      'Off': 'Apagada', 'Ended': 'Terminada', 'Starts {d}': 'Empieza el {d}', 'Live now': 'Activa ahora',
+      '+ Add a promotion': '+ Añadir promoción', 'A promotion appears on your website from its first day and disappears by itself after its last day.': 'Una promoción aparece en tu web desde su primer día y desaparece sola tras el último.',
+      'No promotions yet.': 'Aún no hay promociones.', 'now': 'ahora', 'no end': 'sin fin', '{a} to {b}': '{a} a {b}', 'No dates': 'Sin fechas', '{n}% off': '{n}% de descuento', 'code {c}': 'código {c}',
+      'Turn off': 'Apagar', 'Turn on': 'Encender', 'Edit promotion': 'Editar promoción', 'New promotion': 'Nueva promoción', 'Title': 'Título', 'Message for visitors': 'Mensaje para los visitantes',
+      'Discount %': 'Descuento %', 'Promo code': 'Código promocional', 'First day': 'Primer día', 'Last day': 'Último día', 'Turned on': 'Encendida',
+      'This is what your website shows visitors right now. Hidden products, ended promotions and promotions that have not started are left out.': 'Esto es lo que tu web muestra ahora a los visitantes. Los productos ocultos, las promociones terminadas y las que aún no han empezado quedan fuera.',
+      'Code {c}': 'Código {c}', 'Nothing on your website yet. Add a product and it appears here.': 'Aún no hay nada en tu web. Añade un producto y aparecerá aquí.', 'Other': 'Otros', '(sold out)': '(agotado)',
+      'Your website reads its data from ': 'Tu web lee sus datos de ', 'Everything that was changed, newest first.': 'Todo lo que se cambió, lo más reciente primero.', 'No changes yet.': 'Aún no hay cambios.',
+      'My account': 'Mi cuenta', 'You are not signed in. Your account holds your email, your plan and your password.': 'No has entrado. Tu cuenta guarda tu email, tu plan y tu contraseña.',
+      'Your plan and payments are linked to the email of your Djinja-C account.': 'Tu plan y tus pagos están vinculados al email de tu cuenta Djinja-C.',
+      'Signed in as {e} (your Djinja-C account email)': 'Has entrado como {e} (el email de tu cuenta Djinja-C)', 'Plan: {p}, paid until {d}': 'Plan: {p}, pagado hasta {d}', 'active': 'activo',
+      'Payment status: not linked yet': 'Pago: aún no vinculado', 'Change my password': 'Cambiar mi contraseña', 'Current password': 'Contraseña actual',
+      'New password (at least 8 characters)': 'Nueva contraseña (al menos 8 caracteres)', 'Save password': 'Guardar contraseña', 'Sign in to change it': 'Entra para cambiarla',
+      'Sign in to change your password.': 'Entra para cambiar tu contraseña.', 'Password changed. Other devices were signed out.': 'Contraseña cambiada. Se cerró la sesión en los demás dispositivos.',
+      'Business name is required': 'El nombre del negocio es obligatorio', 'Your business name is required': 'El nombre de tu negocio es obligatorio', 'Current password is wrong': 'La contraseña actual es incorrecta',
+      'Enter a valid email: it is your sign-in and links your Djinja-C account': 'Introduce un email válido: es tu acceso y vincula tu cuenta Djinja-C',
+      'That email already has an account. Sign in instead.': 'Ese email ya tiene cuenta. Entra en su lugar.', 'Too many sign-ups from here. Try again in an hour.': 'Demasiados registros desde aquí. Inténtalo dentro de una hora.',
+      'Too many tries. Wait 15 minutes.': 'Demasiados intentos. Espera 15 minutos.', 'Wrong email or password': 'Email o contraseña incorrectos',
+      'Password needs at least 8 characters': 'La contraseña necesita al menos 8 caracteres', 'New password needs at least 8 characters': 'La nueva contraseña necesita al menos 8 caracteres',
+      'Name is required': 'El nombre es obligatorio', 'Title is required': 'El título es obligatorio', 'Price must be a positive number': 'El precio debe ser un número positivo',
+      'Discount must be between 0 and 100': 'El descuento debe estar entre 0 y 100', 'Photo must be a link starting with https://': 'La foto debe ser un enlace que empiece por https://',
+      'The end date is before the start date': 'La fecha de fin es anterior a la de inicio', 'Not found': 'No encontrado', 'Please sign in': 'Entra, por favor',
+    },
+    fr: {
+      'Change your products, prices and promotions yourself. Your website updates by itself.': 'Modifiez vous-même vos produits, prix et promotions. Votre site se met à jour tout seul.',
+      'Language': 'Langue',
+      'Switch between light and dark': 'Basculer entre clair et sombre', 'Switch theme': 'Changer de thème',
+      'Install app': "Installer l'app", 'Sign in': 'Se connecter', 'Create account': 'Créer un compte', 'Sign out': 'Se déconnecter',
+      'Your website, your control': 'Votre site, votre contrôle',
+      'Update products, prices and promotions from your phone or computer. Your website picks up every change by itself, usually within a minute.': 'Mettez à jour produits, prix et promotions depuis votre téléphone ou votre ordinateur. Votre site reprend chaque modification tout seul, généralement en moins d\'une minute.',
+      'Products and prices': 'Produits et prix', 'Add, edit and remove products or services, with prices, photos and categories.': 'Ajoutez, modifiez et supprimez des produits ou services, avec prix, photos et catégories.',
+      'Sold out in one tap': 'Épuisé en un geste', 'Mark something sold out or hide it, and bring it back the moment it returns.': 'Marquez un article comme épuisé ou masquez-le, et remettez-le dès son retour.',
+      'Promotions with dates': 'Promotions datées', 'Discounts and promo codes that go live on their first day and end by themselves.': 'Des remises et codes promo qui démarrent le premier jour et se terminent tout seuls.',
+      'See your website': 'Voyez votre site', 'Preview exactly what your visitors see right now.': 'Voyez exactement ce que vos visiteurs voient en ce moment.',
+      'Every change recorded': 'Chaque modification enregistrée', 'A history of what changed and when, with the old and new value.': 'Un historique de ce qui a changé et quand, avec l\'ancienne et la nouvelle valeur.',
+      'Install as an app': 'Installez-la comme une app', 'Put 2DWeb on your phone or desktop and open it like any other app.': 'Mettez 2DWeb sur votre téléphone ou votre ordinateur et ouvrez-la comme n\'importe quelle app.',
+      'This is a sample shop.': 'Ceci est une boutique exemple.', 'Look around everything 2DWeb does. To make changes, sign in or create an account.': 'Découvrez tout ce que fait 2DWeb. Pour faire des modifications, connectez-vous ou créez un compte.',
+      'Products': 'Produits', 'Promotions': 'Promotions', 'My website': 'Mon site', 'History': 'Historique', 'Account': 'Compte',
+      'Email': 'Email', 'Password': 'Mot de passe', 'New here?': 'Nouveau ici ?', 'Create an account': 'Créez un compte',
+      'Create your account': 'Créez votre compte', 'Use the email of your Djinja-C account, so your payments and your site stay linked.': 'Utilisez l\'email de votre compte Djinja-C, pour que vos paiements et votre site restent liés.',
+      'Business name': 'Nom de l\'entreprise', 'Your business name': 'Le nom de votre entreprise', 'Password (at least 8 characters)': 'Mot de passe (au moins 8 caractères)',
+      'Already have an account?': 'Déjà un compte ?', 'Not now': 'Pas maintenant',
+      'Please sign in again': 'Veuillez vous reconnecter', 'Something went wrong': 'Une erreur est survenue', 'no price': 'sans prix',
+      'Your business': 'Votre entreprise', 'Your best seller': 'Votre meilleure vente', 'A short description your visitors read': 'Une courte description que lisent vos visiteurs',
+      'A product that sold out': 'Un produit épuisé', 'Another product': 'Un autre produit', 'A service you offer': 'Un service que vous proposez',
+      'A booking or appointment': 'Une réservation ou un rendez-vous', 'A seasonal item, hidden for now': 'Un article de saison, masqué pour l\'instant',
+      'Services': 'Services', 'Seasonal': 'Saison', 'Launch offer': 'Offre de lancement', 'Shown on your website while it is live': 'Affichée sur votre site tant qu\'elle est active',
+      'Weekend sale': 'Promo du week-end', 'Starts by itself on its first day': 'Démarre toute seule le premier jour', 'Last season': 'Saison dernière', 'Ended by itself after its last day': 'Terminée toute seule après son dernier jour',
+      'item added': 'produit ajouté', 'item changed': 'produit modifié', 'item deleted': 'produit supprimé',
+      'promotion added': 'promotion ajoutée', 'promotion changed': 'promotion modifiée', 'promotion deleted': 'promotion supprimée',
+      'Sign in to make changes. The sample shop cannot be changed.': 'Connectez-vous pour faire des modifications. La boutique exemple ne peut pas être modifiée.',
+      '+ Add a product': '+ Ajouter un produit', 'No products yet. Add your first one.': 'Aucun produit pour l\'instant. Ajoutez le premier.', 'No category': 'Sans catégorie',
+      'Sold out': 'Épuisé', 'Hidden': 'Masqué', 'Back in stock': 'De retour en stock', 'Hide': 'Masquer', 'Show': 'Afficher', 'Edit': 'Modifier',
+      'This is the sample shop. Sign in to save your own changes.': 'Ceci est la boutique exemple. Connectez-vous pour enregistrer vos modifications.',
+      'Save': 'Enregistrer', 'Sign in to save': 'Connectez-vous pour enregistrer', 'Sign in to save. The sample shop cannot be changed.': 'Connectez-vous pour enregistrer. La boutique exemple ne peut pas être modifiée.',
+      'Cancel': 'Annuler', 'Delete': 'Supprimer', 'Sign in to delete. The sample shop cannot be changed.': 'Connectez-vous pour supprimer. La boutique exemple ne peut pas être modifiée.', 'Tap again to delete': 'Touchez encore pour supprimer',
+      'Edit product': 'Modifier le produit', 'New product': 'Nouveau produit', 'Name': 'Nom', 'Price': 'Prix', 'Category': 'Catégorie', 'Description': 'Description',
+      'Photo link (https://...)': 'Lien de la photo (https://...)', 'Sold out right now': 'Épuisé en ce moment', 'Show on my website': 'Afficher sur mon site',
+      'Off': 'Désactivée', 'Ended': 'Terminée', 'Starts {d}': 'Commence le {d}', 'Live now': 'Active maintenant',
+      '+ Add a promotion': '+ Ajouter une promotion', 'A promotion appears on your website from its first day and disappears by itself after its last day.': 'Une promotion apparaît sur votre site dès son premier jour et disparaît toute seule après le dernier.',
+      'No promotions yet.': 'Aucune promotion pour l\'instant.', 'now': 'maintenant', 'no end': 'sans fin', '{a} to {b}': 'du {a} au {b}', 'No dates': 'Sans dates', '{n}% off': '{n} % de remise', 'code {c}': 'code {c}',
+      'Turn off': 'Désactiver', 'Turn on': 'Activer', 'Edit promotion': 'Modifier la promotion', 'New promotion': 'Nouvelle promotion', 'Title': 'Titre', 'Message for visitors': 'Message pour les visiteurs',
+      'Discount %': 'Remise %', 'Promo code': 'Code promo', 'First day': 'Premier jour', 'Last day': 'Dernier jour', 'Turned on': 'Activée',
+      'This is what your website shows visitors right now. Hidden products, ended promotions and promotions that have not started are left out.': 'Voici ce que votre site montre aux visiteurs en ce moment. Les produits masqués, les promotions terminées et celles qui n\'ont pas commencé n\'y figurent pas.',
+      'Code {c}': 'Code {c}', 'Nothing on your website yet. Add a product and it appears here.': 'Rien sur votre site pour l\'instant. Ajoutez un produit et il apparaîtra ici.', 'Other': 'Autres', '(sold out)': '(épuisé)',
+      'Your website reads its data from ': 'Votre site lit ses données ici : ', 'Everything that was changed, newest first.': 'Tout ce qui a été modifié, le plus récent en premier.', 'No changes yet.': 'Aucune modification pour l\'instant.',
+      'My account': 'Mon compte', 'You are not signed in. Your account holds your email, your plan and your password.': 'Vous n\'êtes pas connecté. Votre compte contient votre email, votre formule et votre mot de passe.',
+      'Your plan and payments are linked to the email of your Djinja-C account.': 'Votre formule et vos paiements sont liés à l\'email de votre compte Djinja-C.',
+      'Signed in as {e} (your Djinja-C account email)': 'Connecté en tant que {e} (l\'email de votre compte Djinja-C)', 'Plan: {p}, paid until {d}': 'Formule : {p}, payée jusqu\'au {d}', 'active': 'active',
+      'Payment status: not linked yet': 'Paiement : pas encore lié', 'Change my password': 'Changer mon mot de passe', 'Current password': 'Mot de passe actuel',
+      'New password (at least 8 characters)': 'Nouveau mot de passe (au moins 8 caractères)', 'Save password': 'Enregistrer le mot de passe', 'Sign in to change it': 'Connectez-vous pour le changer',
+      'Sign in to change your password.': 'Connectez-vous pour changer votre mot de passe.', 'Password changed. Other devices were signed out.': 'Mot de passe changé. Les autres appareils ont été déconnectés.',
+      'Business name is required': 'Le nom de l\'entreprise est obligatoire', 'Your business name is required': 'Le nom de votre entreprise est obligatoire', 'Current password is wrong': 'Le mot de passe actuel est incorrect',
+      'Enter a valid email: it is your sign-in and links your Djinja-C account': 'Saisissez un email valide : c\'est votre identifiant et il relie votre compte Djinja-C',
+      'That email already has an account. Sign in instead.': 'Cet email a déjà un compte. Connectez-vous plutôt.', 'Too many sign-ups from here. Try again in an hour.': 'Trop d\'inscriptions depuis cet endroit. Réessayez dans une heure.',
+      'Too many tries. Wait 15 minutes.': 'Trop de tentatives. Attendez 15 minutes.', 'Wrong email or password': 'Email ou mot de passe incorrect',
+      'Password needs at least 8 characters': 'Le mot de passe doit contenir au moins 8 caractères', 'New password needs at least 8 characters': 'Le nouveau mot de passe doit contenir au moins 8 caractères',
+      'Name is required': 'Le nom est obligatoire', 'Title is required': 'Le titre est obligatoire', 'Price must be a positive number': 'Le prix doit être un nombre positif',
+      'Discount must be between 0 and 100': 'La remise doit être comprise entre 0 et 100', 'Photo must be a link starting with https://': 'La photo doit être un lien commençant par https://',
+      'The end date is before the start date': 'La date de fin est avant la date de début', 'Not found': 'Introuvable', 'Please sign in': 'Veuillez vous connecter',
+    },
+    de: {
+      'Change your products, prices and promotions yourself. Your website updates by itself.': 'Ändern Sie Ihre Produkte, Preise und Aktionen selbst. Ihre Website aktualisiert sich von allein.',
+      'Language': 'Sprache',
+      'Switch between light and dark': 'Zwischen hell und dunkel wechseln', 'Switch theme': 'Design wechseln',
+      'Install app': 'App installieren', 'Sign in': 'Anmelden', 'Create account': 'Konto erstellen', 'Sign out': 'Abmelden',
+      'Your website, your control': 'Ihre Website, Ihre Kontrolle',
+      'Update products, prices and promotions from your phone or computer. Your website picks up every change by itself, usually within a minute.': 'Aktualisieren Sie Produkte, Preise und Aktionen am Handy oder Computer. Ihre Website übernimmt jede Änderung von allein, meist innerhalb einer Minute.',
+      'Products and prices': 'Produkte und Preise', 'Add, edit and remove products or services, with prices, photos and categories.': 'Produkte oder Leistungen hinzufügen, bearbeiten und entfernen, mit Preisen, Fotos und Kategorien.',
+      'Sold out in one tap': 'Ausverkauft mit einem Tipp', 'Mark something sold out or hide it, and bring it back the moment it returns.': 'Markieren Sie etwas als ausverkauft oder blenden Sie es aus, und holen Sie es zurück, sobald es wieder da ist.',
+      'Promotions with dates': 'Aktionen mit Datum', 'Discounts and promo codes that go live on their first day and end by themselves.': 'Rabatte und Aktionscodes, die am ersten Tag starten und von allein enden.',
+      'See your website': 'Ihre Website ansehen', 'Preview exactly what your visitors see right now.': 'Sehen Sie genau, was Ihre Besucher gerade sehen.',
+      'Every change recorded': 'Jede Änderung festgehalten', 'A history of what changed and when, with the old and new value.': 'Ein Verlauf, was sich wann geändert hat, mit altem und neuem Wert.',
+      'Install as an app': 'Als App installieren', 'Put 2DWeb on your phone or desktop and open it like any other app.': 'Legen Sie 2DWeb auf Handy oder Desktop und öffnen Sie es wie jede andere App.',
+      'This is a sample shop.': 'Das ist ein Beispielshop.', 'Look around everything 2DWeb does. To make changes, sign in or create an account.': 'Sehen Sie sich alles an, was 2DWeb kann. Um etwas zu ändern, melden Sie sich an oder erstellen Sie ein Konto.',
+      'Products': 'Produkte', 'Promotions': 'Aktionen', 'My website': 'Meine Website', 'History': 'Verlauf', 'Account': 'Konto',
+      'Email': 'E-Mail', 'Password': 'Passwort', 'New here?': 'Neu hier?', 'Create an account': 'Konto erstellen',
+      'Create your account': 'Erstellen Sie Ihr Konto', 'Use the email of your Djinja-C account, so your payments and your site stay linked.': 'Verwenden Sie die E-Mail Ihres Djinja-C-Kontos, damit Zahlungen und Website verbunden bleiben.',
+      'Business name': 'Name des Unternehmens', 'Your business name': 'Der Name Ihres Unternehmens', 'Password (at least 8 characters)': 'Passwort (mindestens 8 Zeichen)',
+      'Already have an account?': 'Schon ein Konto?', 'Not now': 'Nicht jetzt',
+      'Please sign in again': 'Bitte melden Sie sich erneut an', 'Something went wrong': 'Etwas ist schiefgelaufen', 'no price': 'kein Preis',
+      'Your business': 'Ihr Unternehmen', 'Your best seller': 'Ihr Bestseller', 'A short description your visitors read': 'Eine kurze Beschreibung für Ihre Besucher',
+      'A product that sold out': 'Ein ausverkauftes Produkt', 'Another product': 'Ein weiteres Produkt', 'A service you offer': 'Eine Leistung, die Sie anbieten',
+      'A booking or appointment': 'Eine Buchung oder ein Termin', 'A seasonal item, hidden for now': 'Ein Saisonartikel, vorerst ausgeblendet',
+      'Services': 'Leistungen', 'Seasonal': 'Saison', 'Launch offer': 'Einführungsangebot', 'Shown on your website while it is live': 'Auf Ihrer Website sichtbar, solange sie läuft',
+      'Weekend sale': 'Wochenend-Aktion', 'Starts by itself on its first day': 'Startet von allein am ersten Tag', 'Last season': 'Letzte Saison', 'Ended by itself after its last day': 'Nach dem letzten Tag von allein beendet',
+      'item added': 'Produkt hinzugefügt', 'item changed': 'Produkt geändert', 'item deleted': 'Produkt gelöscht',
+      'promotion added': 'Aktion hinzugefügt', 'promotion changed': 'Aktion geändert', 'promotion deleted': 'Aktion gelöscht',
+      'Sign in to make changes. The sample shop cannot be changed.': 'Melden Sie sich an, um etwas zu ändern. Der Beispielshop kann nicht geändert werden.',
+      '+ Add a product': '+ Produkt hinzufügen', 'No products yet. Add your first one.': 'Noch keine Produkte. Fügen Sie das erste hinzu.', 'No category': 'Keine Kategorie',
+      'Sold out': 'Ausverkauft', 'Hidden': 'Ausgeblendet', 'Back in stock': 'Wieder vorrätig', 'Hide': 'Ausblenden', 'Show': 'Anzeigen', 'Edit': 'Bearbeiten',
+      'This is the sample shop. Sign in to save your own changes.': 'Das ist der Beispielshop. Melden Sie sich an, um eigene Änderungen zu speichern.',
+      'Save': 'Speichern', 'Sign in to save': 'Zum Speichern anmelden', 'Sign in to save. The sample shop cannot be changed.': 'Zum Speichern anmelden. Der Beispielshop kann nicht geändert werden.',
+      'Cancel': 'Abbrechen', 'Delete': 'Löschen', 'Sign in to delete. The sample shop cannot be changed.': 'Zum Löschen anmelden. Der Beispielshop kann nicht geändert werden.', 'Tap again to delete': 'Zum Löschen erneut tippen',
+      'Edit product': 'Produkt bearbeiten', 'New product': 'Neues Produkt', 'Name': 'Name', 'Price': 'Preis', 'Category': 'Kategorie', 'Description': 'Beschreibung',
+      'Photo link (https://...)': 'Foto-Link (https://...)', 'Sold out right now': 'Gerade ausverkauft', 'Show on my website': 'Auf meiner Website anzeigen',
+      'Off': 'Aus', 'Ended': 'Beendet', 'Starts {d}': 'Beginnt am {d}', 'Live now': 'Läuft jetzt',
+      '+ Add a promotion': '+ Aktion hinzufügen', 'A promotion appears on your website from its first day and disappears by itself after its last day.': 'Eine Aktion erscheint ab ihrem ersten Tag auf Ihrer Website und verschwindet nach dem letzten Tag von allein.',
+      'No promotions yet.': 'Noch keine Aktionen.', 'now': 'jetzt', 'no end': 'ohne Ende', '{a} to {b}': '{a} bis {b}', 'No dates': 'Ohne Datum', '{n}% off': '{n} % Rabatt', 'code {c}': 'Code {c}',
+      'Turn off': 'Ausschalten', 'Turn on': 'Einschalten', 'Edit promotion': 'Aktion bearbeiten', 'New promotion': 'Neue Aktion', 'Title': 'Titel', 'Message for visitors': 'Nachricht für Besucher',
+      'Discount %': 'Rabatt %', 'Promo code': 'Aktionscode', 'First day': 'Erster Tag', 'Last day': 'Letzter Tag', 'Turned on': 'Eingeschaltet',
+      'This is what your website shows visitors right now. Hidden products, ended promotions and promotions that have not started are left out.': 'Das zeigt Ihre Website den Besuchern gerade. Ausgeblendete Produkte, beendete und noch nicht gestartete Aktionen fehlen.',
+      'Code {c}': 'Code {c}', 'Nothing on your website yet. Add a product and it appears here.': 'Noch nichts auf Ihrer Website. Fügen Sie ein Produkt hinzu, dann erscheint es hier.', 'Other': 'Sonstiges', '(sold out)': '(ausverkauft)',
+      'Your website reads its data from ': 'Ihre Website liest ihre Daten von ', 'Everything that was changed, newest first.': 'Alles, was geändert wurde, das Neueste zuerst.', 'No changes yet.': 'Noch keine Änderungen.',
+      'My account': 'Mein Konto', 'You are not signed in. Your account holds your email, your plan and your password.': 'Sie sind nicht angemeldet. Ihr Konto enthält Ihre E-Mail, Ihren Tarif und Ihr Passwort.',
+      'Your plan and payments are linked to the email of your Djinja-C account.': 'Ihr Tarif und Ihre Zahlungen sind mit der E-Mail Ihres Djinja-C-Kontos verbunden.',
+      'Signed in as {e} (your Djinja-C account email)': 'Angemeldet als {e} (die E-Mail Ihres Djinja-C-Kontos)', 'Plan: {p}, paid until {d}': 'Tarif: {p}, bezahlt bis {d}', 'active': 'aktiv',
+      'Payment status: not linked yet': 'Zahlung: noch nicht verbunden', 'Change my password': 'Mein Passwort ändern', 'Current password': 'Aktuelles Passwort',
+      'New password (at least 8 characters)': 'Neues Passwort (mindestens 8 Zeichen)', 'Save password': 'Passwort speichern', 'Sign in to change it': 'Zum Ändern anmelden',
+      'Sign in to change your password.': 'Melden Sie sich an, um Ihr Passwort zu ändern.', 'Password changed. Other devices were signed out.': 'Passwort geändert. Andere Geräte wurden abgemeldet.',
+      'Business name is required': 'Der Name des Unternehmens ist erforderlich', 'Your business name is required': 'Der Name Ihres Unternehmens ist erforderlich', 'Current password is wrong': 'Das aktuelle Passwort ist falsch',
+      'Enter a valid email: it is your sign-in and links your Djinja-C account': 'Geben Sie eine gültige E-Mail ein: Sie ist Ihre Anmeldung und verbindet Ihr Djinja-C-Konto',
+      'That email already has an account. Sign in instead.': 'Diese E-Mail hat bereits ein Konto. Melden Sie sich stattdessen an.', 'Too many sign-ups from here. Try again in an hour.': 'Zu viele Registrierungen von hier. Versuchen Sie es in einer Stunde erneut.',
+      'Too many tries. Wait 15 minutes.': 'Zu viele Versuche. Warten Sie 15 Minuten.', 'Wrong email or password': 'E-Mail oder Passwort falsch',
+      'Password needs at least 8 characters': 'Das Passwort braucht mindestens 8 Zeichen', 'New password needs at least 8 characters': 'Das neue Passwort braucht mindestens 8 Zeichen',
+      'Name is required': 'Der Name ist erforderlich', 'Title is required': 'Der Titel ist erforderlich', 'Price must be a positive number': 'Der Preis muss eine positive Zahl sein',
+      'Discount must be between 0 and 100': 'Der Rabatt muss zwischen 0 und 100 liegen', 'Photo must be a link starting with https://': 'Das Foto muss ein Link sein, der mit https:// beginnt',
+      'The end date is before the start date': 'Das Enddatum liegt vor dem Startdatum', 'Not found': 'Nicht gefunden', 'Please sign in': 'Bitte melden Sie sich an',
+    },
+    it: {
+      'Change your products, prices and promotions yourself. Your website updates by itself.': 'Cambia da solo prodotti, prezzi e promozioni. Il tuo sito si aggiorna da sé.',
+      'Language': 'Lingua',
+      'Switch between light and dark': 'Passa da chiaro a scuro', 'Switch theme': 'Cambia tema',
+      'Install app': "Installa l'app", 'Sign in': 'Accedi', 'Create account': 'Crea account', 'Sign out': 'Esci',
+      'Your website, your control': 'Il tuo sito, il tuo controllo',
+      'Update products, prices and promotions from your phone or computer. Your website picks up every change by itself, usually within a minute.': 'Aggiorna prodotti, prezzi e promozioni dal telefono o dal computer. Il tuo sito riceve ogni modifica da sé, di solito entro un minuto.',
+      'Products and prices': 'Prodotti e prezzi', 'Add, edit and remove products or services, with prices, photos and categories.': 'Aggiungi, modifica e rimuovi prodotti o servizi, con prezzi, foto e categorie.',
+      'Sold out in one tap': 'Esaurito con un tocco', 'Mark something sold out or hide it, and bring it back the moment it returns.': 'Segna un articolo come esaurito o nascondilo, e rimettilo appena torna disponibile.',
+      'Promotions with dates': 'Promozioni con date', 'Discounts and promo codes that go live on their first day and end by themselves.': 'Sconti e codici promozionali che partono il primo giorno e finiscono da soli.',
+      'See your website': 'Guarda il tuo sito', 'Preview exactly what your visitors see right now.': 'Guarda esattamente cosa vedono ora i tuoi visitatori.',
+      'Every change recorded': 'Ogni modifica registrata', 'A history of what changed and when, with the old and new value.': 'Una cronologia di cosa è cambiato e quando, con il valore vecchio e quello nuovo.',
+      'Install as an app': "Installala come un'app", 'Put 2DWeb on your phone or desktop and open it like any other app.': "Metti 2DWeb sul telefono o sul computer e aprila come qualsiasi altra app.",
+      'This is a sample shop.': 'Questo è un negozio di esempio.', 'Look around everything 2DWeb does. To make changes, sign in or create an account.': 'Scopri tutto quello che fa 2DWeb. Per fare modifiche, accedi o crea un account.',
+      'Products': 'Prodotti', 'Promotions': 'Promozioni', 'My website': 'Il mio sito', 'History': 'Cronologia', 'Account': 'Account',
+      'Email': 'Email', 'Password': 'Password', 'New here?': 'Sei nuovo?', 'Create an account': 'Crea un account',
+      'Create your account': 'Crea il tuo account', 'Use the email of your Djinja-C account, so your payments and your site stay linked.': "Usa l'email del tuo account Djinja-C, così pagamenti e sito restano collegati.",
+      'Business name': "Nome dell'attività", 'Your business name': 'Il nome della tua attività', 'Password (at least 8 characters)': 'Password (almeno 8 caratteri)',
+      'Already have an account?': 'Hai già un account?', 'Not now': 'Non ora',
+      'Please sign in again': 'Accedi di nuovo', 'Something went wrong': 'Qualcosa è andato storto', 'no price': 'senza prezzo',
+      'Your business': 'La tua attività', 'Your best seller': 'Il tuo più venduto', 'A short description your visitors read': 'Una breve descrizione che leggono i visitatori',
+      'A product that sold out': 'Un prodotto esaurito', 'Another product': 'Un altro prodotto', 'A service you offer': 'Un servizio che offri',
+      'A booking or appointment': 'Una prenotazione o un appuntamento', 'A seasonal item, hidden for now': 'Un articolo stagionale, nascosto per ora',
+      'Services': 'Servizi', 'Seasonal': 'Stagionale', 'Launch offer': 'Offerta di lancio', 'Shown on your website while it is live': 'Visibile sul tuo sito finché è attiva',
+      'Weekend sale': 'Offerta del weekend', 'Starts by itself on its first day': 'Parte da sola il primo giorno', 'Last season': 'Stagione scorsa', 'Ended by itself after its last day': "Finita da sola dopo l'ultimo giorno",
+      'item added': 'prodotto aggiunto', 'item changed': 'prodotto modificato', 'item deleted': 'prodotto eliminato',
+      'promotion added': 'promozione aggiunta', 'promotion changed': 'promozione modificata', 'promotion deleted': 'promozione eliminata',
+      'Sign in to make changes. The sample shop cannot be changed.': 'Accedi per fare modifiche. Il negozio di esempio non si può modificare.',
+      '+ Add a product': '+ Aggiungi prodotto', 'No products yet. Add your first one.': 'Ancora nessun prodotto. Aggiungi il primo.', 'No category': 'Nessuna categoria',
+      'Sold out': 'Esaurito', 'Hidden': 'Nascosto', 'Back in stock': 'Di nuovo disponibile', 'Hide': 'Nascondi', 'Show': 'Mostra', 'Edit': 'Modifica',
+      'This is the sample shop. Sign in to save your own changes.': 'Questo è il negozio di esempio. Accedi per salvare le tue modifiche.',
+      'Save': 'Salva', 'Sign in to save': 'Accedi per salvare', 'Sign in to save. The sample shop cannot be changed.': 'Accedi per salvare. Il negozio di esempio non si può modificare.',
+      'Cancel': 'Annulla', 'Delete': 'Elimina', 'Sign in to delete. The sample shop cannot be changed.': 'Accedi per eliminare. Il negozio di esempio non si può modificare.', 'Tap again to delete': 'Tocca di nuovo per eliminare',
+      'Edit product': 'Modifica prodotto', 'New product': 'Nuovo prodotto', 'Name': 'Nome', 'Price': 'Prezzo', 'Category': 'Categoria', 'Description': 'Descrizione',
+      'Photo link (https://...)': 'Link della foto (https://...)', 'Sold out right now': 'Esaurito ora', 'Show on my website': 'Mostra sul mio sito',
+      'Off': 'Spenta', 'Ended': 'Finita', 'Starts {d}': 'Inizia il {d}', 'Live now': 'Attiva ora',
+      '+ Add a promotion': '+ Aggiungi promozione', 'A promotion appears on your website from its first day and disappears by itself after its last day.': "Una promozione appare sul tuo sito dal primo giorno e sparisce da sola dopo l'ultimo.",
+      'No promotions yet.': 'Ancora nessuna promozione.', 'now': 'ora', 'no end': 'senza fine', '{a} to {b}': 'dal {a} al {b}', 'No dates': 'Senza date', '{n}% off': '{n}% di sconto', 'code {c}': 'codice {c}',
+      'Turn off': 'Spegni', 'Turn on': 'Accendi', 'Edit promotion': 'Modifica promozione', 'New promotion': 'Nuova promozione', 'Title': 'Titolo', 'Message for visitors': 'Messaggio per i visitatori',
+      'Discount %': 'Sconto %', 'Promo code': 'Codice promozionale', 'First day': 'Primo giorno', 'Last day': 'Ultimo giorno', 'Turned on': 'Accesa',
+      'This is what your website shows visitors right now. Hidden products, ended promotions and promotions that have not started are left out.': 'Questo è ciò che il tuo sito mostra ora ai visitatori. Prodotti nascosti, promozioni finite e quelle non ancora iniziate restano fuori.',
+      'Code {c}': 'Codice {c}', 'Nothing on your website yet. Add a product and it appears here.': 'Ancora niente sul tuo sito. Aggiungi un prodotto e apparirà qui.', 'Other': 'Altro', '(sold out)': '(esaurito)',
+      'Your website reads its data from ': 'Il tuo sito legge i dati da ', 'Everything that was changed, newest first.': 'Tutto ciò che è stato modificato, dal più recente.', 'No changes yet.': 'Ancora nessuna modifica.',
+      'My account': 'Il mio account', 'You are not signed in. Your account holds your email, your plan and your password.': 'Non hai effettuato l\'accesso. Il tuo account contiene email, piano e password.',
+      'Your plan and payments are linked to the email of your Djinja-C account.': "Il tuo piano e i pagamenti sono collegati all'email del tuo account Djinja-C.",
+      'Signed in as {e} (your Djinja-C account email)': "Accesso come {e} (l'email del tuo account Djinja-C)", 'Plan: {p}, paid until {d}': 'Piano: {p}, pagato fino al {d}', 'active': 'attivo',
+      'Payment status: not linked yet': 'Pagamento: non ancora collegato', 'Change my password': 'Cambia la mia password', 'Current password': 'Password attuale',
+      'New password (at least 8 characters)': 'Nuova password (almeno 8 caratteri)', 'Save password': 'Salva password', 'Sign in to change it': 'Accedi per cambiarla',
+      'Sign in to change your password.': 'Accedi per cambiare la password.', 'Password changed. Other devices were signed out.': 'Password cambiata. Gli altri dispositivi sono stati disconnessi.',
+      'Business name is required': "Il nome dell'attività è obbligatorio", 'Your business name is required': 'Il nome della tua attività è obbligatorio', 'Current password is wrong': 'La password attuale è sbagliata',
+      'Enter a valid email: it is your sign-in and links your Djinja-C account': 'Inserisci un\'email valida: è il tuo accesso e collega il tuo account Djinja-C',
+      'That email already has an account. Sign in instead.': 'Questa email ha già un account. Accedi invece.', 'Too many sign-ups from here. Try again in an hour.': 'Troppe registrazioni da qui. Riprova tra un\'ora.',
+      'Too many tries. Wait 15 minutes.': 'Troppi tentativi. Attendi 15 minuti.', 'Wrong email or password': 'Email o password sbagliate',
+      'Password needs at least 8 characters': 'La password deve avere almeno 8 caratteri', 'New password needs at least 8 characters': 'La nuova password deve avere almeno 8 caratteri',
+      'Name is required': 'Il nome è obbligatorio', 'Title is required': 'Il titolo è obbligatorio', 'Price must be a positive number': 'Il prezzo deve essere un numero positivo',
+      'Discount must be between 0 and 100': 'Lo sconto deve essere tra 0 e 100', 'Photo must be a link starting with https://': 'La foto deve essere un link che inizia con https://',
+      'The end date is before the start date': 'La data di fine è prima di quella di inizio', 'Not found': 'Non trovato', 'Please sign in': 'Accedi, per favore',
+    },
+    id: {
+      'Change your products, prices and promotions yourself. Your website updates by itself.': 'Ubah sendiri produk, harga, dan promo Anda. Situs Anda diperbarui dengan sendirinya.',
+      'Language': 'Bahasa',
+      'Switch between light and dark': 'Ganti antara terang dan gelap', 'Switch theme': 'Ganti tema',
+      'Install app': 'Pasang aplikasi', 'Sign in': 'Masuk', 'Create account': 'Buat akun', 'Sign out': 'Keluar',
+      'Your website, your control': 'Situs Anda, kendali Anda',
+      'Update products, prices and promotions from your phone or computer. Your website picks up every change by itself, usually within a minute.': 'Perbarui produk, harga, dan promo dari ponsel atau komputer. Situs Anda menerima setiap perubahan dengan sendirinya, biasanya dalam satu menit.',
+      'Products and prices': 'Produk dan harga', 'Add, edit and remove products or services, with prices, photos and categories.': 'Tambah, ubah, dan hapus produk atau layanan, lengkap dengan harga, foto, dan kategori.',
+      'Sold out in one tap': 'Habis dengan satu ketukan', 'Mark something sold out or hide it, and bring it back the moment it returns.': 'Tandai barang sebagai habis atau sembunyikan, lalu tampilkan lagi begitu tersedia.',
+      'Promotions with dates': 'Promo dengan tanggal', 'Discounts and promo codes that go live on their first day and end by themselves.': 'Diskon dan kode promo yang mulai pada hari pertama dan berakhir dengan sendirinya.',
+      'See your website': 'Lihat situs Anda', 'Preview exactly what your visitors see right now.': 'Lihat persis apa yang dilihat pengunjung Anda saat ini.',
+      'Every change recorded': 'Setiap perubahan tercatat', 'A history of what changed and when, with the old and new value.': 'Riwayat apa yang berubah dan kapan, dengan nilai lama dan baru.',
+      'Install as an app': 'Pasang sebagai aplikasi', 'Put 2DWeb on your phone or desktop and open it like any other app.': 'Pasang 2DWeb di ponsel atau komputer dan buka seperti aplikasi lainnya.',
+      'This is a sample shop.': 'Ini adalah toko contoh.', 'Look around everything 2DWeb does. To make changes, sign in or create an account.': 'Lihat semua yang bisa dilakukan 2DWeb. Untuk membuat perubahan, masuk atau buat akun.',
+      'Products': 'Produk', 'Promotions': 'Promo', 'My website': 'Situs saya', 'History': 'Riwayat', 'Account': 'Akun',
+      'Email': 'Email', 'Password': 'Kata sandi', 'New here?': 'Baru di sini?', 'Create an account': 'Buat akun',
+      'Create your account': 'Buat akun Anda', 'Use the email of your Djinja-C account, so your payments and your site stay linked.': 'Gunakan email akun Djinja-C Anda, agar pembayaran dan situs Anda tetap terhubung.',
+      'Business name': 'Nama usaha', 'Your business name': 'Nama usaha Anda', 'Password (at least 8 characters)': 'Kata sandi (minimal 8 karakter)',
+      'Already have an account?': 'Sudah punya akun?', 'Not now': 'Nanti saja',
+      'Please sign in again': 'Silakan masuk lagi', 'Something went wrong': 'Terjadi kesalahan', 'no price': 'tanpa harga',
+      'Your business': 'Usaha Anda', 'Your best seller': 'Produk terlaris Anda', 'A short description your visitors read': 'Deskripsi singkat yang dibaca pengunjung',
+      'A product that sold out': 'Produk yang habis', 'Another product': 'Produk lain', 'A service you offer': 'Layanan yang Anda tawarkan',
+      'A booking or appointment': 'Pemesanan atau janji temu', 'A seasonal item, hidden for now': 'Barang musiman, disembunyikan untuk sementara',
+      'Services': 'Layanan', 'Seasonal': 'Musiman', 'Launch offer': 'Penawaran peluncuran', 'Shown on your website while it is live': 'Tampil di situs Anda selama aktif',
+      'Weekend sale': 'Promo akhir pekan', 'Starts by itself on its first day': 'Mulai sendiri pada hari pertama', 'Last season': 'Musim lalu', 'Ended by itself after its last day': 'Berakhir sendiri setelah hari terakhir',
+      'item added': 'produk ditambahkan', 'item changed': 'produk diubah', 'item deleted': 'produk dihapus',
+      'promotion added': 'promo ditambahkan', 'promotion changed': 'promo diubah', 'promotion deleted': 'promo dihapus',
+      'Sign in to make changes. The sample shop cannot be changed.': 'Masuk untuk membuat perubahan. Toko contoh tidak bisa diubah.',
+      '+ Add a product': '+ Tambah produk', 'No products yet. Add your first one.': 'Belum ada produk. Tambahkan yang pertama.', 'No category': 'Tanpa kategori',
+      'Sold out': 'Habis', 'Hidden': 'Disembunyikan', 'Back in stock': 'Tersedia lagi', 'Hide': 'Sembunyikan', 'Show': 'Tampilkan', 'Edit': 'Ubah',
+      'This is the sample shop. Sign in to save your own changes.': 'Ini toko contoh. Masuk untuk menyimpan perubahan Anda sendiri.',
+      'Save': 'Simpan', 'Sign in to save': 'Masuk untuk menyimpan', 'Sign in to save. The sample shop cannot be changed.': 'Masuk untuk menyimpan. Toko contoh tidak bisa diubah.',
+      'Cancel': 'Batal', 'Delete': 'Hapus', 'Sign in to delete. The sample shop cannot be changed.': 'Masuk untuk menghapus. Toko contoh tidak bisa diubah.', 'Tap again to delete': 'Ketuk lagi untuk menghapus',
+      'Edit product': 'Ubah produk', 'New product': 'Produk baru', 'Name': 'Nama', 'Price': 'Harga', 'Category': 'Kategori', 'Description': 'Deskripsi',
+      'Photo link (https://...)': 'Tautan foto (https://...)', 'Sold out right now': 'Sedang habis', 'Show on my website': 'Tampilkan di situs saya',
+      'Off': 'Mati', 'Ended': 'Berakhir', 'Starts {d}': 'Mulai {d}', 'Live now': 'Aktif sekarang',
+      '+ Add a promotion': '+ Tambah promo', 'A promotion appears on your website from its first day and disappears by itself after its last day.': 'Promo muncul di situs Anda sejak hari pertama dan hilang sendiri setelah hari terakhir.',
+      'No promotions yet.': 'Belum ada promo.', 'now': 'sekarang', 'no end': 'tanpa akhir', '{a} to {b}': '{a} sampai {b}', 'No dates': 'Tanpa tanggal', '{n}% off': 'diskon {n}%', 'code {c}': 'kode {c}',
+      'Turn off': 'Matikan', 'Turn on': 'Nyalakan', 'Edit promotion': 'Ubah promo', 'New promotion': 'Promo baru', 'Title': 'Judul', 'Message for visitors': 'Pesan untuk pengunjung',
+      'Discount %': 'Diskon %', 'Promo code': 'Kode promo', 'First day': 'Hari pertama', 'Last day': 'Hari terakhir', 'Turned on': 'Menyala',
+      'This is what your website shows visitors right now. Hidden products, ended promotions and promotions that have not started are left out.': 'Inilah yang ditampilkan situs Anda kepada pengunjung saat ini. Produk tersembunyi, promo yang sudah berakhir, dan promo yang belum mulai tidak ditampilkan.',
+      'Code {c}': 'Kode {c}', 'Nothing on your website yet. Add a product and it appears here.': 'Belum ada apa pun di situs Anda. Tambahkan produk dan produk itu muncul di sini.', 'Other': 'Lainnya', '(sold out)': '(habis)',
+      'Your website reads its data from ': 'Situs Anda membaca datanya dari ', 'Everything that was changed, newest first.': 'Semua yang diubah, terbaru lebih dulu.', 'No changes yet.': 'Belum ada perubahan.',
+      'My account': 'Akun saya', 'You are not signed in. Your account holds your email, your plan and your password.': 'Anda belum masuk. Akun Anda menyimpan email, paket, dan kata sandi Anda.',
+      'Your plan and payments are linked to the email of your Djinja-C account.': 'Paket dan pembayaran Anda terhubung dengan email akun Djinja-C Anda.',
+      'Signed in as {e} (your Djinja-C account email)': 'Masuk sebagai {e} (email akun Djinja-C Anda)', 'Plan: {p}, paid until {d}': 'Paket: {p}, dibayar sampai {d}', 'active': 'aktif',
+      'Payment status: not linked yet': 'Pembayaran: belum terhubung', 'Change my password': 'Ganti kata sandi saya', 'Current password': 'Kata sandi saat ini',
+      'New password (at least 8 characters)': 'Kata sandi baru (minimal 8 karakter)', 'Save password': 'Simpan kata sandi', 'Sign in to change it': 'Masuk untuk menggantinya',
+      'Sign in to change your password.': 'Masuk untuk mengganti kata sandi Anda.', 'Password changed. Other devices were signed out.': 'Kata sandi diganti. Perangkat lain telah dikeluarkan.',
+      'Business name is required': 'Nama usaha wajib diisi', 'Your business name is required': 'Nama usaha Anda wajib diisi', 'Current password is wrong': 'Kata sandi saat ini salah',
+      'Enter a valid email: it is your sign-in and links your Djinja-C account': 'Masukkan email yang valid: email ini untuk masuk dan menghubungkan akun Djinja-C Anda',
+      'That email already has an account. Sign in instead.': 'Email itu sudah punya akun. Silakan masuk.', 'Too many sign-ups from here. Try again in an hour.': 'Terlalu banyak pendaftaran dari sini. Coba lagi dalam satu jam.',
+      'Too many tries. Wait 15 minutes.': 'Terlalu banyak percobaan. Tunggu 15 menit.', 'Wrong email or password': 'Email atau kata sandi salah',
+      'Password needs at least 8 characters': 'Kata sandi minimal 8 karakter', 'New password needs at least 8 characters': 'Kata sandi baru minimal 8 karakter',
+      'Name is required': 'Nama wajib diisi', 'Title is required': 'Judul wajib diisi', 'Price must be a positive number': 'Harga harus berupa angka positif',
+      'Discount must be between 0 and 100': 'Diskon harus antara 0 dan 100', 'Photo must be a link starting with https://': 'Foto harus berupa tautan yang diawali https://',
+      'The end date is before the start date': 'Tanggal akhir sebelum tanggal mulai', 'Not found': 'Tidak ditemukan', 'Please sign in': 'Silakan masuk',
+    },
+  };
+
+  // Forgot password (added 2026-11-10).
+  var FORGOT = {
+    pt: { 'Forgot password?': 'Esqueceu a palavra-passe?', 'Reset your password': 'Redefinir a palavra-passe', 'Enter your email. We will send you a link to choose a new password.': 'Introduza o seu email. Enviamos um link para escolher uma nova palavra-passe.', 'Send the link': 'Enviar o link', 'If that email has an account, a link is on its way. Check your inbox and spam folder.': 'Se esse email tiver conta, o link está a caminho. Veja a caixa de entrada e o spam.', 'Back to sign in': 'Voltar a entrar', 'Choose a new password': 'Escolha uma nova palavra-passe', 'Save and sign in': 'Guardar e entrar', 'Password reset by email is not available yet.': 'A redefinição por email ainda não está disponível.', 'Too many tries. Try again in an hour.': 'Demasiadas tentativas. Tente de novo dentro de uma hora.', 'The email could not be sent. Try again in a few minutes.': 'Não foi possível enviar o email. Tente de novo dentro de alguns minutos.', 'This reset link has expired or was already used. Ask for a new one.': 'Este link expirou ou já foi usado. Peça um novo.', 'Password changed. You are signed in.': 'Palavra-passe alterada. Já entrou.' },
+    es: { 'Forgot password?': '¿Olvidaste la contraseña?', 'Reset your password': 'Restablece tu contraseña', 'Enter your email. We will send you a link to choose a new password.': 'Escribe tu email. Te enviaremos un enlace para elegir una contraseña nueva.', 'Send the link': 'Enviar el enlace', 'If that email has an account, a link is on its way. Check your inbox and spam folder.': 'Si ese email tiene cuenta, el enlace va en camino. Revisa la bandeja de entrada y el spam.', 'Back to sign in': 'Volver a entrar', 'Choose a new password': 'Elige una contraseña nueva', 'Save and sign in': 'Guardar y entrar', 'Password reset by email is not available yet.': 'El restablecimiento por email aún no está disponible.', 'Too many tries. Try again in an hour.': 'Demasiados intentos. Inténtalo dentro de una hora.', 'The email could not be sent. Try again in a few minutes.': 'No se pudo enviar el email. Inténtalo dentro de unos minutos.', 'This reset link has expired or was already used. Ask for a new one.': 'Este enlace ha caducado o ya se usó. Pide uno nuevo.', 'Password changed. You are signed in.': 'Contraseña cambiada. Ya has entrado.' },
+    fr: { 'Forgot password?': 'Mot de passe oublié ?', 'Reset your password': 'Réinitialisez votre mot de passe', 'Enter your email. We will send you a link to choose a new password.': 'Saisissez votre email. Nous vous enverrons un lien pour choisir un nouveau mot de passe.', 'Send the link': 'Envoyer le lien', 'If that email has an account, a link is on its way. Check your inbox and spam folder.': 'Si cet email a un compte, le lien est en route. Vérifiez votre boîte de réception et vos spams.', 'Back to sign in': 'Retour à la connexion', 'Choose a new password': 'Choisissez un nouveau mot de passe', 'Save and sign in': 'Enregistrer et se connecter', 'Password reset by email is not available yet.': "La réinitialisation par email n'est pas encore disponible.", 'Too many tries. Try again in an hour.': 'Trop de tentatives. Réessayez dans une heure.', 'The email could not be sent. Try again in a few minutes.': "L'email n'a pas pu être envoyé. Réessayez dans quelques minutes.", 'This reset link has expired or was already used. Ask for a new one.': 'Ce lien a expiré ou a déjà servi. Demandez-en un nouveau.', 'Password changed. You are signed in.': 'Mot de passe changé. Vous êtes connecté.' },
+    de: { 'Forgot password?': 'Passwort vergessen?', 'Reset your password': 'Passwort zurücksetzen', 'Enter your email. We will send you a link to choose a new password.': 'Geben Sie Ihre E-Mail ein. Wir schicken Ihnen einen Link, um ein neues Passwort zu wählen.', 'Send the link': 'Link senden', 'If that email has an account, a link is on its way. Check your inbox and spam folder.': 'Wenn diese E-Mail ein Konto hat, ist der Link unterwegs. Prüfen Sie Posteingang und Spam.', 'Back to sign in': 'Zurück zur Anmeldung', 'Choose a new password': 'Neues Passwort wählen', 'Save and sign in': 'Speichern und anmelden', 'Password reset by email is not available yet.': 'Das Zurücksetzen per E-Mail ist noch nicht verfügbar.', 'Too many tries. Try again in an hour.': 'Zu viele Versuche. Versuchen Sie es in einer Stunde erneut.', 'The email could not be sent. Try again in a few minutes.': 'Die E-Mail konnte nicht gesendet werden. Versuchen Sie es in ein paar Minuten erneut.', 'This reset link has expired or was already used. Ask for a new one.': 'Dieser Link ist abgelaufen oder wurde schon benutzt. Fordern Sie einen neuen an.', 'Password changed. You are signed in.': 'Passwort geändert. Sie sind angemeldet.' },
+    it: { 'Forgot password?': 'Password dimenticata?', 'Reset your password': 'Reimposta la password', 'Enter your email. We will send you a link to choose a new password.': 'Inserisci la tua email. Ti invieremo un link per scegliere una nuova password.', 'Send the link': 'Invia il link', 'If that email has an account, a link is on its way. Check your inbox and spam folder.': "Se quell'email ha un account, il link è in arrivo. Controlla la posta in arrivo e lo spam.", 'Back to sign in': "Torna all'accesso", 'Choose a new password': 'Scegli una nuova password', 'Save and sign in': 'Salva e accedi', 'Password reset by email is not available yet.': 'Il ripristino via email non è ancora disponibile.', 'Too many tries. Try again in an hour.': "Troppi tentativi. Riprova tra un'ora.", 'The email could not be sent. Try again in a few minutes.': "Non è stato possibile inviare l'email. Riprova tra qualche minuto.", 'This reset link has expired or was already used. Ask for a new one.': 'Questo link è scaduto o è già stato usato. Chiedine uno nuovo.', 'Password changed. You are signed in.': 'Password cambiata. Hai effettuato l\'accesso.' },
+    id: { 'Forgot password?': 'Lupa kata sandi?', 'Reset your password': 'Atur ulang kata sandi', 'Enter your email. We will send you a link to choose a new password.': 'Masukkan email Anda. Kami akan mengirim tautan untuk memilih kata sandi baru.', 'Send the link': 'Kirim tautan', 'If that email has an account, a link is on its way. Check your inbox and spam folder.': 'Jika email itu punya akun, tautan sedang dikirim. Periksa kotak masuk dan folder spam.', 'Back to sign in': 'Kembali ke masuk', 'Choose a new password': 'Pilih kata sandi baru', 'Save and sign in': 'Simpan dan masuk', 'Password reset by email is not available yet.': 'Atur ulang lewat email belum tersedia.', 'Too many tries. Try again in an hour.': 'Terlalu banyak percobaan. Coba lagi dalam satu jam.', 'The email could not be sent. Try again in a few minutes.': 'Email tidak bisa dikirim. Coba lagi dalam beberapa menit.', 'This reset link has expired or was already used. Ask for a new one.': 'Tautan ini sudah kedaluwarsa atau sudah dipakai. Minta yang baru.', 'Password changed. You are signed in.': 'Kata sandi diganti. Anda sudah masuk.' },
+  };
+  Object.keys(FORGOT).forEach(function (c) { Object.assign(T[c], FORGOT[c]); });
+
+  T.zh = {
+    'Change your products, prices and promotions yourself. Your website updates by itself.': '自己修改产品、价格和促销活动，网站会自动更新。',
+    'Language': '语言', 'Switch between light and dark': '切换浅色和深色', 'Switch theme': '切换主题',
+    'Install app': '安装应用', 'Sign in': '登录', 'Create account': '注册账户', 'Sign out': '退出',
+    'Your website, your control': '你的网站，由你掌控',
+    'Update products, prices and promotions from your phone or computer. Your website picks up every change by itself, usually within a minute.': '在手机或电脑上更新产品、价格和促销。网站会自动获取每一次修改，通常在一分钟内生效。',
+    'Products and prices': '产品和价格', 'Add, edit and remove products or services, with prices, photos and categories.': '添加、编辑和删除产品或服务，包括价格、照片和分类。',
+    'Sold out in one tap': '一键标记售罄', 'Mark something sold out or hide it, and bring it back the moment it returns.': '将商品标记为售罄或隐藏，到货后立即恢复显示。',
+    'Promotions with dates': '按日期设置促销', 'Discounts and promo codes that go live on their first day and end by themselves.': '折扣和优惠码在开始日自动上线，到期自动结束。',
+    'See your website': '查看你的网站', 'Preview exactly what your visitors see right now.': '预览访客此刻看到的内容。',
+    'Every change recorded': '每次修改都有记录', 'A history of what changed and when, with the old and new value.': '记录修改了什么、何时修改，以及修改前后的值。',
+    'Install as an app': '像应用一样安装', 'Put 2DWeb on your phone or desktop and open it like any other app.': '把 2DWeb 安装到手机或电脑上，像其他应用一样打开。',
+    'This is a sample shop.': '这是一个示例店铺。', 'Look around everything 2DWeb does. To make changes, sign in or create an account.': '看看 2DWeb 能做的一切。要进行修改，请登录或注册账户。',
+    'Products': '产品', 'Promotions': '促销', 'My website': '我的网站', 'History': '历史记录', 'Account': '账户',
+    'Email': '邮箱', 'Password': '密码', 'New here?': '第一次来？', 'Create an account': '注册账户',
+    'Create your account': '注册你的账户', 'Use the email of your Djinja-C account, so your payments and your site stay linked.': '请使用你的 Djinja-C 账户邮箱，这样付款和网站会保持关联。',
+    'Business name': '商家名称', 'Your business name': '你的商家名称', 'Password (at least 8 characters)': '密码（至少 8 个字符）',
+    'Already have an account?': '已有账户？', 'Not now': '暂不',
+    'Please sign in again': '请重新登录', 'Something went wrong': '出了点问题', 'no price': '无价格',
+    'Your business': '你的商家', 'Your best seller': '你的畅销品', 'A short description your visitors read': '访客看到的简短介绍',
+    'A product that sold out': '已售罄的产品', 'Another product': '另一款产品', 'A service you offer': '你提供的服务',
+    'A booking or appointment': '预订或预约', 'A seasonal item, hidden for now': '季节性商品，暂时隐藏',
+    'Services': '服务', 'Seasonal': '季节性', 'Launch offer': '开业优惠', 'Shown on your website while it is live': '生效期间显示在你的网站上',
+    'Weekend sale': '周末特卖', 'Starts by itself on its first day': '在开始日自动开始', 'Last season': '上一季', 'Ended by itself after its last day': '在最后一天之后自动结束',
+    'item added': '已添加产品', 'item changed': '已修改产品', 'item deleted': '已删除产品',
+    'promotion added': '已添加促销', 'promotion changed': '已修改促销', 'promotion deleted': '已删除促销',
+    'Sign in to make changes. The sample shop cannot be changed.': '登录后才能修改。示例店铺无法修改。',
+    '+ Add a product': '+ 添加产品', 'No products yet. Add your first one.': '还没有产品，添加第一个吧。', 'No category': '无分类',
+    'Sold out': '售罄', 'Hidden': '已隐藏', 'Back in stock': '恢复有货', 'Hide': '隐藏', 'Show': '显示', 'Edit': '编辑',
+    'This is the sample shop. Sign in to save your own changes.': '这是示例店铺。登录后才能保存你的修改。',
+    'Save': '保存', 'Sign in to save': '登录后保存', 'Sign in to save. The sample shop cannot be changed.': '登录后保存。示例店铺无法修改。',
+    'Cancel': '取消', 'Delete': '删除', 'Sign in to delete. The sample shop cannot be changed.': '登录后删除。示例店铺无法修改。', 'Tap again to delete': '再点一次删除',
+    'Edit product': '编辑产品', 'New product': '新产品', 'Name': '名称', 'Price': '价格', 'Category': '分类', 'Description': '描述',
+    'Photo link (https://...)': '照片链接（https://...）', 'Sold out right now': '目前售罄', 'Show on my website': '在我的网站上显示',
+    'Off': '已关闭', 'Ended': '已结束', 'Starts {d}': '{d} 开始', 'Live now': '进行中',
+    '+ Add a promotion': '+ 添加促销', 'A promotion appears on your website from its first day and disappears by itself after its last day.': '促销从开始日起显示在你的网站上，最后一天过后自动消失。',
+    'No promotions yet.': '还没有促销。', 'now': '现在', 'no end': '无结束日', '{a} to {b}': '{a} 至 {b}', 'No dates': '无日期', '{n}% off': '{n}% 折扣', 'code {c}': '优惠码 {c}',
+    'Turn off': '关闭', 'Turn on': '开启', 'Edit promotion': '编辑促销', 'New promotion': '新促销', 'Title': '标题', 'Message for visitors': '给访客的信息',
+    'Discount %': '折扣 %', 'Promo code': '优惠码', 'First day': '开始日', 'Last day': '最后一天', 'Turned on': '已开启',
+    'This is what your website shows visitors right now. Hidden products, ended promotions and promotions that have not started are left out.': '这是你的网站此刻向访客展示的内容。隐藏的产品、已结束和尚未开始的促销不会显示。',
+    'Code {c}': '优惠码 {c}', 'Nothing on your website yet. Add a product and it appears here.': '你的网站上还没有内容。添加产品后会显示在这里。', 'Other': '其他', '(sold out)': '（售罄）',
+    'Your website reads its data from ': '你的网站从这里读取数据：', 'Everything that was changed, newest first.': '所有修改，最新的在前。', 'No changes yet.': '还没有修改。',
+    'My account': '我的账户', 'You are not signed in. Your account holds your email, your plan and your password.': '你尚未登录。账户中保存你的邮箱、套餐和密码。',
+    'Your plan and payments are linked to the email of your Djinja-C account.': '你的套餐和付款与 Djinja-C 账户邮箱关联。',
+    'Signed in as {e} (your Djinja-C account email)': '已登录：{e}（你的 Djinja-C 账户邮箱）', 'Plan: {p}, paid until {d}': '套餐：{p}，已付至 {d}', 'active': '有效',
+    'Payment status: not linked yet': '付款状态：尚未关联', 'Change my password': '修改密码', 'Current password': '当前密码',
+    'New password (at least 8 characters)': '新密码（至少 8 个字符）', 'Save password': '保存密码', 'Sign in to change it': '登录后修改',
+    'Sign in to change your password.': '登录后才能修改密码。', 'Password changed. Other devices were signed out.': '密码已修改，其他设备已退出登录。',
+    'Business name is required': '必须填写商家名称', 'Your business name is required': '必须填写你的商家名称', 'Current password is wrong': '当前密码错误',
+    'Enter a valid email: it is your sign-in and links your Djinja-C account': '请输入有效邮箱：它用于登录并关联你的 Djinja-C 账户',
+    'That email already has an account. Sign in instead.': '该邮箱已有账户，请直接登录。', 'Too many sign-ups from here. Try again in an hour.': '此处注册次数过多，请一小时后再试。',
+    'Too many tries. Wait 15 minutes.': '尝试次数过多，请等待 15 分钟。', 'Wrong email or password': '邮箱或密码错误',
+    'Password needs at least 8 characters': '密码至少需要 8 个字符', 'New password needs at least 8 characters': '新密码至少需要 8 个字符',
+    'Name is required': '必须填写名称', 'Title is required': '必须填写标题', 'Price must be a positive number': '价格必须是正数',
+    'Discount must be between 0 and 100': '折扣必须在 0 到 100 之间', 'Photo must be a link starting with https://': '照片必须是以 https:// 开头的链接',
+    'The end date is before the start date': '结束日期早于开始日期', 'Not found': '未找到', 'Please sign in': '请登录',
+    'Forgot password?': '忘记密码？', 'Reset your password': '重置密码', 'Enter your email. We will send you a link to choose a new password.': '输入你的邮箱，我们会发送一个设置新密码的链接。', 'Send the link': '发送链接', 'If that email has an account, a link is on its way. Check your inbox and spam folder.': '如果该邮箱有账户，链接已在发送途中。请查看收件箱和垃圾邮件。', 'Back to sign in': '返回登录', 'Choose a new password': '设置新密码', 'Save and sign in': '保存并登录', 'Password reset by email is not available yet.': '邮箱重置密码功能尚未开通。', 'Too many tries. Try again in an hour.': '尝试次数过多，请一小时后再试。', 'The email could not be sent. Try again in a few minutes.': '邮件发送失败，请几分钟后再试。', 'This reset link has expired or was already used. Ask for a new one.': '该链接已过期或已被使用，请重新申请。', 'Password changed. You are signed in.': '密码已修改，你已登录。',
+  };
+  T.ja = {
+    'Change your products, prices and promotions yourself. Your website updates by itself.': '商品、価格、キャンペーンを自分で変更。サイトは自動で更新されます。',
+    'Language': '言語', 'Switch between light and dark': 'ライトとダークを切り替え', 'Switch theme': 'テーマを切り替え',
+    'Install app': 'アプリをインストール', 'Sign in': 'ログイン', 'Create account': 'アカウント作成', 'Sign out': 'ログアウト',
+    'Your website, your control': 'あなたのサイトを、あなたの手で',
+    'Update products, prices and promotions from your phone or computer. Your website picks up every change by itself, usually within a minute.': 'スマホやパソコンから商品、価格、キャンペーンを更新。変更はサイトに自動で反映され、通常1分以内に表示されます。',
+    'Products and prices': '商品と価格', 'Add, edit and remove products or services, with prices, photos and categories.': '商品やサービスを価格、写真、カテゴリー付きで追加、編集、削除できます。',
+    'Sold out in one tap': 'ワンタップで売り切れ', 'Mark something sold out or hide it, and bring it back the moment it returns.': '売り切れにしたり非表示にしたりして、入荷したらすぐ元に戻せます。',
+    'Promotions with dates': '期間付きキャンペーン', 'Discounts and promo codes that go live on their first day and end by themselves.': '割引やクーポンコードは開始日に公開され、終了日に自動で終わります。',
+    'See your website': 'サイトを確認', 'Preview exactly what your visitors see right now.': '訪問者が今見ている画面をそのまま確認できます。',
+    'Every change recorded': 'すべての変更を記録', 'A history of what changed and when, with the old and new value.': '何がいつ変わったかを、変更前と変更後の値とともに記録します。',
+    'Install as an app': 'アプリとしてインストール', 'Put 2DWeb on your phone or desktop and open it like any other app.': '2DWeb をスマホやパソコンに入れて、ほかのアプリと同じように開けます。',
+    'This is a sample shop.': 'これはサンプルのショップです。', 'Look around everything 2DWeb does. To make changes, sign in or create an account.': '2DWeb でできることをご覧ください。変更するにはログインするか、アカウントを作成してください。',
+    'Products': '商品', 'Promotions': 'キャンペーン', 'My website': 'マイサイト', 'History': '履歴', 'Account': 'アカウント',
+    'Email': 'メール', 'Password': 'パスワード', 'New here?': '初めての方', 'Create an account': 'アカウントを作成',
+    'Create your account': 'アカウントを作成', 'Use the email of your Djinja-C account, so your payments and your site stay linked.': 'お支払いとサイトをひも付けるため、Djinja-C アカウントのメールアドレスを使ってください。',
+    'Business name': '事業者名', 'Your business name': 'あなたの事業者名', 'Password (at least 8 characters)': 'パスワード（8文字以上）',
+    'Already have an account?': 'アカウントをお持ちの方', 'Not now': '今はしない',
+    'Please sign in again': 'もう一度ログインしてください', 'Something went wrong': '問題が発生しました', 'no price': '価格なし',
+    'Your business': 'あなたのお店', 'Your best seller': '人気商品', 'A short description your visitors read': '訪問者が読む短い説明',
+    'A product that sold out': '売り切れの商品', 'Another product': '別の商品', 'A service you offer': '提供しているサービス',
+    'A booking or appointment': '予約', 'A seasonal item, hidden for now': '季節商品（今は非表示）',
+    'Services': 'サービス', 'Seasonal': '季節限定', 'Launch offer': 'オープン記念', 'Shown on your website while it is live': '期間中はサイトに表示されます',
+    'Weekend sale': '週末セール', 'Starts by itself on its first day': '開始日に自動で始まります', 'Last season': '前シーズン', 'Ended by itself after its last day': '最終日の後に自動で終了しました',
+    'item added': '商品を追加', 'item changed': '商品を変更', 'item deleted': '商品を削除',
+    'promotion added': 'キャンペーンを追加', 'promotion changed': 'キャンペーンを変更', 'promotion deleted': 'キャンペーンを削除',
+    'Sign in to make changes. The sample shop cannot be changed.': '変更するにはログインしてください。サンプルのショップは変更できません。',
+    '+ Add a product': '+ 商品を追加', 'No products yet. Add your first one.': 'まだ商品がありません。最初の商品を追加しましょう。', 'No category': 'カテゴリーなし',
+    'Sold out': '売り切れ', 'Hidden': '非表示', 'Back in stock': '再入荷', 'Hide': '非表示にする', 'Show': '表示する', 'Edit': '編集',
+    'This is the sample shop. Sign in to save your own changes.': 'これはサンプルのショップです。変更を保存するにはログインしてください。',
+    'Save': '保存', 'Sign in to save': 'ログインして保存', 'Sign in to save. The sample shop cannot be changed.': '保存するにはログインしてください。サンプルのショップは変更できません。',
+    'Cancel': 'キャンセル', 'Delete': '削除', 'Sign in to delete. The sample shop cannot be changed.': '削除するにはログインしてください。サンプルのショップは変更できません。', 'Tap again to delete': 'もう一度タップで削除',
+    'Edit product': '商品を編集', 'New product': '新しい商品', 'Name': '名前', 'Price': '価格', 'Category': 'カテゴリー', 'Description': '説明',
+    'Photo link (https://...)': '写真のリンク（https://...）', 'Sold out right now': '現在売り切れ', 'Show on my website': 'サイトに表示する',
+    'Off': 'オフ', 'Ended': '終了', 'Starts {d}': '{d} 開始', 'Live now': '実施中',
+    '+ Add a promotion': '+ キャンペーンを追加', 'A promotion appears on your website from its first day and disappears by itself after its last day.': 'キャンペーンは開始日からサイトに表示され、最終日の後に自動で消えます。',
+    'No promotions yet.': 'まだキャンペーンがありません。', 'now': '今から', 'no end': '終了日なし', '{a} to {b}': '{a} から {b}', 'No dates': '期間なし', '{n}% off': '{n}% オフ', 'code {c}': 'コード {c}',
+    'Turn off': 'オフにする', 'Turn on': 'オンにする', 'Edit promotion': 'キャンペーンを編集', 'New promotion': '新しいキャンペーン', 'Title': 'タイトル', 'Message for visitors': '訪問者へのメッセージ',
+    'Discount %': '割引 %', 'Promo code': 'クーポンコード', 'First day': '開始日', 'Last day': '最終日', 'Turned on': 'オン',
+    'This is what your website shows visitors right now. Hidden products, ended promotions and promotions that have not started are left out.': '今、サイトが訪問者に表示している内容です。非表示の商品、終了したキャンペーン、まだ始まっていないキャンペーンは含まれません。',
+    'Code {c}': 'コード {c}', 'Nothing on your website yet. Add a product and it appears here.': 'サイトにはまだ何もありません。商品を追加するとここに表示されます。', 'Other': 'その他', '(sold out)': '（売り切れ）',
+    'Your website reads its data from ': 'サイトのデータの読み込み先：', 'Everything that was changed, newest first.': '変更されたすべての内容（新しい順）。', 'No changes yet.': 'まだ変更はありません。',
+    'My account': 'マイアカウント', 'You are not signed in. Your account holds your email, your plan and your password.': 'ログインしていません。アカウントにはメールアドレス、プラン、パスワードが保存されます。',
+    'Your plan and payments are linked to the email of your Djinja-C account.': 'プランとお支払いは Djinja-C アカウントのメールアドレスにひも付いています。',
+    'Signed in as {e} (your Djinja-C account email)': '{e} でログイン中（Djinja-C アカウントのメール）', 'Plan: {p}, paid until {d}': 'プラン：{p}、{d} まで支払い済み', 'active': '有効',
+    'Payment status: not linked yet': 'お支払い：まだひも付いていません', 'Change my password': 'パスワードを変更', 'Current password': '現在のパスワード',
+    'New password (at least 8 characters)': '新しいパスワード（8文字以上）', 'Save password': 'パスワードを保存', 'Sign in to change it': 'ログインして変更',
+    'Sign in to change your password.': 'パスワードを変更するにはログインしてください。', 'Password changed. Other devices were signed out.': 'パスワードを変更しました。ほかの端末はログアウトしました。',
+    'Business name is required': '事業者名は必須です', 'Your business name is required': '事業者名は必須です', 'Current password is wrong': '現在のパスワードが違います',
+    'Enter a valid email: it is your sign-in and links your Djinja-C account': '有効なメールアドレスを入力してください。ログインに使い、Djinja-C アカウントとひも付きます',
+    'That email already has an account. Sign in instead.': 'このメールアドレスはすでに登録されています。ログインしてください。', 'Too many sign-ups from here. Try again in an hour.': 'この場所からの登録が多すぎます。1時間後にもう一度お試しください。',
+    'Too many tries. Wait 15 minutes.': '試行回数が多すぎます。15分お待ちください。', 'Wrong email or password': 'メールアドレスまたはパスワードが違います',
+    'Password needs at least 8 characters': 'パスワードは8文字以上必要です', 'New password needs at least 8 characters': '新しいパスワードは8文字以上必要です',
+    'Name is required': '名前は必須です', 'Title is required': 'タイトルは必須です', 'Price must be a positive number': '価格は正の数で入力してください',
+    'Discount must be between 0 and 100': '割引は0から100の間で入力してください', 'Photo must be a link starting with https://': '写真は https:// で始まるリンクにしてください',
+    'The end date is before the start date': '終了日が開始日より前です', 'Not found': '見つかりません', 'Please sign in': 'ログインしてください',
+    'Forgot password?': 'パスワードをお忘れですか？', 'Reset your password': 'パスワードの再設定', 'Enter your email. We will send you a link to choose a new password.': 'メールアドレスを入力してください。新しいパスワードを設定するリンクをお送りします。', 'Send the link': 'リンクを送る', 'If that email has an account, a link is on its way. Check your inbox and spam folder.': 'そのメールアドレスのアカウントがあれば、リンクをお送りしました。受信トレイと迷惑メールフォルダを確認してください。', 'Back to sign in': 'ログインに戻る', 'Choose a new password': '新しいパスワードを設定', 'Save and sign in': '保存してログイン', 'Password reset by email is not available yet.': 'メールでのパスワード再設定はまだご利用いただけません。', 'Too many tries. Try again in an hour.': '試行回数が多すぎます。1時間後にもう一度お試しください。', 'The email could not be sent. Try again in a few minutes.': 'メールを送信できませんでした。数分後にもう一度お試しください。', 'This reset link has expired or was already used. Ask for a new one.': 'このリンクは期限切れか、すでに使用されています。新しいリンクを請求してください。', 'Password changed. You are signed in.': 'パスワードを変更しました。ログインしています。',
+  };
+  T.ko = {
+    'Change your products, prices and promotions yourself. Your website updates by itself.': '상품, 가격, 프로모션을 직접 바꾸세요. 웹사이트는 자동으로 업데이트됩니다.',
+    'Language': '언어', 'Switch between light and dark': '라이트와 다크 전환', 'Switch theme': '테마 전환',
+    'Install app': '앱 설치', 'Sign in': '로그인', 'Create account': '계정 만들기', 'Sign out': '로그아웃',
+    'Your website, your control': '내 웹사이트, 내가 직접',
+    'Update products, prices and promotions from your phone or computer. Your website picks up every change by itself, usually within a minute.': '휴대폰이나 컴퓨터에서 상품, 가격, 프로모션을 업데이트하세요. 웹사이트가 모든 변경 사항을 자동으로 반영하며, 보통 1분 안에 적용됩니다.',
+    'Products and prices': '상품과 가격', 'Add, edit and remove products or services, with prices, photos and categories.': '가격, 사진, 카테고리와 함께 상품이나 서비스를 추가, 수정, 삭제하세요.',
+    'Sold out in one tap': '한 번 탭으로 품절', 'Mark something sold out or hide it, and bring it back the moment it returns.': '품절로 표시하거나 숨기고, 다시 들어오면 바로 되돌리세요.',
+    'Promotions with dates': '기간이 있는 프로모션', 'Discounts and promo codes that go live on their first day and end by themselves.': '할인과 프로모션 코드가 시작일에 공개되고 저절로 끝납니다.',
+    'See your website': '내 웹사이트 보기', 'Preview exactly what your visitors see right now.': '방문자가 지금 보는 화면을 그대로 확인하세요.',
+    'Every change recorded': '모든 변경 기록', 'A history of what changed and when, with the old and new value.': '무엇이 언제 바뀌었는지 이전 값과 새 값과 함께 기록합니다.',
+    'Install as an app': '앱으로 설치', 'Put 2DWeb on your phone or desktop and open it like any other app.': '2DWeb을 휴대폰이나 컴퓨터에 설치하고 다른 앱처럼 여세요.',
+    'This is a sample shop.': '샘플 상점입니다.', 'Look around everything 2DWeb does. To make changes, sign in or create an account.': '2DWeb의 모든 기능을 둘러보세요. 변경하려면 로그인하거나 계정을 만드세요.',
+    'Products': '상품', 'Promotions': '프로모션', 'My website': '내 웹사이트', 'History': '기록', 'Account': '계정',
+    'Email': '이메일', 'Password': '비밀번호', 'New here?': '처음이신가요?', 'Create an account': '계정 만들기',
+    'Create your account': '계정 만들기', 'Use the email of your Djinja-C account, so your payments and your site stay linked.': '결제와 사이트가 연결되도록 Djinja-C 계정의 이메일을 사용하세요.',
+    'Business name': '상호', 'Your business name': '내 상호', 'Password (at least 8 characters)': '비밀번호 (8자 이상)',
+    'Already have an account?': '이미 계정이 있으신가요?', 'Not now': '나중에',
+    'Please sign in again': '다시 로그인하세요', 'Something went wrong': '문제가 발생했습니다', 'no price': '가격 없음',
+    'Your business': '내 가게', 'Your best seller': '베스트셀러', 'A short description your visitors read': '방문자가 읽는 짧은 설명',
+    'A product that sold out': '품절된 상품', 'Another product': '다른 상품', 'A service you offer': '제공하는 서비스',
+    'A booking or appointment': '예약', 'A seasonal item, hidden for now': '시즌 상품 (지금은 숨김)',
+    'Services': '서비스', 'Seasonal': '시즌', 'Launch offer': '오픈 기념 혜택', 'Shown on your website while it is live': '진행 중에는 웹사이트에 표시됩니다',
+    'Weekend sale': '주말 세일', 'Starts by itself on its first day': '시작일에 자동으로 시작됩니다', 'Last season': '지난 시즌', 'Ended by itself after its last day': '마지막 날 이후 자동으로 끝났습니다',
+    'item added': '상품 추가', 'item changed': '상품 변경', 'item deleted': '상품 삭제',
+    'promotion added': '프로모션 추가', 'promotion changed': '프로모션 변경', 'promotion deleted': '프로모션 삭제',
+    'Sign in to make changes. The sample shop cannot be changed.': '변경하려면 로그인하세요. 샘플 상점은 변경할 수 없습니다.',
+    '+ Add a product': '+ 상품 추가', 'No products yet. Add your first one.': '아직 상품이 없습니다. 첫 상품을 추가하세요.', 'No category': '카테고리 없음',
+    'Sold out': '품절', 'Hidden': '숨김', 'Back in stock': '재입고', 'Hide': '숨기기', 'Show': '보이기', 'Edit': '수정',
+    'This is the sample shop. Sign in to save your own changes.': '샘플 상점입니다. 변경 사항을 저장하려면 로그인하세요.',
+    'Save': '저장', 'Sign in to save': '로그인하고 저장', 'Sign in to save. The sample shop cannot be changed.': '저장하려면 로그인하세요. 샘플 상점은 변경할 수 없습니다.',
+    'Cancel': '취소', 'Delete': '삭제', 'Sign in to delete. The sample shop cannot be changed.': '삭제하려면 로그인하세요. 샘플 상점은 변경할 수 없습니다.', 'Tap again to delete': '한 번 더 탭하면 삭제',
+    'Edit product': '상품 수정', 'New product': '새 상품', 'Name': '이름', 'Price': '가격', 'Category': '카테고리', 'Description': '설명',
+    'Photo link (https://...)': '사진 링크 (https://...)', 'Sold out right now': '현재 품절', 'Show on my website': '내 웹사이트에 표시',
+    'Off': '꺼짐', 'Ended': '종료', 'Starts {d}': '{d} 시작', 'Live now': '진행 중',
+    '+ Add a promotion': '+ 프로모션 추가', 'A promotion appears on your website from its first day and disappears by itself after its last day.': '프로모션은 시작일부터 웹사이트에 나타나고 마지막 날 이후 저절로 사라집니다.',
+    'No promotions yet.': '아직 프로모션이 없습니다.', 'now': '지금', 'no end': '종료일 없음', '{a} to {b}': '{a} ~ {b}', 'No dates': '기간 없음', '{n}% off': '{n}% 할인', 'code {c}': '코드 {c}',
+    'Turn off': '끄기', 'Turn on': '켜기', 'Edit promotion': '프로모션 수정', 'New promotion': '새 프로모션', 'Title': '제목', 'Message for visitors': '방문자에게 보낼 메시지',
+    'Discount %': '할인 %', 'Promo code': '프로모션 코드', 'First day': '시작일', 'Last day': '마지막 날', 'Turned on': '켜짐',
+    'This is what your website shows visitors right now. Hidden products, ended promotions and promotions that have not started are left out.': '지금 웹사이트가 방문자에게 보여주는 내용입니다. 숨긴 상품, 끝난 프로모션, 아직 시작하지 않은 프로모션은 빠집니다.',
+    'Code {c}': '코드 {c}', 'Nothing on your website yet. Add a product and it appears here.': '아직 웹사이트에 아무것도 없습니다. 상품을 추가하면 여기에 나타납니다.', 'Other': '기타', '(sold out)': '(품절)',
+    'Your website reads its data from ': '웹사이트가 데이터를 읽는 곳: ', 'Everything that was changed, newest first.': '변경된 모든 내용, 최신순.', 'No changes yet.': '아직 변경 사항이 없습니다.',
+    'My account': '내 계정', 'You are not signed in. Your account holds your email, your plan and your password.': '로그인하지 않았습니다. 계정에는 이메일, 요금제, 비밀번호가 저장됩니다.',
+    'Your plan and payments are linked to the email of your Djinja-C account.': '요금제와 결제는 Djinja-C 계정의 이메일에 연결됩니다.',
+    'Signed in as {e} (your Djinja-C account email)': '{e}(으)로 로그인됨 (Djinja-C 계정 이메일)', 'Plan: {p}, paid until {d}': '요금제: {p}, {d}까지 결제됨', 'active': '사용 중',
+    'Payment status: not linked yet': '결제: 아직 연결되지 않음', 'Change my password': '비밀번호 변경', 'Current password': '현재 비밀번호',
+    'New password (at least 8 characters)': '새 비밀번호 (8자 이상)', 'Save password': '비밀번호 저장', 'Sign in to change it': '로그인하고 변경',
+    'Sign in to change your password.': '비밀번호를 바꾸려면 로그인하세요.', 'Password changed. Other devices were signed out.': '비밀번호가 변경되었습니다. 다른 기기는 로그아웃되었습니다.',
+    'Business name is required': '상호를 입력해야 합니다', 'Your business name is required': '상호를 입력해야 합니다', 'Current password is wrong': '현재 비밀번호가 틀렸습니다',
+    'Enter a valid email: it is your sign-in and links your Djinja-C account': '올바른 이메일을 입력하세요. 로그인에 쓰이며 Djinja-C 계정과 연결됩니다',
+    'That email already has an account. Sign in instead.': '이미 가입된 이메일입니다. 로그인하세요.', 'Too many sign-ups from here. Try again in an hour.': '이곳에서 가입이 너무 많습니다. 1시간 후 다시 시도하세요.',
+    'Too many tries. Wait 15 minutes.': '시도가 너무 많습니다. 15분 기다리세요.', 'Wrong email or password': '이메일 또는 비밀번호가 틀렸습니다',
+    'Password needs at least 8 characters': '비밀번호는 8자 이상이어야 합니다', 'New password needs at least 8 characters': '새 비밀번호는 8자 이상이어야 합니다',
+    'Name is required': '이름을 입력해야 합니다', 'Title is required': '제목을 입력해야 합니다', 'Price must be a positive number': '가격은 양수여야 합니다',
+    'Discount must be between 0 and 100': '할인은 0에서 100 사이여야 합니다', 'Photo must be a link starting with https://': '사진은 https://로 시작하는 링크여야 합니다',
+    'The end date is before the start date': '종료일이 시작일보다 앞섭니다', 'Not found': '찾을 수 없습니다', 'Please sign in': '로그인하세요',
+    'Forgot password?': '비밀번호를 잊으셨나요?', 'Reset your password': '비밀번호 재설정', 'Enter your email. We will send you a link to choose a new password.': '이메일을 입력하세요. 새 비밀번호를 정할 수 있는 링크를 보내드립니다.', 'Send the link': '링크 보내기', 'If that email has an account, a link is on its way. Check your inbox and spam folder.': '그 이메일로 가입된 계정이 있다면 링크가 발송되었습니다. 받은편지함과 스팸함을 확인하세요.', 'Back to sign in': '로그인으로 돌아가기', 'Choose a new password': '새 비밀번호 정하기', 'Save and sign in': '저장하고 로그인', 'Password reset by email is not available yet.': '이메일로 비밀번호를 재설정하는 기능은 아직 사용할 수 없습니다.', 'Too many tries. Try again in an hour.': '시도가 너무 많습니다. 1시간 후 다시 시도하세요.', 'The email could not be sent. Try again in a few minutes.': '이메일을 보내지 못했습니다. 몇 분 후 다시 시도하세요.', 'This reset link has expired or was already used. Ask for a new one.': '이 링크는 만료되었거나 이미 사용되었습니다. 새 링크를 요청하세요.', 'Password changed. You are signed in.': '비밀번호가 변경되었고 로그인되었습니다.',
+  };
+  T.ru = {
+    'Change your products, prices and promotions yourself. Your website updates by itself.': 'Меняйте товары, цены и акции сами. Сайт обновляется автоматически.',
+    'Language': 'Язык', 'Switch between light and dark': 'Переключить светлую и тёмную тему', 'Switch theme': 'Сменить тему',
+    'Install app': 'Установить приложение', 'Sign in': 'Войти', 'Create account': 'Создать аккаунт', 'Sign out': 'Выйти',
+    'Your website, your control': 'Ваш сайт под вашим контролем',
+    'Update products, prices and promotions from your phone or computer. Your website picks up every change by itself, usually within a minute.': 'Обновляйте товары, цены и акции с телефона или компьютера. Сайт сам подхватывает каждое изменение, обычно в течение минуты.',
+    'Products and prices': 'Товары и цены', 'Add, edit and remove products or services, with prices, photos and categories.': 'Добавляйте, меняйте и удаляйте товары и услуги с ценами, фото и категориями.',
+    'Sold out in one tap': 'Нет в наличии одним касанием', 'Mark something sold out or hide it, and bring it back the moment it returns.': 'Отметьте товар как распроданный или скройте его и верните, как только он появится.',
+    'Promotions with dates': 'Акции по датам', 'Discounts and promo codes that go live on their first day and end by themselves.': 'Скидки и промокоды включаются в первый день и заканчиваются сами.',
+    'See your website': 'Посмотрите свой сайт', 'Preview exactly what your visitors see right now.': 'Смотрите ровно то, что сейчас видят посетители.',
+    'Every change recorded': 'Каждое изменение записано', 'A history of what changed and when, with the old and new value.': 'История того, что и когда изменилось, со старым и новым значением.',
+    'Install as an app': 'Установите как приложение', 'Put 2DWeb on your phone or desktop and open it like any other app.': 'Установите 2DWeb на телефон или компьютер и открывайте как любое другое приложение.',
+    'This is a sample shop.': 'Это пример магазина.', 'Look around everything 2DWeb does. To make changes, sign in or create an account.': 'Посмотрите, что умеет 2DWeb. Чтобы вносить изменения, войдите или создайте аккаунт.',
+    'Products': 'Товары', 'Promotions': 'Акции', 'My website': 'Мой сайт', 'History': 'История', 'Account': 'Аккаунт',
+    'Email': 'Эл. почта', 'Password': 'Пароль', 'New here?': 'Впервые здесь?', 'Create an account': 'Создайте аккаунт',
+    'Create your account': 'Создайте аккаунт', 'Use the email of your Djinja-C account, so your payments and your site stay linked.': 'Укажите почту вашего аккаунта Djinja-C, чтобы оплата и сайт были связаны.',
+    'Business name': 'Название компании', 'Your business name': 'Название вашей компании', 'Password (at least 8 characters)': 'Пароль (не менее 8 символов)',
+    'Already have an account?': 'Уже есть аккаунт?', 'Not now': 'Не сейчас',
+    'Please sign in again': 'Войдите снова', 'Something went wrong': 'Что-то пошло не так', 'no price': 'без цены',
+    'Your business': 'Ваша компания', 'Your best seller': 'Ваш хит продаж', 'A short description your visitors read': 'Короткое описание для посетителей',
+    'A product that sold out': 'Распроданный товар', 'Another product': 'Другой товар', 'A service you offer': 'Ваша услуга',
+    'A booking or appointment': 'Бронь или запись', 'A seasonal item, hidden for now': 'Сезонный товар, пока скрыт',
+    'Services': 'Услуги', 'Seasonal': 'Сезонное', 'Launch offer': 'Предложение к открытию', 'Shown on your website while it is live': 'Показывается на сайте, пока действует',
+    'Weekend sale': 'Распродажа выходного дня', 'Starts by itself on its first day': 'Начинается сама в первый день', 'Last season': 'Прошлый сезон', 'Ended by itself after its last day': 'Закончилась сама после последнего дня',
+    'item added': 'товар добавлен', 'item changed': 'товар изменён', 'item deleted': 'товар удалён',
+    'promotion added': 'акция добавлена', 'promotion changed': 'акция изменена', 'promotion deleted': 'акция удалена',
+    'Sign in to make changes. The sample shop cannot be changed.': 'Войдите, чтобы вносить изменения. Пример магазина изменить нельзя.',
+    '+ Add a product': '+ Добавить товар', 'No products yet. Add your first one.': 'Товаров пока нет. Добавьте первый.', 'No category': 'Без категории',
+    'Sold out': 'Нет в наличии', 'Hidden': 'Скрыт', 'Back in stock': 'Снова в наличии', 'Hide': 'Скрыть', 'Show': 'Показать', 'Edit': 'Изменить',
+    'This is the sample shop. Sign in to save your own changes.': 'Это пример магазина. Войдите, чтобы сохранить свои изменения.',
+    'Save': 'Сохранить', 'Sign in to save': 'Войдите, чтобы сохранить', 'Sign in to save. The sample shop cannot be changed.': 'Войдите, чтобы сохранить. Пример магазина изменить нельзя.',
+    'Cancel': 'Отмена', 'Delete': 'Удалить', 'Sign in to delete. The sample shop cannot be changed.': 'Войдите, чтобы удалить. Пример магазина изменить нельзя.', 'Tap again to delete': 'Нажмите ещё раз, чтобы удалить',
+    'Edit product': 'Изменить товар', 'New product': 'Новый товар', 'Name': 'Название', 'Price': 'Цена', 'Category': 'Категория', 'Description': 'Описание',
+    'Photo link (https://...)': 'Ссылка на фото (https://...)', 'Sold out right now': 'Сейчас нет в наличии', 'Show on my website': 'Показывать на моём сайте',
+    'Off': 'Выключена', 'Ended': 'Закончилась', 'Starts {d}': 'Начнётся {d}', 'Live now': 'Действует',
+    '+ Add a promotion': '+ Добавить акцию', 'A promotion appears on your website from its first day and disappears by itself after its last day.': 'Акция появляется на сайте с первого дня и сама исчезает после последнего.',
+    'No promotions yet.': 'Акций пока нет.', 'now': 'сейчас', 'no end': 'без конца', '{a} to {b}': 'с {a} по {b}', 'No dates': 'Без дат', '{n}% off': 'скидка {n}%', 'code {c}': 'код {c}',
+    'Turn off': 'Выключить', 'Turn on': 'Включить', 'Edit promotion': 'Изменить акцию', 'New promotion': 'Новая акция', 'Title': 'Заголовок', 'Message for visitors': 'Сообщение для посетителей',
+    'Discount %': 'Скидка %', 'Promo code': 'Промокод', 'First day': 'Первый день', 'Last day': 'Последний день', 'Turned on': 'Включена',
+    'This is what your website shows visitors right now. Hidden products, ended promotions and promotions that have not started are left out.': 'Вот что ваш сайт показывает посетителям прямо сейчас. Скрытые товары, закончившиеся и ещё не начавшиеся акции не показываются.',
+    'Code {c}': 'Код {c}', 'Nothing on your website yet. Add a product and it appears here.': 'На сайте пока ничего нет. Добавьте товар, и он появится здесь.', 'Other': 'Другое', '(sold out)': '(нет в наличии)',
+    'Your website reads its data from ': 'Сайт берёт данные отсюда: ', 'Everything that was changed, newest first.': 'Все изменения, сначала новые.', 'No changes yet.': 'Изменений пока нет.',
+    'My account': 'Мой аккаунт', 'You are not signed in. Your account holds your email, your plan and your password.': 'Вы не вошли. В аккаунте хранятся ваша почта, тариф и пароль.',
+    'Your plan and payments are linked to the email of your Djinja-C account.': 'Тариф и оплата привязаны к почте вашего аккаунта Djinja-C.',
+    'Signed in as {e} (your Djinja-C account email)': 'Вы вошли как {e} (почта аккаунта Djinja-C)', 'Plan: {p}, paid until {d}': 'Тариф: {p}, оплачен до {d}', 'active': 'активен',
+    'Payment status: not linked yet': 'Оплата: ещё не привязана', 'Change my password': 'Сменить пароль', 'Current password': 'Текущий пароль',
+    'New password (at least 8 characters)': 'Новый пароль (не менее 8 символов)', 'Save password': 'Сохранить пароль', 'Sign in to change it': 'Войдите, чтобы сменить',
+    'Sign in to change your password.': 'Войдите, чтобы сменить пароль.', 'Password changed. Other devices were signed out.': 'Пароль изменён. На других устройствах выполнен выход.',
+    'Business name is required': 'Укажите название компании', 'Your business name is required': 'Укажите название вашей компании', 'Current password is wrong': 'Неверный текущий пароль',
+    'Enter a valid email: it is your sign-in and links your Djinja-C account': 'Введите правильную почту: по ней вы входите, и она связывает аккаунт Djinja-C',
+    'That email already has an account. Sign in instead.': 'С этой почтой уже есть аккаунт. Просто войдите.', 'Too many sign-ups from here. Try again in an hour.': 'Слишком много регистраций отсюда. Попробуйте через час.',
+    'Too many tries. Wait 15 minutes.': 'Слишком много попыток. Подождите 15 минут.', 'Wrong email or password': 'Неверная почта или пароль',
+    'Password needs at least 8 characters': 'В пароле должно быть не менее 8 символов', 'New password needs at least 8 characters': 'В новом пароле должно быть не менее 8 символов',
+    'Name is required': 'Укажите название', 'Title is required': 'Укажите заголовок', 'Price must be a positive number': 'Цена должна быть положительным числом',
+    'Discount must be between 0 and 100': 'Скидка должна быть от 0 до 100', 'Photo must be a link starting with https://': 'Фото должно быть ссылкой, начинающейся с https://',
+    'The end date is before the start date': 'Дата окончания раньше даты начала', 'Not found': 'Не найдено', 'Please sign in': 'Пожалуйста, войдите',
+    'Forgot password?': 'Забыли пароль?', 'Reset your password': 'Сброс пароля', 'Enter your email. We will send you a link to choose a new password.': 'Введите почту. Мы пришлём ссылку, чтобы задать новый пароль.', 'Send the link': 'Отправить ссылку', 'If that email has an account, a link is on its way. Check your inbox and spam folder.': 'Если с этой почтой есть аккаунт, ссылка уже в пути. Проверьте входящие и спам.', 'Back to sign in': 'Вернуться ко входу', 'Choose a new password': 'Задайте новый пароль', 'Save and sign in': 'Сохранить и войти', 'Password reset by email is not available yet.': 'Сброс пароля по почте пока недоступен.', 'Too many tries. Try again in an hour.': 'Слишком много попыток. Попробуйте через час.', 'The email could not be sent. Try again in a few minutes.': 'Не удалось отправить письмо. Попробуйте через несколько минут.', 'This reset link has expired or was already used. Ask for a new one.': 'Срок действия ссылки истёк, или она уже использована. Запросите новую.', 'Password changed. You are signed in.': 'Пароль изменён. Вы вошли.',
+  };
+
+  function pick() {
+    var saved = null;
+    try { saved = localStorage.getItem('djinja_lang'); } catch (e) {}
+    var codes = LANGS.map(function (l) { return l[0]; });
+    if (saved && codes.indexOf(saved) >= 0) return saved;
+    var nav = (navigator.languages || [navigator.language || 'en']);
+    for (var i = 0; i < nav.length; i++) { var c = String(nav[i] || '').slice(0, 2).toLowerCase(); if (codes.indexOf(c) >= 0) return c; }
+    return 'en';
+  }
+  var lang = pick();
+
+  // t('Starts {d}', {d: '2026-11-10'}) -> the current language, English if there is no translation.
+  function t(key, vars) {
+    var s = (T[lang] && T[lang][key]) || key;
+    if (vars) s = s.replace(/\{(\w+)\}/g, function (m, k) { return vars[k] != null ? vars[k] : m; });
+    return s;
+  }
+  // Static page text: data-i18n (text), data-i18n-ph (placeholder), data-i18n-aria, data-i18n-title.
+  function apply(root) {
+    document.documentElement.lang = lang;
+    (root || document).querySelectorAll('[data-i18n]').forEach(function (n) {
+      if (!n.hasAttribute('data-en')) n.setAttribute('data-en', n.textContent.trim());
+      n.textContent = t(n.getAttribute('data-en'));
+    });
+    [['data-i18n-ph', 'placeholder'], ['data-i18n-aria', 'aria-label'], ['data-i18n-title', 'title']].forEach(function (p) {
+      (root || document).querySelectorAll('[' + p[0] + ']').forEach(function (n) { n.setAttribute(p[1], t(n.getAttribute(p[0]))); });
+    });
+    var h = document.getElementById('headline');
+    if (h) {
+      h.replaceChildren();
+      (HEAD[lang] || HEAD.en).forEach(function (line, i) {
+        if (i) h.appendChild(document.createElement('br'));
+        var a = document.createElement('span'); a.className = ['t-gr', 't-or', 't-cy'][i]; a.textContent = line[0];
+        var b = document.createElement('span'); b.className = 't-wh'; b.textContent = line[1];
+        h.appendChild(a); h.appendChild(document.createTextNode(' ')); h.appendChild(b);
+      });
+    }
+    var m = document.querySelector('meta[name="description"]');
+    if (m) m.setAttribute('content', t('Change your products, prices and promotions yourself. Your website updates by itself.'));
+  }
+  var listeners = [];
+  function set(code) {
+    if (!LANGS.some(function (l) { return l[0] === code; })) return;
+    lang = code;
+    try { localStorage.setItem('djinja_lang', code); } catch (e) {}
+    apply(); paint();
+    listeners.forEach(function (f) { try { f(code); } catch (e) {} });
+  }
+
+  // ---------- the picker: flags drawn as pictures (flag emoji show as two letters on Windows),
+  // the same design as the Djinja-C client sites.
+  function star(cx, cy, r, rot) {
+    var p = [];
+    for (var i = 0; i < 10; i++) { var a = (rot || 0) - Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * .382 : r; p.push((cx + rr * Math.cos(a)).toFixed(2) + ',' + (cy + rr * Math.sin(a)).toFixed(2)); }
+    return '<polygon points="' + p.join(' ') + '" fill="#FFDE00"/>';
+  }
+  function bars(x, y, deg) {
+    return '<g transform="rotate(' + deg + ' ' + x + ' ' + y + ')" fill="#000"><rect x="' + (x - 2.2) + '" y="' + (y - 1.6) + '" width="4.4" height=".7"/><rect x="' + (x - 2.2) + '" y="' + (y - .35) + '" width="4.4" height=".7"/><rect x="' + (x - 2.2) + '" y="' + (y + .9) + '" width="4.4" height=".7"/></g>';
+  }
+  var FLAG = {
+    en: '<rect width="30" height="20" fill="#012169"/><path d="M0 0L30 20M30 0L0 20" stroke="#fff" stroke-width="4"/><path d="M0 0L30 20M30 0L0 20" stroke="#C8102E" stroke-width="1.6"/><path d="M15 0v20M0 10h30" stroke="#fff" stroke-width="6"/><path d="M15 0v20M0 10h30" stroke="#C8102E" stroke-width="3.4"/>',
+    id: '<rect width="30" height="10" fill="#CE1126"/><rect y="10" width="30" height="10" fill="#fff"/>',
+    ru: '<rect width="30" height="6.7" fill="#fff"/><rect y="6.7" width="30" height="6.6" fill="#0039A6"/><rect y="13.3" width="30" height="6.7" fill="#D52B1E"/>',
+    zh: '<rect width="30" height="20" fill="#DE2910"/>' + star(5, 5, 3) + star(10, 2, 1, .4) + star(12, 4, 1, .9) + star(12, 7, 1, 0) + star(10, 9, 1, .4),
+    ko: '<rect width="30" height="20" fill="#fff"/><g transform="rotate(33.7 15 10)"><path d="M10 10a5 5 0 0 1 10 0z" fill="#CD2E3A"/><path d="M10 10a5 5 0 0 0 10 0z" fill="#0047A0"/><circle cx="12.5" cy="10" r="2.5" fill="#CD2E3A"/><circle cx="17.5" cy="10" r="2.5" fill="#0047A0"/></g>' + bars(6, 4.5, -56.3) + bars(24, 15.5, -56.3) + bars(24, 4.5, 56.3) + bars(6, 15.5, 56.3),
+    ja: '<rect width="30" height="20" fill="#fff"/><circle cx="15" cy="10" r="6" fill="#BC002D"/>',
+    de: '<rect width="30" height="6.7" fill="#000"/><rect y="6.7" width="30" height="6.6" fill="#DD0000"/><rect y="13.3" width="30" height="6.7" fill="#FFCE00"/>',
+    fr: '<rect width="10" height="20" fill="#0055A4"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#EF4135"/>',
+    es: '<rect width="30" height="20" fill="#AA151B"/><rect y="5" width="30" height="10" fill="#F1BF00"/>',
+    pt: '<rect width="30" height="20" fill="#FF0000"/><rect width="12" height="20" fill="#006600"/><circle cx="12" cy="10" r="3.6" fill="#FFCC00"/><circle cx="12" cy="10" r="2" fill="#FF0000"/>',
+    it: '<rect width="10" height="20" fill="#009246"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#CE2B37"/>',
+  };
+  function flag(code) { return '<svg class="dj-flag" viewBox="0 0 30 20" aria-hidden="true">' + (FLAG[code] || '') + '</svg>'; }
+  var CSS = ''
+    + '.dj-lang{position:relative;display:inline-flex;font-family:"DM Mono",ui-monospace,Consolas,monospace}'
+    + '.dj-lang-btn{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 12px;border-radius:9px;border:1px solid rgba(0,200,255,.45);background:rgba(0,200,255,.08);color:inherit;font:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}'
+    + '.dj-lang-btn:hover,.dj-lang.open .dj-lang-btn{background:rgba(0,200,255,.18);border-color:#00c8ff}'
+    + '.dj-lang-btn:focus-visible,.dj-lang-item:focus-visible{outline:2px solid #00c8ff;outline-offset:2px}'
+    + '.dj-lang-caret{opacity:.7;font-size:9px}'
+    + '.dj-lang-menu{position:absolute;top:calc(100% + 8px);right:0;width:220px;max-height:min(460px,70vh);overflow-y:auto;padding:6px;border-radius:12px;border:1px solid rgba(0,200,255,.28);background:rgba(8,14,24,.98);box-shadow:0 18px 44px rgba(0,0,0,.55);display:none;z-index:1000}'
+    + '.dj-lang.open .dj-lang-menu{display:block}'
+    + '.dj-lang-item{display:flex;align-items:center;gap:12px;width:100%;min-height:36px;padding:7px 10px;border:0;border-radius:7px;background:transparent;color:#cfeaff;font:inherit;font-size:13px;text-align:left;cursor:pointer}'
+    + '.dj-lang-item:hover{background:rgba(0,200,255,.14);color:#fff}'
+    + '.dj-lang-item[aria-checked="true"]{background:rgba(0,230,118,.14);color:#fff}'
+    + '.dj-flag{width:24px;height:16px;flex:0 0 24px;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.25)}'
+    + '.dj-lang-btn .dj-flag{width:20px;height:14px;flex-basis:20px}'
+    + 'html.light .dj-lang-menu{background:rgba(250,252,254,.99);border-color:rgba(12,70,96,.22);box-shadow:0 18px 44px rgba(10,30,50,.22)}'
+    + 'html.light .dj-lang-item{color:#1c3346}html.light .dj-lang-item:hover{background:rgba(12,70,96,.10);color:#000}'
+    + 'html.light .dj-lang-item[aria-checked="true"]{background:rgba(0,150,80,.14);color:#000}'
+    + 'html.light .dj-flag{box-shadow:0 0 0 1px rgba(0,0,0,.18)}'
+    + 'html.light .dj-lang-btn{border-color:rgba(0,80,140,.25);background:rgba(255,255,255,.75)}'
+    + '@media (max-width:560px){.dj-lang-name{display:none}}';
+  var wrap = null;
+  function paint() {
+    if (!wrap) return;
+    var L = LANGS.filter(function (l) { return l[0] === lang; })[0] || LANGS[0];
+    wrap.querySelector('.dj-lang-flagbox').innerHTML = flag(L[0]);
+    wrap.querySelector('.dj-lang-name').textContent = L[1];
+    wrap.querySelector('.dj-lang-btn').setAttribute('aria-label', t('Language') + ': ' + L[1]);
+    wrap.querySelectorAll('.dj-lang-item').forEach(function (i) { i.setAttribute('aria-checked', i.getAttribute('data-lang') === lang ? 'true' : 'false'); });
+  }
+  function mount(slot) {
+    if (!slot || wrap) return;
+    var st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
+    wrap = document.createElement('div'); wrap.className = 'dj-lang'; wrap.setAttribute('translate', 'no');
+    wrap.innerHTML = '<button type="button" class="dj-lang-btn" aria-haspopup="true" aria-expanded="false"><span class="dj-lang-flagbox"></span><span class="dj-lang-name"></span><span class="dj-lang-caret" aria-hidden="true">&#9662;</span></button><div class="dj-lang-menu" role="menu"></div>';
+    var btn = wrap.querySelector('.dj-lang-btn'), menu = wrap.querySelector('.dj-lang-menu');
+    LANGS.slice().sort(function (a, b) { return a[2].localeCompare(b[2]); }).forEach(function (L) {
+      var it = document.createElement('button');
+      it.type = 'button'; it.className = 'dj-lang-item'; it.setAttribute('role', 'menuitemradio');
+      it.setAttribute('data-lang', L[0]); it.setAttribute('lang', L[0]); it.title = L[2];
+      it.innerHTML = flag(L[0]) + '<span></span>'; it.lastChild.textContent = L[1];
+      it.addEventListener('click', function () { close(); set(L[0]); btn.focus(); });
+      menu.appendChild(it);
+    });
+    function close() { wrap.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = !wrap.classList.contains('open'); wrap.classList.toggle('open', open); btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) { var on = menu.querySelector('[aria-checked="true"]'); if (on) on.focus(); }
+    });
+    document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) close(); });
+    wrap.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { close(); btn.focus(); return; }
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+      var items = [].slice.call(menu.querySelectorAll('.dj-lang-item')), at = items.indexOf(document.activeElement);
+      if (!wrap.classList.contains('open')) btn.click();
+      items[e.key === 'ArrowDown' ? (at + 1) % items.length : (at <= 0 ? items.length - 1 : at - 1)].focus(); e.preventDefault();
+    });
+    slot.appendChild(wrap); paint();
+  }
+
+  window.I18N = { t: t, apply: apply, set: set, mount: mount, onChange: function (f) { listeners.push(f); }, langs: LANGS, get lang() { return lang; }, _dict: T, _head: HEAD };
+})();

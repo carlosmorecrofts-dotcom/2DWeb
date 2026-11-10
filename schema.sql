@@ -49,3 +49,6 @@ CREATE TABLE IF NOT EXISTS changes (    -- who changed what, so nothing is ever 
   at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 CREATE INDEX IF NOT EXISTS changes_c ON changes(client_id, id);
+CREATE TABLE IF NOT EXISTS resets (     -- forgot-password links, stored hashed, one hour, one use
+  hash TEXT PRIMARY KEY, client_id INTEGER NOT NULL, expires TEXT NOT NULL
+);

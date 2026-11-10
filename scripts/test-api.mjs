@@ -148,6 +148,29 @@ await call('POST', 'logout', { token: TB });
 ok((await call('GET', 'items', { token: TB })).status === 401, 'sign out ends the session');
 ok((await call('DELETE', 'items/' + i1.j.id, { token: (await call('POST', 'login', { body: { email: 'take@example.com', password: reset.j.password }, ip: '6.6.6.6' })).j.token })).status === 200, 'delete works');
 
+// ---- forgot password
+ok((await call('POST', 'forgot', { body: { email: 'shop@example.com' }, ip: '7.7.7.1' })).status === 503, 'no email service: says so instead of pretending');
+const sent = [];
+env.sendMail = async (m) => { sent.push(m); };
+const f1 = await call('POST', 'forgot', { body: { email: 'shop@example.com', lang: 'pt' }, ip: '7.7.7.2' });
+const f2 = await call('POST', 'forgot', { body: { email: 'nobody-here@example.com' }, ip: '7.7.7.2' });
+ok(f1.status === 200 && f2.status === 200 && JSON.stringify(f1.j) === JSON.stringify(f2.j), 'same answer whether or not the email has an account');
+ok(sent.length === 1 && sent[0].to === 'shop@example.com', 'only a real account gets an email');
+ok(/palavra-passe/.test(sent[0].subject), 'the email is in the language of the page');
+const rtok = (sent[0].link.match(/reset=([a-f0-9]{64})/) || [])[1];
+ok(!!rtok && !JSON.stringify(await env.DB.prepare('SELECT * FROM resets').all()).includes(rtok), 'the link token is not stored in clear');
+const TB2 = (await call('POST', 'login', { body: { email: 'shop@example.com', password: 'my-own-password' }, ip: '7.7.7.3' })).j.token;
+ok((await call('POST', 'reset', { body: { token: rtok, password: 'short' } })).status === 400, 'reset checks the password length');
+ok((await call('POST', 'reset', { body: { token: 'a'.repeat(64), password: 'reset-new-password' } })).status === 400, 'a made-up link is refused');
+const rs = await call('POST', 'reset', { body: { token: rtok, password: 'reset-new-password' } });
+ok(rs.status === 200 && rs.j.token && rs.j.client.email === 'shop@example.com', 'reset sets the password and signs in');
+ok((await call('GET', 'items', { token: TB2 })).status === 401, 'reset ends every old sign-in');
+ok((await call('POST', 'reset', { body: { token: rtok, password: 'another-password' } })).status === 400, 'a link works only once');
+ok((await call('POST', 'login', { body: { email: 'shop@example.com', password: 'reset-new-password' }, ip: '7.7.7.4' })).status === 200, 'the new password signs in');
+for (let i = 0; i < 5; i++) await call('POST', 'forgot', { body: { email: 'shop@example.com' }, ip: '7.7.7.9' });
+ok((await call('POST', 'forgot', { body: { email: 'shop@example.com' }, ip: '7.7.7.9' })).status === 429, 'forgot password is rate limited');
+delete env.sendMail;
+
 // ---- the app itself: installable, on-brand, calm
 const site = (f) => fs.readFileSync(path.join(ROOT, 'site', f), 'utf8');
 const man = JSON.parse(site('manifest.webmanifest'));
@@ -162,6 +185,35 @@ ok(!/@keyframes|animation\s*:/i.test(html + site('assets/djinja-visuals.css').re
 ok(/class="dj"/.test(html) && /djinja-visuals\.css/.test(html), 'uses the Djinja-C stylesheet');
 ok(!/[–—]/.test(html + site('manifest.webmanifest')), 'no long dashes in what people read');
 ok(!/<img[^>]+src="http/.test(html) && !/src="https?:/.test(html), 'no third-party scripts or images');
+
+// ---- languages: every word the page shows exists in every language
+{
+  const src = site('i18n.js');
+  const g = {}; new Function('window', 'localStorage', 'navigator', 'document', src)(g, { getItem: () => null, setItem() {} }, { languages: ['en'] }, {});
+  const I = g.I18N, D = I._dict;
+  const codes = I.langs.map((l) => l[0]);
+  ok(['en', 'zh', 'fr', 'de', 'id', 'it', 'ja', 'pt', 'ru', 'ko', 'es'].every((c) => codes.includes(c)) && codes.length === 11, 'the 11 languages of the picker');
+  const keys = new Set();
+  for (const m of html.matchAll(/data-i18n(?:-ph|-aria|-title)?="([^"]+)"/g)) keys.add(m[1]);
+  for (const m of html.matchAll(/<[^>]+\bdata-i18n(?=[\s>])[^>]*>([^<]+)</g)) keys.add(m[1].trim());
+  for (const m of html.matchAll(/\bt\('((?:[^'\\]|\\.)+)'/g)) keys.add(m[1].replace(/\\'/g, "'"));
+  ['item added', 'item changed', 'item deleted', 'promotion added', 'promotion changed', 'promotion deleted'].forEach((k) => keys.add(k));
+  // what the server can say to a business owner
+  const api = fs.readFileSync(path.join(ROOT, 'functions', 'api', '_app.js'), 'utf8');
+  for (const m of api.matchAll(/bad\((['`])([^'`]+)\1/g)) {
+    const s = m[2].replace('${MIN_PW}', '8');
+    if (/^(Site name|That site|Send items|Unknown site|Not allowed|paid_until|The owner|That email already has a site)/.test(s) || s.includes('${')) continue;
+    keys.add(s);
+  }
+  const missing = [];
+  for (const c of codes.filter((c) => c !== 'en')) for (const k of keys) if (!D[c] || !D[c][k]) missing.push(c + ': ' + k);
+  ok(missing.length === 0, 'every word is translated in every language' + (missing.length ? '\n  ' + missing.slice(0, 15).join('\n  ') : ''));
+  ok(codes.every((c) => I._head[c] && I._head[c].length === 3), 'the three-colour headline exists in every language');
+  ok(!/[–—]/.test(src), 'no long dashes in the translations');
+  const holes = [];
+  for (const c of Object.keys(D)) for (const k of Object.keys(D[c])) { const want = (k.match(/\{\w+\}/g) || []).sort().join(); if ((D[c][k].match(/\{\w+\}/g) || []).sort().join() !== want) holes.push(c + ': ' + k); }
+  ok(holes.length === 0, 'every translation keeps its {placeholders}' + (holes.length ? ' ' + holes.join(', ') : ''));
+}
 
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -98,48 +98,49 @@ html.light .site{background:#fff}
   <a class="dj-brand" href="./"><img src="assets/icon_128.png" alt="" width="30" height="30"><span>2DWEB</span></a>
   <div class="bar-r">
     <span class="dj-pill cy hide" id="who"><span class="dot"></span><span id="whoName"></span></span>
-    <button class="btn sm theme-toggle" id="themeToggle" type="button" aria-label="Switch between light and dark" title="Switch theme">&#9790;</button>
-    <button class="btn sm gr hide" id="install" type="button">Install app</button>
-    <button class="btn sm" id="inBtn" type="button">Sign in</button>
-    <button class="btn sm gr" id="upBtn" type="button">Create account</button>
-    <button class="btn sm hide" id="out" type="button">Sign out</button>
+    <span id="langSlot"></span>
+    <button class="btn sm theme-toggle" id="themeToggle" type="button" data-i18n-aria="Switch between light and dark" data-i18n-title="Switch theme" aria-label="Switch between light and dark" title="Switch theme">&#9790;</button>
+    <button class="btn sm gr hide" id="install" type="button" data-i18n>Install app</button>
+    <button class="btn sm" id="inBtn" type="button" data-i18n>Sign in</button>
+    <button class="btn sm gr" id="upBtn" type="button" data-i18n>Create account</button>
+    <button class="btn sm hide" id="out" type="button" data-i18n>Sign out</button>
   </div>
 </header>
 
 <main class="app">
   <!-- what 2DWeb does: only for visitors who are not signed in -->
   <section id="intro" class="dj-plate gr hero hide" style="margin-top:20px">
-    <div class="dj-eye">Your website, your control</div>
-    <h1><span class="t-gr">CHANGE</span> <span class="t-wh">YOUR WEBSITE</span><br><span class="t-or">SKIP</span> <span class="t-wh">THE DEVELOPER</span><br><span class="t-cy">UPDATE</span> <span class="t-wh">IN A MINUTE</span></h1>
-    <p class="note">Update products, prices and promotions from your phone or computer. Your website picks up every change by itself, usually within a minute.</p>
+    <div class="dj-eye" data-i18n>Your website, your control</div>
+    <h1 id="headline"><span class="t-gr">CHANGE</span> <span class="t-wh">YOUR WEBSITE</span><br><span class="t-or">SKIP</span> <span class="t-wh">THE DEVELOPER</span><br><span class="t-cy">UPDATE</span> <span class="t-wh">IN A MINUTE</span></h1>
+    <p class="note" data-i18n>Update products, prices and promotions from your phone or computer. Your website picks up every change by itself, usually within a minute.</p>
     <div class="feats">
-      <div class="feat f-gr"><b>Products and prices</b><span>Add, edit and remove products or services, with prices, photos and categories.</span></div>
-      <div class="feat f-or"><b>Sold out in one tap</b><span>Mark something sold out or hide it, and bring it back the moment it returns.</span></div>
-      <div class="feat f-cy"><b>Promotions with dates</b><span>Discounts and promo codes that go live on their first day and end by themselves.</span></div>
-      <div class="feat f-gr"><b>See your website</b><span>Preview exactly what your visitors see right now.</span></div>
-      <div class="feat f-or"><b>Every change recorded</b><span>A history of what changed and when, with the old and new value.</span></div>
-      <div class="feat f-cy"><b>Install as an app</b><span>Put 2DWeb on your phone or desktop and open it like any other app.</span></div>
+      <div class="feat f-gr"><b data-i18n>Products and prices</b><span data-i18n>Add, edit and remove products or services, with prices, photos and categories.</span></div>
+      <div class="feat f-or"><b data-i18n>Sold out in one tap</b><span data-i18n>Mark something sold out or hide it, and bring it back the moment it returns.</span></div>
+      <div class="feat f-cy"><b data-i18n>Promotions with dates</b><span data-i18n>Discounts and promo codes that go live on their first day and end by themselves.</span></div>
+      <div class="feat f-gr"><b data-i18n>See your website</b><span data-i18n>Preview exactly what your visitors see right now.</span></div>
+      <div class="feat f-or"><b data-i18n>Every change recorded</b><span data-i18n>A history of what changed and when, with the old and new value.</span></div>
+      <div class="feat f-cy"><b data-i18n>Install as an app</b><span data-i18n>Put 2DWeb on your phone or desktop and open it like any other app.</span></div>
     </div>
     <div class="cta">
-      <button class="btn gr" type="button" data-auth="up">Create account</button>
-      <button class="btn" type="button" data-auth="in">Sign in</button>
+      <button class="btn gr" type="button" data-auth="up" data-i18n>Create account</button>
+      <button class="btn" type="button" data-auth="in" data-i18n>Sign in</button>
     </div>
   </section>
 
   <div id="guestBar" class="guest hide">
-    <p><b>This is a sample shop.</b> Look around everything 2DWeb does. To make changes, sign in or create an account.</p>
-    <button class="btn sm gr" type="button" data-auth="up">Create account</button>
-    <button class="btn sm" type="button" data-auth="in">Sign in</button>
+    <p><b data-i18n>This is a sample shop.</b> <span data-i18n>Look around everything 2DWeb does. To make changes, sign in or create an account.</span></p>
+    <button class="btn sm gr" type="button" data-auth="up" data-i18n>Create account</button>
+    <button class="btn sm" type="button" data-auth="in" data-i18n>Sign in</button>
   </div>
 
   <!-- the app: the same for everybody; only signed-in owners can change anything -->
   <section id="mgr">
     <div class="tabs" role="tablist">
-      <button class="tab on" data-t="items" role="tab" type="button">Products</button>
-      <button class="tab" data-t="promos" role="tab" type="button">Promotions</button>
-      <button class="tab" data-t="site" role="tab" type="button">My website</button>
-      <button class="tab" data-t="hist" role="tab" type="button">History</button>
-      <button class="tab" data-t="acct" role="tab" type="button">Account</button>
+      <button class="tab on" data-t="items" role="tab" type="button" data-i18n>Products</button>
+      <button class="tab" data-t="promos" role="tab" type="button" data-i18n>Promotions</button>
+      <button class="tab" data-t="site" role="tab" type="button" data-i18n>My website</button>
+      <button class="tab" data-t="hist" role="tab" type="button" data-i18n>History</button>
+      <button class="tab" data-t="acct" role="tab" type="button" data-i18n>Account</button>
     </div>
     <div id="pane"></div>
   </section>
@@ -151,39 +152,67 @@ html.light .site{background:#fff}
 <dialog id="auth" aria-labelledby="authTitle">
   <div id="authWhy" class="banner hide"></div>
   <section id="login">
-    <div class="dj-eye">Your website, your control</div>
-    <h2 class="dj-h2" id="authTitle" style="margin-top:8px">Sign in</h2>
+    <div class="dj-eye" data-i18n>Your website, your control</div>
+    <h2 class="dj-h2" id="authTitle" style="margin-top:8px" data-i18n>Sign in</h2>
     <form id="loginForm" autocomplete="on">
-      <label for="lsite">Email</label>
+      <label for="lsite" data-i18n>Email</label>
       <input id="lsite" name="username" type="email" inputmode="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="you@yourbusiness.com" required>
-      <label for="lpw">Password</label>
+      <label for="lpw" data-i18n>Password</label>
       <input id="lpw" name="password" type="password" autocomplete="current-password" required>
+      <p class="note" style="margin:8px 0 0;text-align:right"><a href="#" class="lk" id="toForgot" data-i18n>Forgot password?</a></p>
       <div class="err" id="lerr" role="alert"></div>
-      <button class="btn gr" style="width:100%;margin-top:6px" type="submit">Sign in</button>
+      <button class="btn gr" style="width:100%;margin-top:6px" type="submit" data-i18n>Sign in</button>
     </form>
-    <p class="note" style="margin-top:16px">New here? <a href="#" class="lk" id="toSignup">Create an account</a></p>
+    <p class="note" style="margin-top:16px"><span data-i18n>New here?</span> <a href="#" class="lk" id="toSignup" data-i18n>Create an account</a></p>
   </section>
   <section id="signup" class="hide">
-    <div class="dj-eye">Your website, your control</div>
-    <h2 class="dj-h2" style="margin-top:8px">Create your account</h2>
-    <p class="note">Use the email of your Djinja-C account, so your payments and your site stay linked.</p>
+    <div class="dj-eye" data-i18n>Your website, your control</div>
+    <h2 class="dj-h2" style="margin-top:8px" data-i18n>Create your account</h2>
+    <p class="note" data-i18n>Use the email of your Djinja-C account, so your payments and your site stay linked.</p>
     <form id="signupForm" autocomplete="on">
-      <label for="sname">Business name</label>
-      <input id="sname" name="organization" autocomplete="organization" placeholder="Your business name" required>
-      <label for="semail">Email</label>
+      <label for="sname" data-i18n>Business name</label>
+      <input id="sname" name="organization" autocomplete="organization" placeholder="Your business name" data-i18n-ph="Your business name" required>
+      <label for="semail" data-i18n>Email</label>
       <input id="semail" name="email" type="email" inputmode="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="you@yourbusiness.com" required>
-      <label for="spw">Password (at least 8 characters)</label>
+      <label for="spw" data-i18n>Password (at least 8 characters)</label>
       <input id="spw" name="new-password" type="password" autocomplete="new-password" minlength="8" required>
       <div class="err" id="serr" role="alert"></div>
-      <button class="btn gr" style="width:100%;margin-top:6px" type="submit">Create account</button>
+      <button class="btn gr" style="width:100%;margin-top:6px" type="submit" data-i18n>Create account</button>
     </form>
-    <p class="note" style="margin-top:16px">Already have an account? <a href="#" class="lk" id="toLogin">Sign in</a></p>
+    <p class="note" style="margin-top:16px"><span data-i18n>Already have an account?</span> <a href="#" class="lk" id="toLogin" data-i18n>Sign in</a></p>
   </section>
-  <button class="btn" type="button" id="authClose" style="width:100%;margin-top:14px">Not now</button>
+  <!-- forgot password: ask for the email, a one-hour link is sent -->
+  <section id="forgot" class="hide">
+    <div class="dj-eye" data-i18n>Your website, your control</div>
+    <h2 class="dj-h2" style="margin-top:8px" data-i18n>Reset your password</h2>
+    <p class="note" data-i18n>Enter your email. We will send you a link to choose a new password.</p>
+    <form id="forgotForm">
+      <label for="femail" data-i18n>Email</label>
+      <input id="femail" name="email" type="email" inputmode="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="you@yourbusiness.com" required>
+      <div class="err" id="ferr" role="alert"></div>
+      <button class="btn gr" style="width:100%;margin-top:6px" type="submit" data-i18n>Send the link</button>
+    </form>
+    <p class="note" style="margin-top:16px"><a href="#" class="lk" data-back data-i18n>Back to sign in</a></p>
+  </section>
+  <!-- the page the emailed link opens -->
+  <section id="reset" class="hide">
+    <div class="dj-eye" data-i18n>Your website, your control</div>
+    <h2 class="dj-h2" style="margin-top:8px" data-i18n>Choose a new password</h2>
+    <form id="resetForm">
+      <label for="rpw" data-i18n>New password (at least 8 characters)</label>
+      <input id="rpw" name="new-password" type="password" autocomplete="new-password" minlength="8" required>
+      <div class="err" id="rerr" role="alert"></div>
+      <button class="btn gr" style="width:100%;margin-top:6px" type="submit" data-i18n>Save and sign in</button>
+    </form>
+    <p class="note" style="margin-top:16px"><a href="#" class="lk" data-back data-i18n>Back to sign in</a></p>
+  </section>
+  <button class="btn" type="button" id="authClose" style="width:100%;margin-top:14px" data-i18n>Not now</button>
 </dialog>
 
+<script src="i18n.js"></script>
 <script>
 (function () {
+  var t = I18N.t;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var store = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} } };
   var token = store.get('dw_token'), me = null, tab = 'items';
@@ -198,51 +227,53 @@ html.light .site{background:#fff}
     if (token) h.authorization = 'Bearer ' + token;
     return fetch('/api/' + path, { method: method, headers: h, body: data ? JSON.stringify(data) : undefined }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (j) {
-        if (r.status === 401 && token && path !== 'login') { signedOut(); throw new Error('Please sign in again'); }
-        if (!r.ok) throw new Error(j.error || 'Something went wrong');
+        if (r.status === 401 && token && path !== 'login') { signedOut(); throw new Error(t('Please sign in again')); }
+        if (!r.ok) throw new Error(t(j.error || 'Something went wrong'));
         return j;
       });
     });
   }
-  function money(n) { return n == null ? 'no price' : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+  function money(n) { return n == null ? t('no price') : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
   function day(n) { var d = new Date(); d.setDate(d.getDate() + (n || 0)); return d.toISOString().slice(0, 10); }
 
   // ---------- the sample shop visitors see before they sign in. It is never sent anywhere.
-  var SAMPLE = {
+  // Built each time it is read, so it follows the chosen language.
+  function sample() { return {
     // Neutral on purpose: 2DWeb is for any kind of business, so the sample names none.
-    name: 'Your business',
+    name: t('Your business'),
     items: [
-      { id: 1, ref: 'product-1', name: 'Your best seller', cat: 'Products', price: 49, desc: 'A short description your visitors read', soldout: 0, active: 1 },
-      { id: 2, ref: 'product-2', name: 'A product that sold out', cat: 'Products', price: 29, soldout: 1, active: 1 },
-      { id: 3, ref: 'product-3', name: 'Another product', cat: 'Products', price: 15, soldout: 0, active: 1 },
-      { id: 4, ref: 'service-1', name: 'A service you offer', cat: 'Services', price: 120, soldout: 0, active: 1 },
-      { id: 5, ref: 'service-2', name: 'A booking or appointment', cat: 'Services', price: 60, soldout: 0, active: 1 },
-      { id: 6, ref: 'seasonal-1', name: 'A seasonal item, hidden for now', cat: 'Seasonal', price: 80, soldout: 0, active: 0 },
+      { id: 1, ref: 'product-1', name: t('Your best seller'), cat: t('Products'), price: 49, desc: t('A short description your visitors read'), soldout: 0, active: 1 },
+      { id: 2, ref: 'product-2', name: t('A product that sold out'), cat: t('Products'), price: 29, soldout: 1, active: 1 },
+      { id: 3, ref: 'product-3', name: t('Another product'), cat: t('Products'), price: 15, soldout: 0, active: 1 },
+      { id: 4, ref: 'service-1', name: t('A service you offer'), cat: t('Services'), price: 120, soldout: 0, active: 1 },
+      { id: 5, ref: 'service-2', name: t('A booking or appointment'), cat: t('Services'), price: 60, soldout: 0, active: 1 },
+      { id: 6, ref: 'seasonal-1', name: t('A seasonal item, hidden for now'), cat: t('Seasonal'), price: 80, soldout: 0, active: 0 },
     ],
     promos: [
-      { id: 1, title: 'Launch offer', text: 'Shown on your website while it is live', discount_pct: 20, code: null, starts: day(-3), ends: day(10), active: 1 },
-      { id: 2, title: 'Weekend sale', text: 'Starts by itself on its first day', discount_pct: 10, code: 'WEEKEND', starts: day(5), ends: day(7), active: 1 },
-      { id: 3, title: 'Last season', text: 'Ended by itself after its last day', discount_pct: 30, code: null, starts: day(-40), ends: day(-33), active: 1 },
+      { id: 1, title: t('Launch offer'), text: t('Shown on your website while it is live'), discount_pct: 20, code: null, starts: day(-3), ends: day(10), active: 1 },
+      { id: 2, title: t('Weekend sale'), text: t('Starts by itself on its first day'), discount_pct: 10, code: 'WEEKEND', starts: day(5), ends: day(7), active: 1 },
+      { id: 3, title: t('Last season'), text: t('Ended by itself after its last day'), discount_pct: 30, code: null, starts: day(-40), ends: day(-33), active: 1 },
     ],
     changes: [
       { what: 'item changed', ref: 'product-2', at: day(0) + ' 09:12:04' },
-      { what: 'promotion added', ref: 'Weekend sale', at: day(-1) + ' 17:40:31' },
+      { what: 'promotion added', ref: t('Weekend sale'), at: day(-1) + ' 17:40:31' },
       { what: 'item changed', ref: 'product-1', at: day(-2) + ' 11:05:12' },
       { what: 'item added', ref: 'service-2', at: day(-6) + ' 08:30:00' },
       { what: 'item changed', ref: 'seasonal-1', at: day(-9) + ' 15:22:47' },
     ],
-  };
+  }; }
   // Every read goes through here: the owner's real data when signed in, the sample otherwise.
   function load(kind) {
     if (token) return api('GET', kind);
-    if (kind === 'items') return Promise.resolve({ items: SAMPLE.items });
-    if (kind === 'promos') return Promise.resolve({ promos: SAMPLE.promos, today: day(0) });
-    return Promise.resolve({ changes: SAMPLE.changes });
+    var S = sample();
+    if (kind === 'items') return Promise.resolve({ items: S.items });
+    if (kind === 'promos') return Promise.resolve({ promos: S.promos, today: day(0) });
+    return Promise.resolve({ changes: S.changes });
   }
   // Every change goes through here: only a signed-in owner may make one.
   function allowed(why) {
     if (token) return true;
-    openAuth(false, why || 'Sign in to make changes. The sample shop cannot be changed.');
+    openAuth(false, why || t('Sign in to make changes. The sample shop cannot be changed.'));
     return false;
   }
 
@@ -255,11 +286,12 @@ html.light .site{background:#fff}
   function openAuth(signup, why) {
     if ($('#dlg').open) $('#dlg').close();
     $('#authWhy').textContent = why || ''; $('#authWhy').classList.toggle('hide', !why);
-    swap(!!signup); $('#lerr').textContent = ''; $('#serr').textContent = '';
+    swap(signup ? 'signup' : 'login'); ['#lerr', '#serr', '#ferr', '#rerr'].forEach(function (s) { $(s).textContent = ''; });
     if (!$('#auth').open) $('#auth').showModal();
     (signup ? $('#sname') : ($('#lsite').value ? $('#lpw') : $('#lsite'))).focus();
   }
-  function swap(toSignup) { $('#login').classList.toggle('hide', toSignup); $('#signup').classList.toggle('hide', !toSignup); }
+  // One of the four screens in the sign-in box: login, signup, forgot, reset.
+  function swap(screen) { ['login', 'signup', 'forgot', 'reset'].forEach(function (s) { $('#' + s).classList.toggle('hide', s !== screen); }); }
   function signedIn(j) {
     token = j.token; store.set('dw_token', token); store.set('dw_site', j.client.email);
     $('#lpw').value = ''; $('#spw').value = '';
@@ -280,8 +312,33 @@ html.light .site{background:#fff}
     api('POST', 'signup', { name: $('#sname').value.trim(), email: $('#semail').value.trim().toLowerCase(), password: $('#spw').value }).then(signedIn)
       .catch(function (er) { $('#serr').textContent = er.message; });
   });
-  $('#toSignup').addEventListener('click', function (e) { e.preventDefault(); swap(true); $('#sname').focus(); });
-  $('#toLogin').addEventListener('click', function (e) { e.preventDefault(); swap(false); $('#lsite').focus(); });
+  $('#toSignup').addEventListener('click', function (e) { e.preventDefault(); swap('signup'); $('#sname').focus(); });
+  $('#toLogin').addEventListener('click', function (e) { e.preventDefault(); swap('login'); $('#lsite').focus(); });
+  $('#toForgot').addEventListener('click', function (e) {
+    e.preventDefault(); $('#authWhy').classList.add('hide');
+    $('#femail').value = $('#lsite').value; $('#ferr').className = 'err'; $('#ferr').textContent = '';
+    swap('forgot'); $('#femail').focus();
+  });
+  document.querySelectorAll('[data-back]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); swap('login'); $('#lsite').focus(); }); });
+  $('#forgotForm').addEventListener('submit', function (e) {
+    e.preventDefault(); var m = $('#ferr'); m.className = 'err'; m.textContent = '';
+    var b = this.querySelector('button'); b.disabled = true;
+    api('POST', 'forgot', { email: $('#femail').value.trim().toLowerCase(), lang: I18N.lang })
+      .then(function () { m.className = 'err ok'; m.textContent = t('If that email has an account, a link is on its way. Check your inbox and spam folder.'); })
+      .catch(function (er) { m.textContent = er.message; })
+      .then(function () { b.disabled = false; });
+  });
+  var resetToken = null;
+  $('#resetForm').addEventListener('submit', function (e) {
+    e.preventDefault(); $('#rerr').textContent = '';
+    api('POST', 'reset', { token: resetToken, password: $('#rpw').value }).then(function (j) {
+      $('#rpw').value = ''; resetToken = null; signedIn(j); toast(t('Password changed. You are signed in.'));
+    }).catch(function (er) { $('#rerr').textContent = er.message; });
+  });
+  function toast(msg) {
+    var n = el('div', { class: 'dj-plate gr', role: 'status', style: 'position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:50;padding:12px 18px;max-width:92vw', text: msg });
+    document.body.appendChild(n); setTimeout(function () { n.remove(); }, 5000);
+  }
   $('#authClose').addEventListener('click', function () { $('#auth').close(); });
   $('#inBtn').addEventListener('click', function () { openAuth(false); });
   $('#upBtn').addEventListener('click', function () { openAuth(true); });
@@ -303,19 +360,19 @@ html.light .site{background:#fff}
   function renderItems() {
     load('items').then(function (j) {
       var pane = $('#pane'); pane.replaceChildren();
-      pane.appendChild(el('button', { class: 'btn gr', style: 'width:100%;margin-bottom:14px', type: 'button', onclick: function () { itemForm(null); }, text: '+ Add a product' }));
-      if (!j.items.length) pane.appendChild(el('div', { class: 'empty', text: 'No products yet. Add your first one.' }));
+      pane.appendChild(el('button', { class: 'btn gr', style: 'width:100%;margin-bottom:14px', type: 'button', onclick: function () { itemForm(null); }, text: t('+ Add a product') }));
+      if (!j.items.length) pane.appendChild(el('div', { class: 'empty', text: t('No products yet. Add your first one.') }));
       j.items.forEach(function (it) {
         pane.appendChild(el('div', { class: 'row' + (it.active ? '' : ' off') }, [
           el('div', { class: 'main' }, [
             el('div', { class: 'nm', text: it.name }),
-            el('div', { class: 'sub' }, [(it.cat || 'No category') + '  ', el('span', { class: 'price', text: money(it.price) })]),
-            it.soldout ? el('span', { class: 'state sold', text: 'Sold out' }) : (it.active ? null : el('span', { class: 'state', text: 'Hidden' })),
+            el('div', { class: 'sub' }, [(it.cat || t('No category')) + '  ', el('span', { class: 'price', text: money(it.price) })]),
+            it.soldout ? el('span', { class: 'state sold', text: t('Sold out') }) : (it.active ? null : el('span', { class: 'state', text: t('Hidden') })),
           ]),
           el('div', { class: 'acts' }, [
-            el('button', { class: 'btn sm or', type: 'button', text: it.soldout ? 'Back in stock' : 'Sold out', onclick: function () { quick(it, { soldout: it.soldout ? 0 : 1 }); } }),
-            el('button', { class: 'btn sm', type: 'button', text: it.active ? 'Hide' : 'Show', onclick: function () { quick(it, { active: it.active ? 0 : 1 }); } }),
-            el('button', { class: 'btn sm', type: 'button', text: 'Edit', onclick: function () { itemForm(it); } }),
+            el('button', { class: 'btn sm or', type: 'button', text: it.soldout ? t('Back in stock') : t('Sold out'), onclick: function () { quick(it, { soldout: it.soldout ? 0 : 1 }); } }),
+            el('button', { class: 'btn sm', type: 'button', text: it.active ? t('Hide') : t('Show'), onclick: function () { quick(it, { active: it.active ? 0 : 1 }); } }),
+            el('button', { class: 'btn sm', type: 'button', text: t('Edit'), onclick: function () { itemForm(it); } }),
           ]),
         ]));
       });
@@ -330,29 +387,29 @@ html.light .site{background:#fff}
   // Anyone can open a form to see what it holds. Saving and deleting need a signed-in owner.
   function openDlg(title, fields, onSave, onDelete) {
     var f = $('#dlgForm'); f.replaceChildren(el('h2', { class: 'dj-h2', text: title }));
-    if (!token) f.appendChild(el('div', { class: 'banner', text: 'This is the sample shop. Sign in to save your own changes.' }));
+    if (!token) f.appendChild(el('div', { class: 'banner', text: t('This is the sample shop. Sign in to save your own changes.') }));
     fields.forEach(function (x) { [].concat(x).forEach(function (n) { f.appendChild(n); }); });
     var err = el('div', { class: 'err', role: 'alert' }); f.appendChild(err);
     var acts = el('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;margin-top:8px' }, [
-      el('button', { class: 'btn gr', type: 'button', text: token ? 'Save' : 'Sign in to save', onclick: function () { if (allowed('Sign in to save. The sample shop cannot be changed.')) onSave(err); } }),
-      el('button', { class: 'btn', type: 'button', text: 'Cancel', onclick: function () { $('#dlg').close(); } }),
+      el('button', { class: 'btn gr', type: 'button', text: token ? t('Save') : t('Sign in to save'), onclick: function () { if (allowed(t('Sign in to save. The sample shop cannot be changed.'))) onSave(err); } }),
+      el('button', { class: 'btn', type: 'button', text: t('Cancel'), onclick: function () { $('#dlg').close(); } }),
     ]);
-    if (onDelete) acts.appendChild(el('button', { class: 'btn ro', type: 'button', style: 'margin-left:auto', text: 'Delete', onclick: function () {
-      if (!allowed('Sign in to delete. The sample shop cannot be changed.')) return;
+    if (onDelete) acts.appendChild(el('button', { class: 'btn ro', type: 'button', style: 'margin-left:auto', text: t('Delete'), onclick: function () {
+      if (!allowed(t('Sign in to delete. The sample shop cannot be changed.'))) return;
       if (this.getAttribute('data-sure')) return onDelete(err);
-      this.setAttribute('data-sure', '1'); this.textContent = 'Tap again to delete';
+      this.setAttribute('data-sure', '1'); this.textContent = t('Tap again to delete');
     } }));
     f.appendChild(acts); $('#dlg').showModal();
   }
   function chk(id, label, on) { var i = el('input', { id: id, type: 'checkbox' }); i.checked = !!on; return el('label', { class: 'chk', for: id }, [i, label]); }
   function itemForm(it) {
     var v = it || { active: 1, soldout: 0 };
-    openDlg(it ? 'Edit product' : 'New product', [
-      field('f_name', 'Name', v.name, { maxlength: 120 }),
-      el('div', { class: 'two' }, [el('div', {}, field('f_price', 'Price', v.price, { inputmode: 'numeric' })), el('div', {}, field('f_cat', 'Category', v.cat, { maxlength: 60 }))]),
-      field('f_desc', 'Description', v.desc, { maxlength: 600 }, true),
-      field('f_img', 'Photo link (https://...)', v.img, { inputmode: 'url', autocapitalize: 'none' }),
-      chk('f_sold', 'Sold out right now', v.soldout), chk('f_act', 'Show on my website', v.active),
+    openDlg(it ? t('Edit product') : t('New product'), [
+      field('f_name', t('Name'), v.name, { maxlength: 120 }),
+      el('div', { class: 'two' }, [el('div', {}, field('f_price', t('Price'), v.price, { inputmode: 'numeric' })), el('div', {}, field('f_cat', t('Category'), v.cat, { maxlength: 60 }))]),
+      field('f_desc', t('Description'), v.desc, { maxlength: 600 }, true),
+      field('f_img', t('Photo link (https://...)'), v.img, { inputmode: 'url', autocapitalize: 'none' }),
+      chk('f_sold', t('Sold out right now'), v.soldout), chk('f_act', t('Show on my website'), v.active),
     ], function (err) {
       var d = { name: $('#f_name').value, price: $('#f_price').value, cat: $('#f_cat').value, desc: $('#f_desc').value, img: $('#f_img').value, soldout: $('#f_sold').checked ? 1 : 0, active: $('#f_act').checked ? 1 : 0 };
       api(it ? 'PUT' : 'POST', it ? 'items/' + it.id : 'items', d).then(function () { $('#dlg').close(); renderItems(); }).catch(function (e) { err.textContent = e.message; });
@@ -361,29 +418,29 @@ html.light .site{background:#fff}
 
   // ---------- promotions
   function promoState(p, today) {
-    if (!p.active) return ['Off', ''];
-    if (p.ends && p.ends < today) return ['Ended', ''];
-    if (p.starts && p.starts > today) return ['Starts ' + p.starts, 'soon'];
-    return ['Live now', 'live'];
+    if (!p.active) return [t('Off'), '', 'off'];
+    if (p.ends && p.ends < today) return [t('Ended'), '', 'ended'];
+    if (p.starts && p.starts > today) return [t('Starts {d}', { d: p.starts }), 'soon', 'soon'];
+    return [t('Live now'), 'live', 'live'];
   }
   function renderPromos() {
     load('promos').then(function (j) {
       var pane = $('#pane'); pane.replaceChildren();
-      pane.appendChild(el('button', { class: 'btn gr', style: 'width:100%;margin-bottom:14px', type: 'button', onclick: function () { promoForm(null); }, text: '+ Add a promotion' }));
-      pane.appendChild(el('p', { class: 'note', text: 'A promotion appears on your website from its first day and disappears by itself after its last day.' }));
-      if (!j.promos.length) pane.appendChild(el('div', { class: 'empty', text: 'No promotions yet.' }));
+      pane.appendChild(el('button', { class: 'btn gr', style: 'width:100%;margin-bottom:14px', type: 'button', onclick: function () { promoForm(null); }, text: t('+ Add a promotion') }));
+      pane.appendChild(el('p', { class: 'note', text: t('A promotion appears on your website from its first day and disappears by itself after its last day.') }));
+      if (!j.promos.length) pane.appendChild(el('div', { class: 'empty', text: t('No promotions yet.') }));
       j.promos.forEach(function (p) {
         var s = promoState(p, j.today);
-        var when = (p.starts || p.ends) ? ((p.starts || 'now') + ' to ' + (p.ends || 'no end')) : 'No dates';
-        pane.appendChild(el('div', { class: 'row' + (s[0] === 'Ended' || s[0] === 'Off' ? ' off' : '') }, [
+        var when = (p.starts || p.ends) ? t('{a} to {b}', { a: p.starts || t('now'), b: p.ends || t('no end') }) : t('No dates');
+        pane.appendChild(el('div', { class: 'row' + (s[2] === 'ended' || s[2] === 'off' ? ' off' : '') }, [
           el('div', { class: 'main' }, [
             el('div', { class: 'nm', text: p.title }),
-            el('div', { class: 'sub', text: [p.discount_pct != null ? p.discount_pct + '% off' : '', p.code ? 'code ' + p.code : '', when].filter(Boolean).join('  |  ') }),
+            el('div', { class: 'sub', text: [p.discount_pct != null ? t('{n}% off', { n: p.discount_pct }) : '', p.code ? t('code {c}', { c: p.code }) : '', when].filter(Boolean).join('  |  ') }),
             el('span', { class: 'state ' + s[1], text: s[0] }),
           ]),
           el('div', { class: 'acts' }, [
-            el('button', { class: 'btn sm', type: 'button', text: p.active ? 'Turn off' : 'Turn on', onclick: function () { if (allowed()) api('PUT', 'promos/' + p.id, { active: p.active ? 0 : 1 }).then(renderPromos).catch(fail); } }),
-            el('button', { class: 'btn sm', type: 'button', text: 'Edit', onclick: function () { promoForm(p); } }),
+            el('button', { class: 'btn sm', type: 'button', text: p.active ? t('Turn off') : t('Turn on'), onclick: function () { if (allowed()) api('PUT', 'promos/' + p.id, { active: p.active ? 0 : 1 }).then(renderPromos).catch(fail); } }),
+            el('button', { class: 'btn sm', type: 'button', text: t('Edit'), onclick: function () { promoForm(p); } }),
           ]),
         ]));
       });
@@ -391,12 +448,12 @@ html.light .site{background:#fff}
   }
   function promoForm(p) {
     var v = p || { active: 1 };
-    openDlg(p ? 'Edit promotion' : 'New promotion', [
-      field('p_title', 'Title', v.title, { maxlength: 120 }),
-      field('p_text', 'Message for visitors', v.text, { maxlength: 600 }, true),
-      el('div', { class: 'two' }, [el('div', {}, field('p_pct', 'Discount %', v.discount_pct, { inputmode: 'numeric' })), el('div', {}, field('p_code', 'Promo code', v.code, { maxlength: 30, autocapitalize: 'characters' }))]),
-      el('div', { class: 'two' }, [el('div', {}, field('p_from', 'First day', v.starts, { type: 'date' })), el('div', {}, field('p_to', 'Last day', v.ends, { type: 'date' }))]),
-      chk('p_act', 'Turned on', v.active),
+    openDlg(p ? t('Edit promotion') : t('New promotion'), [
+      field('p_title', t('Title'), v.title, { maxlength: 120 }),
+      field('p_text', t('Message for visitors'), v.text, { maxlength: 600 }, true),
+      el('div', { class: 'two' }, [el('div', {}, field('p_pct', t('Discount %'), v.discount_pct, { inputmode: 'numeric' })), el('div', {}, field('p_code', t('Promo code'), v.code, { maxlength: 30, autocapitalize: 'characters' }))]),
+      el('div', { class: 'two' }, [el('div', {}, field('p_from', t('First day'), v.starts, { type: 'date' })), el('div', {}, field('p_to', t('Last day'), v.ends, { type: 'date' }))]),
+      chk('p_act', t('Turned on'), v.active),
     ], function (err) {
       var d = { title: $('#p_title').value, text: $('#p_text').value, discount_pct: $('#p_pct').value, code: $('#p_code').value, starts: $('#p_from').value, ends: $('#p_to').value, active: $('#p_act').checked ? 1 : 0 };
       api(p ? 'PUT' : 'POST', p ? 'promos/' + p.id : 'promos', d).then(function () { $('#dlg').close(); renderPromos(); }).catch(function (e) { err.textContent = e.message; });
@@ -407,63 +464,64 @@ html.light .site{background:#fff}
   function renderSite() {
     var feed = token && me && me.slug
       ? api('GET', 'public/' + encodeURIComponent(me.slug))
-      : Promise.resolve({
-        client: SAMPLE.name,
-        items: SAMPLE.items.filter(function (i) { return i.active; }),
-        promos: SAMPLE.promos.filter(function (p) { return promoState(p, day(0))[1] === 'live'; }),
-      });
+      : Promise.resolve((function (S) { return {
+        client: S.name,
+        items: S.items.filter(function (i) { return i.active; }),
+        promos: S.promos.filter(function (p) { return promoState(p, day(0))[1] === 'live'; }),
+      }; })(sample()));
     feed.then(function (j) {
       var pane = $('#pane'); pane.replaceChildren();
-      pane.appendChild(el('p', { class: 'note', text: 'This is what your website shows visitors right now. Hidden products, ended promotions and promotions that have not started are left out.' }));
+      pane.appendChild(el('p', { class: 'note', text: t('This is what your website shows visitors right now. Hidden products, ended promotions and promotions that have not started are left out.') }));
       var body = el('div', { class: 'body' }, [el('h3', { text: j.client })]);
       j.promos.forEach(function (p) {
-        body.appendChild(el('div', { class: 'banner' }, [el('b', { text: p.title }), p.text ? '  ' + p.text : '', p.code ? '  Code ' + p.code : '']));
+        body.appendChild(el('div', { class: 'banner' }, [el('b', { text: p.title }), p.text ? '  ' + p.text : '', p.code ? '  ' + t('Code {c}', { c: p.code }) : '']));
       });
-      if (!j.items.length) body.appendChild(el('div', { class: 'empty', text: 'Nothing on your website yet. Add a product and it appears here.' }));
-      var cats = {}; j.items.forEach(function (i) { (cats[i.cat || 'Other'] = cats[i.cat || 'Other'] || []).push(i); });
+      if (!j.items.length) body.appendChild(el('div', { class: 'empty', text: t('Nothing on your website yet. Add a product and it appears here.') }));
+      var other = t('Other');
+      var cats = {}; j.items.forEach(function (i) { (cats[i.cat || other] = cats[i.cat || other] || []).push(i); });
       Object.keys(cats).forEach(function (c) {
         body.appendChild(el('div', { class: 'cat', text: c }));
         cats[c].forEach(function (i) {
           body.appendChild(el('div', { class: 'dish' + (i.soldout ? ' sold' : '') }, [
-            el('span', { class: 'nm', text: i.name + (i.soldout ? '  (sold out)' : '') }), el('span', { class: 'price', text: money(i.price) })]));
+            el('span', { class: 'nm', text: i.name + (i.soldout ? '  ' + t('(sold out)') : '') }), el('span', { class: 'price', text: money(i.price) })]));
         });
       });
       var addr = token && me ? location.origin + '/api/public/' + me.slug : 'yourbusiness.com';
       pane.appendChild(el('div', { class: 'site' }, [el('div', { class: 'top' }, [el('i'), el('i'), el('i'), ' ' + (token ? me.name : 'yourbusiness.com')]), body]));
-      if (token && me) pane.appendChild(el('p', { class: 'note', style: 'margin-top:12px' }, ['Your website reads its data from ', el('a', { class: 'lk', href: addr, target: '_blank', rel: 'noopener', text: addr })]));
+      if (token && me) pane.appendChild(el('p', { class: 'note', style: 'margin-top:12px' }, [t('Your website reads its data from '), el('a', { class: 'lk', href: addr, target: '_blank', rel: 'noopener', text: addr })]));
     }).catch(fail);
   }
 
   // ---------- history + account
   function renderHist() {
     load('history').then(function (j) {
-      var pane = $('#pane'); pane.replaceChildren(el('p', { class: 'note', text: 'Everything that was changed, newest first.' }));
-      if (!j.changes.length) pane.appendChild(el('div', { class: 'empty', text: 'No changes yet.' }));
-      j.changes.forEach(function (c) { pane.appendChild(el('div', { class: 'hist' }, [el('time', { text: c.at + ' UTC  ' }), c.what + (c.ref ? ': ' + c.ref : '')])); });
+      var pane = $('#pane'); pane.replaceChildren(el('p', { class: 'note', text: t('Everything that was changed, newest first.') }));
+      if (!j.changes.length) pane.appendChild(el('div', { class: 'empty', text: t('No changes yet.') }));
+      j.changes.forEach(function (c) { pane.appendChild(el('div', { class: 'hist' }, [el('time', { text: c.at + ' UTC  ' }), t(c.what) + (c.ref ? ': ' + c.ref : '')])); });
     }).catch(fail);
   }
   function renderAcct() {
     var pane = $('#pane'); pane.replaceChildren();
-    var who = el('div', { class: 'dj-plate or' }, [el('h2', { class: 'dj-h2', text: 'My account' })]);
-    var whoLine = el('p', { class: 'note', text: token ? ((me && me.email) || '') : 'You are not signed in. Your account holds your email, your plan and your password.' });
-    var payLine = el('p', { class: 'note', text: token ? '' : 'Your plan and payments are linked to the email of your Djinja-C account.' });
+    var who = el('div', { class: 'dj-plate or' }, [el('h2', { class: 'dj-h2', text: t('My account') })]);
+    var whoLine = el('p', { class: 'note', text: token ? ((me && me.email) || '') : t('You are not signed in. Your account holds your email, your plan and your password.') });
+    var payLine = el('p', { class: 'note', text: token ? '' : t('Your plan and payments are linked to the email of your Djinja-C account.') });
     who.appendChild(whoLine); who.appendChild(payLine);
     if (!token) who.appendChild(el('div', { class: 'cta', style: 'margin-top:10px' }, [
-      el('button', { class: 'btn gr', type: 'button', text: 'Create account', onclick: function () { openAuth(true); } }),
-      el('button', { class: 'btn', type: 'button', text: 'Sign in', onclick: function () { openAuth(false); } })]));
+      el('button', { class: 'btn gr', type: 'button', text: t('Create account'), onclick: function () { openAuth(true); } }),
+      el('button', { class: 'btn', type: 'button', text: t('Sign in'), onclick: function () { openAuth(false); } })]));
     pane.appendChild(who);
     if (token) api('GET', 'me').then(function (m) {
-      whoLine.textContent = 'Signed in as ' + m.email + ' (your Djinja-C account email)';
-      payLine.textContent = m.paid_until ? 'Plan: ' + (m.plan || 'active') + ', paid until ' + m.paid_until : 'Payment status: not linked yet';
+      whoLine.textContent = t('Signed in as {e} (your Djinja-C account email)', { e: m.email });
+      payLine.textContent = m.paid_until ? t('Plan: {p}, paid until {d}', { p: m.plan || t('active'), d: m.paid_until }) : t('Payment status: not linked yet');
     }).catch(function () {});
-    var plate = el('div', { class: 'dj-plate cy', style: 'margin-top:14px' }, [el('h2', { class: 'dj-h2', text: 'Change my password' })]);
-    [].concat(field('a_cur', 'Current password', '', { type: 'password', autocomplete: 'current-password' }), field('a_new', 'New password (at least 8 characters)', '', { type: 'password', autocomplete: 'new-password' })).forEach(function (n) { plate.appendChild(n); });
+    var plate = el('div', { class: 'dj-plate cy', style: 'margin-top:14px' }, [el('h2', { class: 'dj-h2', text: t('Change my password') })]);
+    [].concat(field('a_cur', t('Current password'), '', { type: 'password', autocomplete: 'current-password' }), field('a_new', t('New password (at least 8 characters)'), '', { type: 'password', autocomplete: 'new-password' })).forEach(function (n) { plate.appendChild(n); });
     var msg = el('div', { class: 'err', role: 'status' });
     plate.appendChild(msg);
-    plate.appendChild(el('button', { class: 'btn gr', type: 'button', style: 'margin-top:8px', text: token ? 'Save password' : 'Sign in to change it', onclick: function () {
-      if (!allowed('Sign in to change your password.')) return;
+    plate.appendChild(el('button', { class: 'btn gr', type: 'button', style: 'margin-top:8px', text: token ? t('Save password') : t('Sign in to change it'), onclick: function () {
+      if (!allowed(t('Sign in to change your password.'))) return;
       msg.className = 'err'; msg.textContent = '';
-      api('POST', 'password', { current: $('#a_cur').value, password: $('#a_new').value }).then(function () { msg.className = 'err ok'; msg.textContent = 'Password changed. Other devices were signed out.'; $('#a_cur').value = ''; $('#a_new').value = ''; }).catch(function (e) { msg.textContent = e.message; });
+      api('POST', 'password', { current: $('#a_cur').value, password: $('#a_new').value }).then(function () { msg.className = 'err ok'; msg.textContent = t('Password changed. Other devices were signed out.'); $('#a_cur').value = ''; $('#a_new').value = ''; }).catch(function (e) { msg.textContent = e.message; });
     } }));
     pane.appendChild(plate);
   }
@@ -487,9 +545,19 @@ html.light .site{background:#fff}
   if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
 
   // ---------- boot
-  var q = new URLSearchParams(location.search).get('c');
-  $('#lsite').value = q || store.get('dw_site') || '';
+  I18N.mount($('#langSlot')); I18N.apply();
+  I18N.onChange(function () { render(); });
+  var qs = new URLSearchParams(location.search);
+  $('#lsite').value = qs.get('c') || store.get('dw_site') || '';
   if (token) api('GET', 'me').then(start).catch(function () { signedOut(); }); else guest();
+  // The link from the reset email: open the "choose a new password" screen, and take the
+  // token out of the address bar so it is not left in the history or shared by mistake.
+  var rt = qs.get('reset');
+  if (rt && /^[a-f0-9]{64}$/.test(rt)) {
+    resetToken = rt; history.replaceState(null, '', location.pathname);
+    $('#authWhy').classList.add('hide'); swap('reset'); $('#rerr').textContent = '';
+    $('#auth').showModal(); $('#rpw').focus();
+  }
 })();
 </script>
 </body>
