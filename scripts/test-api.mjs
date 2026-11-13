@@ -131,12 +131,67 @@ ok((await call('GET', 'public/shop')).j.items.length === 0, 'B\'s feed has none 
 ok((await call('GET', 'public/ghost')).status === 404, 'unknown site is a 404');
 ok((await call('POST', 'public/take')).status !== 200, 'the public feed is read-only');
 
+// ---- orders: the kitchen and the till
+ok((await call('POST', 'orders', { token: TA, body: { customer: 'x' } })).status === 400, 'an order needs at least one item');
+ok((await call('POST', 'orders', { token: TA, body: { items: [{ name: '' }] } })).status === 400, 'an item with no name does not count');
+const o1 = await call('POST', 'orders', { token: TA, body: { customer: 'Wayan', table_no: '4', items: [{ name: 'Nasi Goreng', qty: 2, price: 20000 }, { name: 'Es Teh', qty: 1, price: 5000 }] } });
+ok(o1.status === 201 && o1.j.number === 1, 'first order for this client is #1');
+const o2 = await call('POST', 'orders', { token: TA, body: { kind: 'takeaway', items: [{ name: 'Tea' }] } });
+ok(o2.j.number === 2, 'order numbers count up per client');
+const olist = (await call('GET', 'orders', { token: TA })).j.orders;
+ok(olist.length === 2 && olist[0].id === o2.j.id, 'orders list, newest first');
+ok(olist[1].items.length === 2 && olist[1].total === 45000 && olist[1].status === 'new' && olist[1].pay_status === 'unpaid', 'the order carries its items and total, starts new and unpaid');
+ok(olist[1].kind === 'dine_in', 'an order type that was not sent defaults to dine in');
+ok((await call('POST', 'orders', { token: TB, body: { items: [{ name: 'x' }] } })).status === 201, 'B has its own order numbers');
+ok((await call('GET', 'orders', { token: TB })).j.orders[0].number === 1, 'B starts at #1 too: numbers are per client');
+ok((await call('PUT', 'orders/' + o1.j.id, { token: TB, body: { status: 'served' } })).status === 404, 'B cannot touch A\'s order');
+ok((await call('PUT', 'orders/' + o1.j.id, { token: TA, body: { status: 'preparing' } })).status === 200, 'A moves the order to preparing');
+ok((await call('PUT', 'orders/' + o1.j.id, { token: TA, body: { status: 'not-a-status' } })).status === 200, 'an unknown status is quietly ignored, not an error');
+ok((await call('GET', 'orders', { token: TA })).j.orders.find((o) => o.id === o1.j.id).status === 'preparing', 'the status stuck; the bad one did not');
+ok((await call('PUT', 'orders/' + o1.j.id, { token: TA, body: { pay_status: 'paid', pay_method: 'cash' } })).status === 200, 'mark paid');
+ok((await call('GET', 'orders', { token: TA })).j.orders.find((o) => o.id === o1.j.id).pay_method === 'cash', 'the payment method is kept');
+ok((await call('GET', 'orders?status=preparing', { token: TA })).j.orders.length === 1, 'filtering by status: the one order in preparing');
+ok((await call('GET', 'orders?status=new', { token: TA })).j.orders.length === 1, 'the other order is still new');
+ok((await call('GET', 'orders?status=served', { token: TA })).j.orders.length === 0, 'no order has been served yet');
+await call('PUT', 'items/' + i1.j.id, { token: TA, body: { price: 999999 } });
+ok((await call('GET', 'orders', { token: TA })).j.orders.find((o) => o.id === o1.j.id).total === 45000, 'a later price change never rewrites an old order\'s total');
+ok((await call('DELETE', 'orders/' + o2.j.id, { token: TA })).status === 200, 'cancel (delete) an order');
+ok((await call('GET', 'orders', { token: TA })).j.orders.length === 1, 'the cancelled order is gone from the list');
+
+// ---- a guest places an order from the client's own website, no sign-in
+ok((await call('POST', 'public/take/order', { body: { items: [{ name: 'Nasi Goreng', qty: 1, price: 20000 }] }, ip: '50.0.0.1' })).status === 201, 'a guest can place an order');
+const afterGuestOrder = (await call('GET', 'orders', { token: TA })).j.orders;
+ok(afterGuestOrder.length === 2 && afterGuestOrder[0].source === 'website', 'the guest order lands in the owner\'s list, marked as from the website');
+ok((await call('POST', 'public/ghost/order', { body: { items: [{ name: 'x' }] }, ip: '50.0.0.2' })).status === 404, 'a guest cannot order from an unknown site');
+for (let i = 0; i < 10; i++) await call('POST', 'public/take/order', { body: { items: [{ name: 'x' }] }, ip: '50.0.0.9' });
+ok((await call('POST', 'public/take/order', { body: { items: [{ name: 'x' }] }, ip: '50.0.0.9' })).status === 429, 'one address cannot flood a kitchen with orders');
+ok((await call('POST', 'public/take/order', { body: { items: [{ name: 'x' }] }, ip: '50.0.0.3' })).status === 201, 'the limit is per address, not per site');
+
+// ---- bookings: tables and appointments
+ok((await call('POST', 'bookings', { token: TA, body: { date: '2026-12-10', time: '19:00' } })).status === 400, 'a booking needs a name');
+ok((await call('POST', 'bookings', { token: TA, body: { name: 'Wayan', date: 'soon', time: '19:00' } })).status === 400, 'a bad date is refused');
+ok((await call('POST', 'bookings', { token: TA, body: { name: 'Wayan', date: '2026-12-10', time: '25:99' } })).status === 400, 'a bad time is refused');
+const bk1 = await call('POST', 'bookings', { token: TA, body: { name: 'Wayan', phone: '0811', party: 4, date: '2026-12-10', time: '19:30' } });
+ok(bk1.status === 201, 'booking created');
+ok((await call('PUT', 'bookings/' + bk1.j.id, { token: TB, body: { status: 'confirmed' } })).status === 404, 'B cannot touch A\'s booking');
+ok((await call('PUT', 'bookings/' + bk1.j.id, { token: TA, body: { status: 'confirmed' } })).status === 200, 'A confirms it');
+ok((await call('GET', 'bookings?date=2026-12-10', { token: TA })).j.bookings.length === 1, 'filter bookings by date');
+ok((await call('GET', 'bookings?date=2026-12-11', { token: TA })).j.bookings.length === 0, 'a different date has none');
+ok((await call('PUT', 'bookings/' + bk1.j.id, { token: TA, body: { status: 'seated' } })).status === 200, 'seat the table');
+ok((await call('DELETE', 'bookings/' + bk1.j.id, { token: TA })).status === 200, 'delete a booking');
+ok((await call('GET', 'bookings', { token: TA })).j.bookings.length === 0, 'it is gone');
+ok((await call('POST', 'public/take/booking', { body: { name: 'A guest', date: '2026-12-24', time: '20:00' }, ip: '51.0.0.1' })).status === 201, 'a guest can ask for a booking, no sign-in');
+ok((await call('GET', 'bookings', { token: TA })).j.bookings[0].source === 'website', 'the guest booking is marked as from the website');
+for (let i = 0; i < 10; i++) await call('POST', 'public/take/booking', { body: { name: 'x', date: '2026-12-24', time: '20:00' }, ip: '52.0.0.9' });
+ok((await call('POST', 'public/take/booking', { body: { name: 'x', date: '2026-12-24', time: '20:00' }, ip: '52.0.0.9' })).status === 429, 'one address cannot flood the booking list either');
+
 // ---- import, history, password
 ok((await call('POST', 'master/clients/take/import', { master: true, body: { items: [{ id: 'tea', name: 'Tea', price: 5000, cat: 'Drinks' }, { id: 'nasi-goreng', name: 'dup' }] } })).j.imported === 2, 'import runs');
 ok((await call('GET', 'items', { token: TA })).j.items.filter((x) => x.ref === 'nasi-goreng').length === 1, 'import never overwrites an existing product');
 const h = (await call('GET', 'history', { token: TA })).j.changes;
 ok(h.some((c) => c.what === 'item changed' && JSON.parse(c.before).price === 20000 && JSON.parse(c.after).price === 22000), 'history records before and after');
-ok((await call('GET', 'history', { token: TB })).j.changes.length === 0, 'B\'s history is empty');
+const hb = (await call('GET', 'history', { token: TB })).j.changes;
+ok(hb.length === 1 && hb[0].what === 'order added' && !hb.some((c) => c.what === 'item changed'), 'B\'s history holds only B\'s own one order, none of A\'s changes');
 ok((await call('POST', 'password', { token: TA, body: { current: 'wrong', password: 'brand-new-password' } })).status === 401, 'password change needs the current one');
 ok((await call('POST', 'password', { token: TA, body: { current: a.j.password, password: 'short' } })).status === 400, 'new password length checked');
 ok((await call('POST', 'password', { token: TA, body: { current: a.j.password, password: 'brand-new-password' } })).status === 200, 'password changed');
@@ -197,7 +252,8 @@ ok(!/<img[^>]+src="http/.test(html) && !/src="https?:/.test(html), 'no third-par
   for (const m of html.matchAll(/data-i18n(?:-ph|-aria|-title)?="([^"]+)"/g)) keys.add(m[1]);
   for (const m of html.matchAll(/<[^>]+\bdata-i18n(?=[\s>])[^>]*>([^<]+)</g)) keys.add(m[1].trim());
   for (const m of html.matchAll(/\bt\('((?:[^'\\]|\\.)+)'/g)) keys.add(m[1].replace(/\\'/g, "'"));
-  ['item added', 'item changed', 'item deleted', 'promotion added', 'promotion changed', 'promotion deleted'].forEach((k) => keys.add(k));
+  ['item added', 'item changed', 'item deleted', 'promotion added', 'promotion changed', 'promotion deleted',
+    'order added', 'order changed', 'order cancelled', 'booking added', 'booking changed', 'booking cancelled'].forEach((k) => keys.add(k));
   // what the server can say to a business owner
   const api = fs.readFileSync(path.join(ROOT, 'functions', 'api', '_app.js'), 'utf8');
   for (const m of api.matchAll(/bad\((['`])([^'`]+)\1/g)) {

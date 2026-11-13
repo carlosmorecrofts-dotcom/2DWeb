@@ -52,3 +52,41 @@ CREATE INDEX IF NOT EXISTS changes_c ON changes(client_id, id);
 CREATE TABLE IF NOT EXISTS resets (     -- forgot-password links, stored hashed, one hour, one use
   hash TEXT PRIMARY KEY, client_id INTEGER NOT NULL, expires TEXT NOT NULL
 );
+
+-- The back of house: orders (kitchen + till) and bookings. A guest can place
+-- an order or ask for a booking from the client's own website (POST
+-- /api/public/:slug/order or /booking); the owner manages both signed in here.
+CREATE TABLE IF NOT EXISTS orders (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  client_id INTEGER NOT NULL,
+  number INTEGER NOT NULL,            -- shown to staff as "Order #12", counts up per client
+  customer TEXT, phone TEXT, table_no TEXT,
+  kind TEXT NOT NULL DEFAULT 'dine_in',       -- dine_in, takeaway, delivery
+  status TEXT NOT NULL DEFAULT 'new',         -- new, preparing, ready, served, cancelled
+  pay_status TEXT NOT NULL DEFAULT 'unpaid',  -- unpaid, paid
+  pay_method TEXT,                            -- cash, card, transfer, qris, other: set when marked paid
+  source TEXT NOT NULL DEFAULT 'staff',       -- staff (added here) or website (the guest endpoint)
+  note TEXT,
+  total INTEGER,                              -- sum of its items' price * qty, kept so a later price change never rewrites an old order
+  created TEXT NOT NULL DEFAULT (datetime('now')),
+  updated TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS orders_c ON orders(client_id, status, id);
+CREATE TABLE IF NOT EXISTS order_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_id INTEGER NOT NULL,
+  name TEXT NOT NULL, qty INTEGER NOT NULL DEFAULT 1, price INTEGER
+);
+CREATE INDEX IF NOT EXISTS order_items_o ON order_items(order_id);
+CREATE TABLE IF NOT EXISTS bookings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  client_id INTEGER NOT NULL,
+  name TEXT NOT NULL, phone TEXT, party INTEGER,
+  date TEXT NOT NULL, time TEXT NOT NULL,     -- YYYY-MM-DD, HH:MM, the client's own local time (tz_hours)
+  status TEXT NOT NULL DEFAULT 'pending',     -- pending, confirmed, seated, cancelled, no_show
+  source TEXT NOT NULL DEFAULT 'staff',
+  note TEXT,
+  created TEXT NOT NULL DEFAULT (datetime('now')),
+  updated TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS bookings_c ON bookings(client_id, date, time);

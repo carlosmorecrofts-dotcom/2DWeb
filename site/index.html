@@ -138,6 +138,8 @@ html.light .site{background:#fff}
     <div class="tabs" role="tablist">
       <button class="tab on" data-t="items" role="tab" type="button" data-i18n>Products</button>
       <button class="tab" data-t="promos" role="tab" type="button" data-i18n>Promotions</button>
+      <button class="tab" data-t="orders" role="tab" type="button" data-i18n>Orders</button>
+      <button class="tab" data-t="bookings" role="tab" type="button" data-i18n>Bookings</button>
       <button class="tab" data-t="site" role="tab" type="button" data-i18n>My website</button>
       <button class="tab" data-t="hist" role="tab" type="button" data-i18n>History</button>
       <button class="tab" data-t="acct" role="tab" type="button" data-i18n>Account</button>
@@ -261,6 +263,17 @@ html.light .site{background:#fff}
       { what: 'item added', ref: 'service-2', at: day(-6) + ' 08:30:00' },
       { what: 'item changed', ref: 'seasonal-1', at: day(-9) + ' 15:22:47' },
     ],
+    orders: [
+      { id: 1, number: 41, customer: t('A walk-in customer'), table_no: '4', kind: 'dine_in', status: 'new', pay_status: 'unpaid', total: 94, items: [{ qty: 2, name: t('Your best seller') }, { qty: 1, name: t('Another product') }] },
+      { id: 2, number: 40, customer: t('A phone order'), table_no: '', kind: 'takeaway', status: 'preparing', pay_status: 'unpaid', total: 29, items: [{ qty: 1, name: t('A product that sold out') }] },
+      { id: 3, number: 39, customer: '', table_no: '2', kind: 'dine_in', status: 'ready', pay_status: 'paid', total: 49, items: [{ qty: 1, name: t('Your best seller') }] },
+      { id: 4, number: 38, customer: '', table_no: '1', kind: 'dine_in', status: 'served', pay_status: 'paid', total: 15, items: [{ qty: 1, name: t('Another product') }] },
+    ],
+    bookings: [
+      { id: 1, name: t('A booking from your website'), phone: '', party: 4, date: day(0), time: '19:30', status: 'pending' },
+      { id: 2, name: t('A confirmed table'), phone: '', party: 2, date: day(0), time: '20:00', status: 'confirmed' },
+      { id: 3, name: t('A seated table'), phone: '', party: 6, date: day(0), time: '13:00', status: 'seated' },
+    ],
   }; }
   // Every read goes through here: the owner's real data when signed in, the sample otherwise.
   function load(kind) {
@@ -268,6 +281,8 @@ html.light .site{background:#fff}
     var S = sample();
     if (kind === 'items') return Promise.resolve({ items: S.items });
     if (kind === 'promos') return Promise.resolve({ promos: S.promos, today: day(0) });
+    if (kind === 'orders') return Promise.resolve({ orders: S.orders });
+    if (kind === 'bookings') return Promise.resolve({ bookings: S.bookings, today: day(0) });
     return Promise.resolve({ changes: S.changes });
   }
   // Every change goes through here: only a signed-in owner may make one.
@@ -298,8 +313,8 @@ html.light .site{background:#fff}
     if ($('#auth').open) $('#auth').close();
     start(j.client);
   }
-  function signedOut() { token = null; store.set('dw_token', null); me = null; guest(); }
-  function start(c) { me = c; $('#whoName').textContent = c.name; show(true); render(); }
+  function signedOut() { token = null; store.set('dw_token', null); me = null; guest(); watchLive(); }
+  function start(c) { me = c; $('#whoName').textContent = c.name; show(true); render(); watchLive(); }
   function guest() { show(false); render(); }
 
   $('#loginForm').addEventListener('submit', function (e) {
@@ -350,10 +365,18 @@ html.light .site{background:#fff}
     b.addEventListener('click', function () {
       tab = b.getAttribute('data-t');
       document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
-      render();
+      render(); watchLive();
     });
   });
-  function render() { ({ items: renderItems, promos: renderPromos, site: renderSite, hist: renderHist, acct: renderAcct })[tab](); }
+  function render() { ({ items: renderItems, promos: renderPromos, orders: renderOrders, bookings: renderBookings, site: renderSite, hist: renderHist, acct: renderAcct })[tab](); }
+  // The kitchen and the till need the board to update on its own: orders and bookings
+  // refresh every few seconds while that tab is open and nobody is mid-edit in a dialog.
+  var liveTimer = null;
+  function watchLive() {
+    if (liveTimer) { clearInterval(liveTimer); liveTimer = null; }
+    if (!token || (tab !== 'orders' && tab !== 'bookings')) return;
+    liveTimer = setInterval(function () { if (!$('#dlg').open) render(); }, 5000);
+  }
   function fail(er) { $('#pane').replaceChildren(el('div', { class: 'empty', text: er.message })); }
 
   // ---------- products
@@ -458,6 +481,113 @@ html.light .site{background:#fff}
       var d = { title: $('#p_title').value, text: $('#p_text').value, discount_pct: $('#p_pct').value, code: $('#p_code').value, starts: $('#p_from').value, ends: $('#p_to').value, active: $('#p_act').checked ? 1 : 0 };
       api(p ? 'PUT' : 'POST', p ? 'promos/' + p.id : 'promos', d).then(function () { $('#dlg').close(); renderPromos(); }).catch(function (e) { err.textContent = e.message; });
     }, p && function (err) { api('DELETE', 'promos/' + p.id).then(function () { $('#dlg').close(); renderPromos(); }).catch(function (e) { err.textContent = e.message; }); });
+  }
+
+  // ---------- orders: the kitchen and the till, in one board
+  var ORDER_KIND_T = { dine_in: 'Dine in', takeaway: 'Takeaway', delivery: 'Delivery' };
+  var ORDER_STATUS_T = { new: 'New', preparing: 'Preparing', ready: 'Ready', served: 'Served', cancelled: 'Cancelled' };
+  function orderLine(o) { return (o.items || []).map(function (it) { return it.qty + 'x ' + it.name; }).join(', '); }
+  function orderItemsEditor() {
+    var rows = [], wrap = el('div', { id: 'ordItemsWrap' });
+    function addRow() {
+      var nameI = el('input', { placeholder: t('Item name'), 'aria-label': t('Item name') });
+      var qtyI = el('input', { type: 'number', min: '1', inputmode: 'numeric', style: 'width:64px', 'aria-label': t('Quantity') }); qtyI.value = 1;
+      var priceI = el('input', { inputmode: 'numeric', style: 'width:100px', placeholder: t('Price'), 'aria-label': t('Price') });
+      var rowEl = el('div', { style: 'display:flex;gap:8px;margin-bottom:8px;align-items:center' }, [nameI, qtyI, priceI,
+        el('button', { class: 'btn sm ro', type: 'button', text: '✕', onclick: function () { wrap.removeChild(rowEl); rows = rows.filter(function (r) { return r !== rowEl; }); } })]);
+      rowEl._in = { nameI: nameI, qtyI: qtyI, priceI: priceI };
+      wrap.appendChild(rowEl); rows.push(rowEl);
+    }
+    addRow();
+    return { node: el('div', {}, [el('label', { text: t('Items') }), wrap,
+      el('button', { class: 'btn sm', type: 'button', text: t('+ Add item'), style: 'margin-bottom:6px', onclick: function () { addRow(); } })]),
+      getItems: function () { return rows.map(function (r) { return { name: r._in.nameI.value.trim(), qty: r._in.qtyI.value, price: r._in.priceI.value === '' ? null : r._in.priceI.value }; }).filter(function (it) { return it.name; }); } };
+  }
+  function orderForm() {
+    var itemsEd = orderItemsEditor();
+    var kindSel = el('select', { id: 'o_kind' }, Object.keys(ORDER_KIND_T).map(function (k) { return el('option', { value: k, text: t(ORDER_KIND_T[k]) }); }));
+    openDlg(t('New order'), [
+      field('o_cust', t('Customer'), '', { maxlength: 120 }),
+      el('div', { class: 'two' }, [el('div', {}, field('o_phone', t('Phone'), '', { inputmode: 'tel', maxlength: 40 })), el('div', {}, field('o_table', t('Table number'), '', { maxlength: 20 }))]),
+      [el('label', { for: 'o_kind', text: t('Order type') }), kindSel],
+      itemsEd.node,
+      field('o_note', t('Note'), '', { maxlength: 300 }, true),
+    ], function (err) {
+      var items = itemsEd.getItems();
+      if (!items.length) { err.textContent = t('At least one item is required'); return; }
+      var d = { customer: $('#o_cust').value, phone: $('#o_phone').value, table_no: $('#o_table').value, kind: kindSel.value, note: $('#o_note').value, items: items };
+      api('POST', 'orders', d).then(function () { $('#dlg').close(); renderOrders(); }).catch(function (e) { err.textContent = e.message; });
+    });
+  }
+  function orderPatch(o, patch) { if (!allowed()) return; api('PUT', 'orders/' + o.id, patch).then(renderOrders).catch(fail); }
+  function renderOrders() {
+    load('orders').then(function (j) {
+      var pane = $('#pane'); pane.replaceChildren();
+      pane.appendChild(el('button', { class: 'btn gr', style: 'width:100%;margin-bottom:14px', type: 'button', onclick: orderForm, text: t('+ Add an order') }));
+      pane.appendChild(el('p', { class: 'note', text: t('Orders from your website and orders you add yourself. The kitchen and the till, in one place.') }));
+      var orders = j.orders || [];
+      if (!orders.length) pane.appendChild(el('div', { class: 'empty', text: t('No orders yet.') }));
+      orders.forEach(function (o) {
+        var acts = [];
+        if (o.status === 'new') acts.push(el('button', { class: 'btn sm gr', type: 'button', text: t('Start preparing'), onclick: function () { orderPatch(o, { status: 'preparing' }); } }));
+        if (o.status === 'preparing') acts.push(el('button', { class: 'btn sm gr', type: 'button', text: t('Mark ready'), onclick: function () { orderPatch(o, { status: 'ready' }); } }));
+        if (o.status === 'ready') acts.push(el('button', { class: 'btn sm gr', type: 'button', text: t('Mark served'), onclick: function () { orderPatch(o, { status: 'served' }); } }));
+        if (o.pay_status !== 'paid' && o.status !== 'cancelled') acts.push(el('button', { class: 'btn sm or', type: 'button', text: t('Mark paid'), onclick: function () { orderPatch(o, { pay_status: 'paid' }); } }));
+        if (o.status !== 'served' && o.status !== 'cancelled') acts.push(el('button', { class: 'btn sm ro', type: 'button', text: t('Cancel order'), onclick: function () { if (allowed()) api('DELETE', 'orders/' + o.id).then(renderOrders).catch(fail); } }));
+        var sub = orderLine(o) + (o.total != null ? '  ' + money(o.total) : '');
+        pane.appendChild(el('div', { class: 'row' + (o.status === 'cancelled' ? ' off' : '') }, [
+          el('div', { class: 'main' }, [
+            el('div', { class: 'nm', text: t('Order #{n}', { n: o.number }) + (o.customer ? '  ' + o.customer : '') + (o.table_no ? '  ' + o.table_no : '') }),
+            el('div', { class: 'sub', text: sub }),
+            el('span', { class: 'state ' + (o.status === 'served' ? 'live' : (o.status === 'cancelled' ? '' : 'soon')), text: t(ORDER_STATUS_T[o.status] || o.status) }),
+            ' ',
+            el('span', { class: 'state ' + (o.pay_status === 'paid' ? 'live' : 'sold'), text: t(o.pay_status === 'paid' ? 'Paid' : 'Unpaid') }),
+          ]),
+          el('div', { class: 'acts' }, acts),
+        ]));
+      });
+    }).catch(fail);
+  }
+
+  // ---------- bookings: tables and appointments
+  var BOOKING_STATUS_T = { pending: 'Pending', confirmed: 'Confirmed', seated: 'Seated', cancelled: 'Cancelled', no_show: 'No-show' };
+  function bookingForm(bk) {
+    var v = bk || {};
+    openDlg(bk ? t('Edit booking') : t('New booking'), [
+      field('bk_name', t('Name'), v.name, { maxlength: 120 }),
+      field('bk_phone', t('Phone'), v.phone, { inputmode: 'tel', maxlength: 40 }),
+      el('div', { class: 'two' }, [el('div', {}, field('bk_date', t('Date'), v.date, { type: 'date' })), el('div', {}, field('bk_time', t('Time'), v.time, { type: 'time' }))]),
+      field('bk_party', t('Party size'), v.party, { inputmode: 'numeric' }),
+      field('bk_note', t('Note'), v.note, { maxlength: 300 }, true),
+    ], function (err) {
+      var d = { name: $('#bk_name').value, phone: $('#bk_phone').value, date: $('#bk_date').value, time: $('#bk_time').value, party: $('#bk_party').value, note: $('#bk_note').value };
+      api(bk ? 'PUT' : 'POST', bk ? 'bookings/' + bk.id : 'bookings', d).then(function () { $('#dlg').close(); renderBookings(); }).catch(function (e) { err.textContent = e.message; });
+    }, bk && function (err) { api('DELETE', 'bookings/' + bk.id).then(function () { $('#dlg').close(); renderBookings(); }).catch(function (e) { err.textContent = e.message; }); });
+  }
+  function bookingPatch(bk, patch) { if (!allowed()) return; api('PUT', 'bookings/' + bk.id, patch).then(renderBookings).catch(fail); }
+  function renderBookings() {
+    load('bookings').then(function (j) {
+      var pane = $('#pane'); pane.replaceChildren();
+      pane.appendChild(el('button', { class: 'btn gr', style: 'width:100%;margin-bottom:14px', type: 'button', onclick: function () { bookingForm(null); }, text: t('+ Add a booking') }));
+      pane.appendChild(el('p', { class: 'note', text: t('Table and appointment bookings, soonest first.') }));
+      var rows = j.bookings || [];
+      if (!rows.length) pane.appendChild(el('div', { class: 'empty', text: t('No bookings yet.') }));
+      rows.forEach(function (bk) {
+        var acts = [];
+        if (bk.status === 'pending') acts.push(el('button', { class: 'btn sm gr', type: 'button', text: t('Confirm'), onclick: function () { bookingPatch(bk, { status: 'confirmed' }); } }));
+        if (bk.status === 'pending' || bk.status === 'confirmed') acts.push(el('button', { class: 'btn sm gr', type: 'button', text: t('Seat'), onclick: function () { bookingPatch(bk, { status: 'seated' }); } }));
+        if (bk.status !== 'seated' && bk.status !== 'cancelled' && bk.status !== 'no_show') acts.push(el('button', { class: 'btn sm or', type: 'button', text: t('Mark no-show'), onclick: function () { bookingPatch(bk, { status: 'no_show' }); } }));
+        acts.push(el('button', { class: 'btn sm', type: 'button', text: t('Edit'), onclick: function () { bookingForm(bk); } }));
+        pane.appendChild(el('div', { class: 'row' + (bk.status === 'cancelled' || bk.status === 'no_show' ? ' off' : '') }, [
+          el('div', { class: 'main' }, [
+            el('div', { class: 'nm', text: bk.date + '  ' + bk.time + '  ' + bk.name + (bk.party ? '  (' + bk.party + ')' : '') }),
+            bk.phone ? el('div', { class: 'sub', text: bk.phone }) : null,
+            el('span', { class: 'state ' + (bk.status === 'seated' ? 'live' : (bk.status === 'cancelled' || bk.status === 'no_show' ? '' : 'soon')), text: t(BOOKING_STATUS_T[bk.status] || bk.status) }),
+          ]),
+          el('div', { class: 'acts' }, acts),
+        ]));
+      });
+    }).catch(fail);
   }
 
   // ---------- my website: exactly what visitors get right now (the public feed)

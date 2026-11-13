@@ -5,7 +5,7 @@
 const J = (data, status = 200, headers = {}) => new Response(JSON.stringify(data), {
   status, headers: Object.assign({ 'content-type': 'application/json', 'cache-control': 'no-store' }, headers),
 });
-const bad = (msg, status = 400) => J({ error: msg }, status);
+const bad = (msg, status = 400, headers) => J({ error: msg }, status, headers);
 const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
 const rnd = (n = 16) => hex(crypto.getRandomValues(new Uint8Array(n)));
 const enc = (s) => new TextEncoder().encode(s);
@@ -55,6 +55,56 @@ function checkItem(b, partial) {
   if ('soldout' in b) v.soldout = flag(b.soldout);
   if ('active' in b) v.active = flag(b.active);
   if ('sort' in b) v.sort = intOrNull(b.sort) || 0;
+  return { v };
+}
+const ORDER_KINDS = ['dine_in', 'takeaway', 'delivery'];
+const ORDER_STATUSES = ['new', 'preparing', 'ready', 'served', 'cancelled'];
+const BOOKING_STATUSES = ['pending', 'confirmed', 'seated', 'cancelled', 'no_show'];
+// An order is created whole, with its items: the kitchen needs the full ticket at once, not a draft built field by field.
+function checkOrder(b) {
+  const v = {};
+  v.customer = text(b.customer, 120);
+  v.phone = text(b.phone, 40);
+  v.table_no = text(b.table_no, 20);
+  v.kind = ORDER_KINDS.includes(b.kind) ? b.kind : 'dine_in';
+  v.note = text(b.note, 300);
+  const items = [];
+  let total = 0;
+  if (Array.isArray(b.items)) for (const it of b.items.slice(0, 50)) {
+    const name = text(it && it.name, 120);
+    if (!name) continue;
+    const qty = Math.max(1, Math.min(99, intOrNull(it.qty) || 1));
+    const price = intOrNull(it.price);
+    items.push({ name, qty, price });
+    if (price != null) total += price * qty;
+  }
+  if (!items.length) return { error: 'At least one item is required' };
+  return { v, items, total };
+}
+// A later change to an order never touches its items or its total: that would rewrite what the kitchen already made.
+function checkOrderPatch(b) {
+  const v = {};
+  if ('customer' in b) v.customer = text(b.customer, 120);
+  if ('phone' in b) v.phone = text(b.phone, 40);
+  if ('table_no' in b) v.table_no = text(b.table_no, 20);
+  if ('kind' in b && ORDER_KINDS.includes(b.kind)) v.kind = b.kind;
+  if ('note' in b) v.note = text(b.note, 300);
+  if ('status' in b && ORDER_STATUSES.includes(b.status)) v.status = b.status;
+  if ('pay_status' in b && (b.pay_status === 'unpaid' || b.pay_status === 'paid')) {
+    v.pay_status = b.pay_status;
+    v.pay_method = v.pay_status === 'paid' ? text(b.pay_method, 30) : null;
+  }
+  return { v };
+}
+function checkBooking(b, partial) {
+  const v = {};
+  if (!partial || 'name' in b) { v.name = text(b.name, 120); if (!v.name) return { error: 'Name is required' }; }
+  if ('phone' in b) v.phone = text(b.phone, 40);
+  if ('party' in b) v.party = intOrNull(b.party);
+  if (!partial || 'date' in b) { v.date = text(b.date, 10); if (!isDate(v.date)) return { error: 'The date must look like 2026-12-30' }; }
+  if (!partial || 'time' in b) { v.time = text(b.time, 5); if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(v.time || '')) return { error: 'The time must look like 14:30' }; }
+  if ('note' in b) v.note = text(b.note, 300);
+  if ('status' in b && BOOKING_STATUSES.includes(b.status)) v.status = b.status;
   return { v };
 }
 function checkPromo(b, partial) {
@@ -110,7 +160,42 @@ export async function handle(request, env) {
     return J({ client: cl.name, items: items.results, promos: promos.results },
       200, { 'access-control-allow-origin': '*', 'cache-control': 'public, max-age=30' });
   }
-  if (a === 'public' && method === 'OPTIONS') return new Response(null, { status: 204, headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET', 'access-control-max-age': '86400' } });
+  // A guest places an order or asks for a booking from the client's OWN website, with no sign-in:
+  // the client's site calls these, exactly as it already reads /api/public/:slug for its menu.
+  if (a === 'public' && b2 && c2 === 'order' && method === 'POST') {
+    const cl = await db.prepare('SELECT * FROM clients WHERE slug = ? AND active = 1').bind(b2).first();
+    if (!cl) return bad('Unknown site', 404);
+    const key = 'pub-order|' + (request.headers.get('cf-connecting-ip') || 'x');
+    const recent = await db.prepare("SELECT COUNT(*) AS n FROM login_fails WHERE key = ? AND at > datetime('now', '-10 minutes')").bind(key).first();
+    if (recent && recent.n >= 10) return bad('Too many orders from here. Try again shortly.', 429, { 'access-control-allow-origin': '*' });
+    await db.prepare('INSERT INTO login_fails (key) VALUES (?)').bind(key).run();
+    const k = checkOrder(await body(request));
+    if (k.error) return bad(k.error, 400, { 'access-control-allow-origin': '*' });
+    const mx = await db.prepare('SELECT COALESCE(MAX(number), 0) + 1 AS n FROM orders WHERE client_id = ?').bind(cl.id).first();
+    const f = k.v;
+    const r = await db.prepare('INSERT INTO orders (client_id, number, customer, phone, table_no, kind, note, total, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
+      .bind(cl.id, mx.n, f.customer, f.phone, f.table_no, f.kind, f.note, k.total, 'website').run();
+    const oid = r.meta ? r.meta.last_row_id : undefined;
+    for (const it of k.items) await db.prepare('INSERT INTO order_items (order_id, name, qty, price) VALUES (?, ?, ?, ?)').bind(oid, it.name, it.qty, it.price).run();
+    await log(db, cl.id, 'order added', 'Order #' + mx.n, null, { items: k.items, source: 'website' });
+    return J({ ok: true, number: mx.n }, 201, { 'access-control-allow-origin': '*' });
+  }
+  if (a === 'public' && b2 && c2 === 'booking' && method === 'POST') {
+    const cl = await db.prepare('SELECT * FROM clients WHERE slug = ? AND active = 1').bind(b2).first();
+    if (!cl) return bad('Unknown site', 404);
+    const key = 'pub-booking|' + (request.headers.get('cf-connecting-ip') || 'x');
+    const recent = await db.prepare("SELECT COUNT(*) AS n FROM login_fails WHERE key = ? AND at > datetime('now', '-10 minutes')").bind(key).first();
+    if (recent && recent.n >= 10) return bad('Too many requests from here. Try again shortly.', 429, { 'access-control-allow-origin': '*' });
+    await db.prepare('INSERT INTO login_fails (key) VALUES (?)').bind(key).run();
+    const k = checkBooking(await body(request), false);
+    if (k.error) return bad(k.error, 400, { 'access-control-allow-origin': '*' });
+    const f = Object.assign({ phone: null, party: null, note: null }, k.v);
+    const r = await db.prepare('INSERT INTO bookings (client_id, name, phone, party, date, time, note, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+      .bind(cl.id, f.name, f.phone, f.party, f.date, f.time, f.note, 'website').run();
+    await log(db, cl.id, 'booking added', f.name, null, Object.assign({ source: 'website' }, f));
+    return J({ ok: true }, 201, { 'access-control-allow-origin': '*' });
+  }
+  if (a === 'public' && method === 'OPTIONS') return new Response(null, { status: 204, headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET, POST', 'access-control-allow-headers': 'content-type', 'access-control-max-age': '86400' } });
 
   // ---- master (Carlos): create clients, reset passwords
   if (a === 'master') {
@@ -368,6 +453,90 @@ export async function handle(request, env) {
       if (method === 'DELETE') {
         await db.prepare('DELETE FROM promos WHERE id = ? AND client_id = ?').bind(row.id, cid).run();
         await log(db, cid, 'promotion deleted', row.title, row, null);
+        return J({ ok: true });
+      }
+    }
+  }
+
+  // orders: the kitchen and the till, in one board. An order from the client's own
+  // website lands here with source = 'website'; one added by staff with source = 'staff'.
+  if (a === 'orders') {
+    if (!b2 && method === 'GET') {
+      const st = url.searchParams.get('status');
+      const r = st && ORDER_STATUSES.includes(st)
+        ? await db.prepare('SELECT * FROM orders WHERE client_id = ? AND status = ? ORDER BY id DESC').bind(cid, st).all()
+        : await db.prepare('SELECT * FROM orders WHERE client_id = ? ORDER BY id DESC LIMIT 300').bind(cid).all();
+      const orders = r.results;
+      if (orders.length) {
+        const ids = orders.map((o) => o.id);
+        const its = await db.prepare(`SELECT * FROM order_items WHERE order_id IN (${ids.map(() => '?').join(',')})`).bind(...ids).all();
+        const byOrder = {};
+        for (const it of its.results) (byOrder[it.order_id] = byOrder[it.order_id] || []).push(it);
+        orders.forEach((o) => { o.items = byOrder[o.id] || []; });
+      }
+      return J({ orders });
+    }
+    if (!b2 && method === 'POST') {
+      const k = checkOrder(await body(request));
+      if (k.error) return bad(k.error);
+      const mx = await db.prepare('SELECT COALESCE(MAX(number), 0) + 1 AS n FROM orders WHERE client_id = ?').bind(cid).first();
+      const f = k.v;
+      const r = await db.prepare('INSERT INTO orders (client_id, number, customer, phone, table_no, kind, note, total, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
+        .bind(cid, mx.n, f.customer, f.phone, f.table_no, f.kind, f.note, k.total, 'staff').run();
+      const oid = r.meta ? r.meta.last_row_id : undefined;
+      for (const it of k.items) await db.prepare('INSERT INTO order_items (order_id, name, qty, price) VALUES (?, ?, ?, ?)').bind(oid, it.name, it.qty, it.price).run();
+      await log(db, cid, 'order added', 'Order #' + mx.n, null, { items: k.items });
+      return J({ id: oid, number: mx.n }, 201);
+    }
+    if (b2 && /^\d+$/.test(b2)) {
+      const row = await db.prepare('SELECT * FROM orders WHERE id = ? AND client_id = ?').bind(+b2, cid).first();
+      if (!row) return bad('Not found', 404);
+      if (method === 'PUT') {
+        const k = checkOrderPatch(await body(request));
+        await update(db, 'orders', row.id, cid, k.v);
+        await log(db, cid, 'order changed', 'Order #' + row.number, pick(row, k.v), k.v);
+        return J({ ok: true });
+      }
+      if (method === 'DELETE') {
+        await db.prepare('DELETE FROM order_items WHERE order_id = ?').bind(row.id).run();
+        await db.prepare('DELETE FROM orders WHERE id = ? AND client_id = ?').bind(row.id, cid).run();
+        await log(db, cid, 'order cancelled', 'Order #' + row.number, row, null);
+        return J({ ok: true });
+      }
+    }
+  }
+
+  // bookings: tables and appointments
+  if (a === 'bookings') {
+    if (!b2 && method === 'GET') {
+      const date = url.searchParams.get('date');
+      const r = date && isDate(date)
+        ? await db.prepare('SELECT * FROM bookings WHERE client_id = ? AND date = ? ORDER BY time').bind(cid, date).all()
+        : await db.prepare('SELECT * FROM bookings WHERE client_id = ? ORDER BY date, time').bind(cid).all();
+      return J({ bookings: r.results, today: today(sess.tz_hours) });
+    }
+    if (!b2 && method === 'POST') {
+      const k = checkBooking(await body(request), false);
+      if (k.error) return bad(k.error);
+      const f = Object.assign({ phone: null, party: null, note: null }, k.v);
+      const r = await db.prepare('INSERT INTO bookings (client_id, name, phone, party, date, time, note, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+        .bind(cid, f.name, f.phone, f.party, f.date, f.time, f.note, 'staff').run();
+      await log(db, cid, 'booking added', f.name, null, f);
+      return J({ id: r.meta ? r.meta.last_row_id : undefined }, 201);
+    }
+    if (b2 && /^\d+$/.test(b2)) {
+      const row = await db.prepare('SELECT * FROM bookings WHERE id = ? AND client_id = ?').bind(+b2, cid).first();
+      if (!row) return bad('Not found', 404);
+      if (method === 'PUT') {
+        const k = checkBooking(await body(request), true);
+        if (k.error) return bad(k.error);
+        await update(db, 'bookings', row.id, cid, k.v);
+        await log(db, cid, 'booking changed', row.name, pick(row, k.v), k.v);
+        return J({ ok: true });
+      }
+      if (method === 'DELETE') {
+        await db.prepare('DELETE FROM bookings WHERE id = ? AND client_id = ?').bind(row.id, cid).run();
+        await log(db, cid, 'booking cancelled', row.name, row, null);
         return J({ ok: true });
       }
     }
