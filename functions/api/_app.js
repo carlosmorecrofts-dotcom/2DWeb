@@ -286,6 +286,34 @@ export async function handle(request, env) {
     return J({ token: t, client: { slug: cl.slug, name: cl.name, email: cl.email } }, 201);
   }
 
+  // ---- one Djinja-C login: the app sends people to djinja-c.com/auth.html, they come back
+  // with a Djinja-C session token, and this trades it for a 2DWeb session. The token is
+  // checked with the login service itself; nothing the browser says about the email is trusted.
+  if (a === 'sso' && method === 'POST') {
+    const b = await body(request);
+    const tk = String(b.token || '');
+    if (!tk || tk.length > 4000) return bad('Your Djinja-C sign-in did not come through. Try again.', 401);
+    let user = null;
+    try { user = env.verifyDjinja ? await env.verifyDjinja(tk) : await djinjaUser(tk); } catch { user = null; }
+    const email = user && cleanEmail(user.email);
+    if (!email) return bad('Your Djinja-C sign-in did not come through. Try again.', 401);
+    let cl = await db.prepare('SELECT * FROM clients WHERE email = ?').bind(email).first();
+    if (cl && !cl.active) return bad('Wrong email or password', 401);
+    if (!cl) {
+      // First visit: the account is made from the Djinja-C account. It has no 2DWeb password
+      // of its own (a random one nobody knows); signing in is always through Djinja-C.
+      const name = text((user.user_metadata && (user.user_metadata.business || user.user_metadata.full_name || user.user_metadata.name)) || email.split('@')[0], 120);
+      const base = (name.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 30)) || 'site';
+      let slug = base;
+      for (let i = 2; await db.prepare('SELECT 1 AS x FROM clients WHERE slug = ?').bind(slug).first(); i++) slug = base + '-' + i;
+      await newClient(db, slug, name, 0, rnd(24), email);
+      cl = await db.prepare('SELECT * FROM clients WHERE email = ?').bind(email).first();
+    }
+    const t = rnd(32);
+    await db.prepare("INSERT INTO sessions (hash, client_id, expires) VALUES (?, ?, datetime('now', '+30 days'))").bind(await sha(t), cl.id).run();
+    return J({ token: t, client: { slug: cl.slug, name: cl.name, email: cl.email }, products: (user.user_metadata && user.user_metadata.products) || {} });
+  }
+
   // ---- sign in
   if (a === 'login' && method === 'POST') {
     const b = await body(request);
@@ -567,3 +595,11 @@ function resetMail(lang, link) {
   };
 }
 function pick(row, v) { const o = {}; for (const k of Object.keys(v)) o[k] = row[k]; return o; }
+// The Djinja-C account (the login on djinja-c.com). The publishable key is public by design:
+// it only lets the login service confirm a token that someone already holds.
+const DJINJA_AUTH = 'https://wydgdaqhltddeqafgvea.supabase.co';
+const DJINJA_KEY = 'sb_publishable_-uCVHsSGQY_ct8puRbYx8w_Weu4ElKn';
+async function djinjaUser(token) {
+  const r = await fetch(DJINJA_AUTH + '/auth/v1/user', { headers: { apikey: DJINJA_KEY, authorization: 'Bearer ' + token } });
+  return r.ok ? r.json() : null;
+}

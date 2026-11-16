@@ -824,6 +824,21 @@
   };
   Object.keys(BACKHOUSE).forEach(function (c) { Object.assign(T[c], BACKHOUSE[c]); });
 
+  // One Djinja-C login for every app (added 2026-11-16).
+  var SSO = {
+    pt: { 'Continue with your Djinja-C account': 'Continuar com a sua conta Djinja-C', 'One login for every Djinja-C app you subscribe to.': 'Um só acesso para todas as apps Djinja-C que subscreve.', 'or': 'ou', 'Your Djinja-C sign-in did not come through. Try again.': 'O acesso com a Djinja-C não chegou. Tente de novo.' },
+    es: { 'Continue with your Djinja-C account': 'Continuar con tu cuenta Djinja-C', 'One login for every Djinja-C app you subscribe to.': 'Un solo acceso para todas las apps Djinja-C a las que te suscribes.', 'or': 'o', 'Your Djinja-C sign-in did not come through. Try again.': 'El acceso con Djinja-C no llegó. Inténtalo de nuevo.' },
+    fr: { 'Continue with your Djinja-C account': 'Continuer avec votre compte Djinja-C', 'One login for every Djinja-C app you subscribe to.': 'Une seule connexion pour toutes les apps Djinja-C auxquelles vous êtes abonné.', 'or': 'ou', 'Your Djinja-C sign-in did not come through. Try again.': "La connexion Djinja-C n'a pas abouti. Réessayez." },
+    de: { 'Continue with your Djinja-C account': 'Weiter mit Ihrem Djinja-C-Konto', 'One login for every Djinja-C app you subscribe to.': 'Eine Anmeldung für alle Djinja-C-Apps, die Sie abonniert haben.', 'or': 'oder', 'Your Djinja-C sign-in did not come through. Try again.': 'Die Djinja-C-Anmeldung ist nicht angekommen. Versuchen Sie es erneut.' },
+    it: { 'Continue with your Djinja-C account': 'Continua con il tuo account Djinja-C', 'One login for every Djinja-C app you subscribe to.': 'Un solo accesso per tutte le app Djinja-C a cui sei abbonato.', 'or': 'oppure', 'Your Djinja-C sign-in did not come through. Try again.': "L'accesso con Djinja-C non è arrivato. Riprova." },
+    id: { 'Continue with your Djinja-C account': 'Lanjutkan dengan akun Djinja-C Anda', 'One login for every Djinja-C app you subscribe to.': 'Satu login untuk semua aplikasi Djinja-C yang Anda langgani.', 'or': 'atau', 'Your Djinja-C sign-in did not come through. Try again.': 'Login Djinja-C tidak berhasil. Coba lagi.' },
+    zh: { 'Continue with your Djinja-C account': '使用你的 Djinja-C 账户继续', 'One login for every Djinja-C app you subscribe to.': '一个登录，通用于你订阅的所有 Djinja-C 应用。', 'or': '或', 'Your Djinja-C sign-in did not come through. Try again.': 'Djinja-C 登录未完成，请重试。' },
+    ja: { 'Continue with your Djinja-C account': 'Djinja-C アカウントで続ける', 'One login for every Djinja-C app you subscribe to.': '契約中のすべての Djinja-C アプリに、ひとつのログインで。', 'or': 'または', 'Your Djinja-C sign-in did not come through. Try again.': 'Djinja-C のログインが完了しませんでした。もう一度お試しください。' },
+    ko: { 'Continue with your Djinja-C account': 'Djinja-C 계정으로 계속', 'One login for every Djinja-C app you subscribe to.': '구독한 모든 Djinja-C 앱을 하나의 로그인으로.', 'or': '또는', 'Your Djinja-C sign-in did not come through. Try again.': 'Djinja-C 로그인이 완료되지 않았습니다. 다시 시도하세요.' },
+    ru: { 'Continue with your Djinja-C account': 'Продолжить с аккаунтом Djinja-C', 'One login for every Djinja-C app you subscribe to.': 'Один вход для всех приложений Djinja-C, на которые вы подписаны.', 'or': 'или', 'Your Djinja-C sign-in did not come through. Try again.': 'Вход через Djinja-C не прошёл. Попробуйте снова.' },
+  };
+  Object.keys(SSO).forEach(function (c) { Object.assign(T[c], SSO[c]); });
+
   function pick() {
     var saved = null;
     try { saved = localStorage.getItem('djinja_lang'); } catch (e) {}

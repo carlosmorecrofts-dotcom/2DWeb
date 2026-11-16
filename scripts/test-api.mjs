@@ -185,6 +185,24 @@ ok((await call('GET', 'bookings', { token: TA })).j.bookings[0].source === 'webs
 for (let i = 0; i < 10; i++) await call('POST', 'public/take/booking', { body: { name: 'x', date: '2026-12-24', time: '20:00' }, ip: '52.0.0.9' });
 ok((await call('POST', 'public/take/booking', { body: { name: 'x', date: '2026-12-24', time: '20:00' }, ip: '52.0.0.9' })).status === 429, 'one address cannot flood the booking list either');
 
+// ---- one Djinja-C login: a token from djinja-c.com is traded for a 2DWeb session
+env.verifyDjinja = async (tk) => ({
+  'good-new': { email: 'Fresh@Owner.com', user_metadata: { business: 'Fresh Bakery', products: { '2dweb': { tier: 'pro' } } } },
+  'good-take': { email: 'take@example.com', user_metadata: {} },
+}[tk] || null);
+ok((await call('POST', 'sso', { body: { token: 'forged' } })).status === 401, 'a token the login service does not know is refused');
+ok((await call('POST', 'sso', { body: {} })).status === 401, 'no token, no session');
+const s1 = await call('POST', 'sso', { body: { token: 'good-new' } });
+ok(s1.status === 200 && s1.j.token && s1.j.client.email === 'fresh@owner.com' && s1.j.client.slug === 'fresh-bakery', 'a first Djinja-C sign-in makes the 2DWeb account from the Djinja-C one');
+ok(s1.j.products['2dweb'].tier === 'pro', 'what the account subscribes to comes back with it');
+ok((await call('GET', 'items', { token: s1.j.token })).status === 200, 'the session works like any other');
+ok((await call('POST', 'sso', { body: { token: 'good-new' } })).j.client.slug === 'fresh-bakery', 'signing in again opens the same account, not a second one');
+const s2 = await call('POST', 'sso', { body: { token: 'good-take' } });
+ok(s2.status === 200 && s2.j.client.slug === 'take', 'an existing 2DWeb account with the same email is the one opened');
+ok((await call('GET', 'orders', { token: s2.j.token })).j.orders.length > 0, '...with all its own data');
+ok((await call('POST', 'login', { body: { email: 'fresh@owner.com', password: 'anything-at-all' }, ip: '60.0.0.1' })).status === 401, 'an account made through Djinja-C has no guessable 2DWeb password');
+delete env.verifyDjinja;
+
 // ---- import, history, password
 ok((await call('POST', 'master/clients/take/import', { master: true, body: { items: [{ id: 'tea', name: 'Tea', price: 5000, cat: 'Drinks' }, { id: 'nasi-goreng', name: 'dup' }] } })).j.imported === 2, 'import runs');
 ok((await call('GET', 'items', { token: TA })).j.items.filter((x) => x.ref === 'nasi-goreng').length === 1, 'import never overwrites an existing product');

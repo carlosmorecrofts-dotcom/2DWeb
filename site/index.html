@@ -156,6 +156,9 @@ html.light .site{background:#fff}
   <section id="login">
     <div class="dj-eye" data-i18n>Your website, your control</div>
     <h2 class="dj-h2" id="authTitle" style="margin-top:8px" data-i18n>Sign in</h2>
+    <button class="btn gr" style="width:100%;margin-top:10px" type="button" data-sso data-i18n>Continue with your Djinja-C account</button>
+    <p class="note" style="margin:8px 0 0" data-i18n>One login for every Djinja-C app you subscribe to.</p>
+    <p class="note" style="text-align:center;margin:14px 0 0" data-i18n>or</p>
     <form id="loginForm" autocomplete="on">
       <label for="lsite" data-i18n>Email</label>
       <input id="lsite" name="username" type="email" inputmode="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="you@yourbusiness.com" required>
@@ -171,6 +174,8 @@ html.light .site{background:#fff}
     <div class="dj-eye" data-i18n>Your website, your control</div>
     <h2 class="dj-h2" style="margin-top:8px" data-i18n>Create your account</h2>
     <p class="note" data-i18n>Use the email of your Djinja-C account, so your payments and your site stay linked.</p>
+    <button class="btn gr" style="width:100%;margin-top:6px" type="button" data-sso data-i18n>Continue with your Djinja-C account</button>
+    <p class="note" style="text-align:center;margin:14px 0 0" data-i18n>or</p>
     <form id="signupForm" autocomplete="on">
       <label for="sname" data-i18n>Business name</label>
       <input id="sname" name="organization" autocomplete="organization" placeholder="Your business name" data-i18n-ph="Your business name" required>
@@ -359,6 +364,17 @@ html.light .site{background:#fff}
   $('#upBtn').addEventListener('click', function () { openAuth(true); });
   document.querySelectorAll('[data-auth]').forEach(function (b) { b.addEventListener('click', function () { openAuth(b.getAttribute('data-auth') === 'up'); }); });
   $('#out').addEventListener('click', function () { api('POST', 'logout').catch(function () {}).then(signedOut); });
+  // One Djinja-C login: off to djinja-c.com to sign in, and back here with the session.
+  document.querySelectorAll('[data-sso]').forEach(function (b) {
+    b.addEventListener('click', function () { location.href = 'https://djinja-c.com/auth.html?return=' + encodeURIComponent(location.origin + location.pathname); });
+  });
+  (function ssoArrival() {
+    var m = /[#&]djinja_token=([^&]+)/.exec(location.hash);
+    if (!m) return;
+    history.replaceState(null, '', location.pathname + location.search);   // the token never stays in the address bar
+    api('POST', 'sso', { token: decodeURIComponent(m[1]) }).then(signedIn)
+      .catch(function (er) { openAuth(false, er.message); });
+  })();
 
   // ---------- tabs
   document.querySelectorAll('.tab').forEach(function (b) {
